@@ -1,0 +1,6 @@
+<svg width="440" height="440" viewBox="0 0 440 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Inner Orbit Track (Radius 126px) -->
+  <circle cx="220" cy="220" r="126" stroke="#8A8E5C" stroke-width="1.6" stroke-dasharray="6 6" opacity="0.38"/>
+  <!-- Outer Orbit Track (Radius 196px) -->
+  <circle cx="220" cy="220" r="196" stroke="#8A8E5C" stroke-width="1.6" stroke-dasharray="8 8" opacity="0.32"/>
+</svg>
