@@ -1,713 +1,874 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useId } from 'react';
+import * as THREE from 'three';
 
-/* ═══════════════════════════════════════════════════════════════════════
-   AquaSolLoader — Awwwards / Luxury Agency Cinematic Preloader
-   Brand: AquaSol — "Grow projects like forests. Reliably."
-   ═══════════════════════════════════════════════════════════════════════ */
-
-interface AquaSolLoaderProps {
+export interface AquaSolLoaderProps {
   logoSrc?: string;
   onComplete?: () => void;
+  onRelease?: () => void;
   ready?: boolean;
   forceReplay?: boolean;
-  theme?: string;
 }
 
-// ─── Design Tokens ────────────────────────────────────────────────────
-const TOKENS = {
-  ink: '#1B1D16',
-  inkMuted: 'rgba(27, 29, 22, 0.65)',
-  moss: '#7C8B3E',
-  mossLight: '#93A94C',
-  mossGlow: 'rgba(124, 139, 62, 0.18)',
-  leaf: '#8FC63E',
-  sky: '#2E8FD1',
-  skyLight: '#59B4EA',
-  skyGlow: 'rgba(46, 143, 209, 0.16)',
-  cream: '#F6F4EB',
-  creamWarm: '#FAF8F0',
-  paper: '#FFFFFF',
-} as const;
+// Brand Design Tokens
+const COLOR_MOSS = [0.486, 0.545, 0.243];       // #7C8B3E
+const COLOR_MOSS_LIGHT = [0.576, 0.663, 0.298]; // #93A94C
+const COLOR_LEAF = [0.561, 0.776, 0.243];       // #8FC63E
+const COLOR_SKY = [0.180, 0.561, 0.820];        // #2E8FD1
+const COLOR_SKY_LIGHT = [0.349, 0.706, 0.918];  // #59B4EA
+const COLOR_SPARKLE = [0.90, 0.99, 0.88];       // Near-white-green sparkle
+const COLOR_INK = [0.106, 0.114, 0.086];        // #1B1D16
 
-// ─── Stage Protocols ──────────────────────────────────────────────────
-const STAGES = [
-  { threshold: 0,  label: 'INIT PROTOCOL // SENSING HYDROLOGIC FIELD', code: 'PHASE 01' },
-  { threshold: 30, label: 'CALIBRATING CANOPY BIOMETRIC TELEMETRY',     code: 'PHASE 02' },
-  { threshold: 65, label: 'SYNCHRONIZING DISTRIBUTED WATER MATRIX',    code: 'PHASE 03' },
-  { threshold: 92, label: 'AQUASOL ONLINE // SYSTEM READY',             code: 'COMPLETE' },
-];
+function smootherstep(t: number): number {
+  const x = Math.max(0, Math.min(1, t));
+  return x * x * x * (x * (x * 6 - 15) + 10);
+}
 
 export function AquaSolLoader({
   logoSrc = '/assets/aquasol-emblem-hd.png',
   onComplete,
-  ready: _ready,
+  onRelease,
+  ready = false,
   forceReplay = false,
 }: AquaSolLoaderProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef<number>(0);
-  const completedRef = useRef(false);
+  const styleId = useId();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const pillRef = useRef<HTMLDivElement | null>(null);
+  const pillTextRef = useRef<HTMLSpanElement | null>(null);
+  const [isFadingOut, setIsFadingOut] = useState(false);
 
-  const [progress, setProgress] = useState(0);
-  const [stageIdx, setStageIdx] = useState(0);
-  const [isExiting, setIsExiting] = useState(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
-  // ── Completion Handler ──────────────────────────────────────────────
-  const handleComplete = useCallback(() => {
-    if (completedRef.current) return;
-    completedRef.current = true;
-    sessionStorage.setItem('aquasol-loader-played', '1');
+  const onReleaseRef = useRef(onRelease);
+  onReleaseRef.current = onRelease;
 
-    setIsExiting(true);
-
-    setTimeout(() => {
-      onComplete?.();
-    }, 650);
-  }, [onComplete]);
-
-  // ── Check session & URL overrides ──────────────────────────────────
   useEffect(() => {
-    const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-    const forceFromUrl = searchParams
-      ? searchParams.has('loader') || searchParams.has('replay') || searchParams.has('station')
-      : false;
+    // 1. Accessibility & Lifecycle: Check sessionStorage in try/catch (safe for incognito)
+    const STORAGE_KEY = 'aquasol-loader-played';
+    let alreadyPlayed = false;
+    try {
+      alreadyPlayed = sessionStorage.getItem(STORAGE_KEY) === 'true';
+    } catch {
+      alreadyPlayed = false;
+    }
 
-    if (!forceReplay && !forceFromUrl && sessionStorage.getItem('aquasol-loader-played')) {
-      handleComplete();
+    // Check debug parameter from URL (e.g. ?station=1 or ?loader or ?replay)
+    let debugStation: number | null = null;
+    let urlForceReplay = false;
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('station')) {
+        debugStation = parseInt(params.get('station') || '0', 10);
+      }
+      if (params.has('replay') || params.has('loader')) {
+        urlForceReplay = true;
+      }
+    }
+
+    if (alreadyPlayed && !forceReplay && !urlForceReplay && debugStation === null) {
+      onCompleteRef.current?.();
       return;
     }
 
-    // ── Prefers Reduced Motion ───────────────────────────────────────
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setProgress(100);
-      setStageIdx(3);
-      const timer = setTimeout(() => handleComplete(), 400);
-      return () => clearTimeout(timer);
-    }
+    // 2. Accessibility: Detect prefers-reduced-motion: reduce
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // ── Debug station anchor freeze ──────────────────────────────────
-    const stationParam = searchParams?.get('station');
-    if (stationParam !== null && stationParam !== undefined) {
-      const s = parseInt(stationParam, 10);
-      if (s === 0) { setProgress(22); setStageIdx(0); }
-      else if (s === 1) { setProgress(48); setStageIdx(1); }
-      else if (s === 2) { setProgress(82); setStageIdx(2); }
-      else { setProgress(100); setStageIdx(3); }
-      return; // Freeze for visual inspection
-    }
+    // Dimensions & Particle Count
+    const isMobile = window.innerWidth < 768;
+    const count = isMobile ? 2500 : 7000;
 
-    // ── Smooth Numerical Telemetry Loop ─────────────────────────────
-    let startTimestamp: number | null = null;
-    const duration = 2400; // 2.4s cinematic pacing
+    // Particle Classification:
+    // 55% green (moss/leaf), 35% sky blue, 10% sparkle
+    const greenCount = Math.floor(count * 0.55);
+    const blueCount = Math.floor(count * 0.35);
+    const particleTypes = new Uint8Array(count); // 0 = green, 1 = blue, 2 = sparkle
 
-    const step = (timestamp: number) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const elapsed = timestamp - startTimestamp;
-      const t = Math.min(elapsed / duration, 1.0);
-
-      // Custom exponential ease for natural, deliberate acceleration & smooth settle
-      const easedProgress = Math.round(
-        t < 0.5
-          ? 4 * t * t * t * 100
-          : (1 - Math.pow(-2 * t + 2, 3) / 2) * 100
-      );
-
-      setProgress(easedProgress);
-
-      // Update protocol stage
-      if (easedProgress >= 92) setStageIdx(3);
-      else if (easedProgress >= 65) setStageIdx(2);
-      else if (easedProgress >= 30) setStageIdx(1);
-      else setStageIdx(0);
-
-      if (t < 1.0) {
-        rafRef.current = requestAnimationFrame(step);
+    for (let i = 0; i < count; i++) {
+      if (i < blueCount) {
+        particleTypes[i] = 1; // Sky blue
+      } else if (i < blueCount + greenCount) {
+        particleTypes[i] = 0; // Green
       } else {
-        setProgress(100);
-        setStageIdx(3);
-        setTimeout(() => {
-          handleComplete();
-        }, 320);
+        particleTypes[i] = 2; // Sparkle
+      }
+    }
+
+    // 4. Particle Buffers & Destination Arrays for the 4 Stations:
+    // Station 0: Cloud / Orbit (tilted partial torus swoosh)
+    // Station 1: Mark (flock into droplet + leaf)
+    // Station 2: Wordmark (dissolve into text)
+    // Station 3: Release (arc outward and fade)
+    const station0Pos = new Float32Array(count * 3);
+    const station1Pos = new Float32Array(count * 3);
+    const station2Pos = new Float32Array(count * 3);
+    const station3Pos = new Float32Array(count * 3);
+
+    const station0Col = new Float32Array(count * 3);
+    const station1Col = new Float32Array(count * 3);
+    const station2Col = new Float32Array(count * 3);
+    const station3Col = new Float32Array(count * 3);
+
+    const staggerOffsets = new Float32Array(count);
+    const curlAxes = new Float32Array(count * 3);
+    const baseSizes = new Float32Array(count);
+
+    // Populate Station 0 (Tilted Partial Torus Swoosh) & Base Attributes
+    const torusTiltX = 28 * (Math.PI / 180);
+    const torusTiltY = -24 * (Math.PI / 180);
+    const torusTiltZ = 12 * (Math.PI / 180);
+
+    const cosX = Math.cos(torusTiltX), sinX = Math.sin(torusTiltX);
+    const cosY = Math.cos(torusTiltY), sinY = Math.sin(torusTiltY);
+    const cosZ = Math.cos(torusTiltZ), sinZ = Math.sin(torusTiltZ);
+
+    for (let i = 0; i < count; i++) {
+      const idx = i * 3;
+      const type = particleTypes[i];
+
+      // Stagger offset for organic flocking
+      staggerOffsets[i] = (Math.random() - 0.5) * 0.3; // +/- 0.15
+
+      // Random curl vector for swooping transit arcs and fragment fake normal
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(Math.random() * 2 - 1);
+      curlAxes[idx] = Math.sin(phi) * Math.cos(theta);
+      curlAxes[idx + 1] = Math.sin(phi) * Math.sin(theta);
+      curlAxes[idx + 2] = Math.cos(phi);
+
+      // Particle size
+      if (type === 2) {
+        baseSizes[i] = 2.0 + Math.random() * 1.2; // Sparkle particles are larger
+      } else {
+        baseSizes[i] = 0.95 + Math.random() * 0.45;
+      }
+
+      // Station 0 Geometry: Tilted partial torus swoosh
+      // Theta covers an open arc (~320 degrees)
+      const u = Math.random();
+      const arcTheta = -0.2 * Math.PI + u * (1.75 * Math.PI);
+      const majorR = 1.3 + (Math.random() - 0.5) * 0.35;
+      const minorR = 0.28 * Math.sqrt(Math.random());
+      const minorPhi = Math.random() * Math.PI * 2;
+
+      // Base un-rotated torus coordinate
+      const bx = (majorR + minorR * Math.cos(minorPhi)) * Math.cos(arcTheta);
+      const by = (majorR + minorR * Math.cos(minorPhi)) * Math.sin(arcTheta);
+      const bz = minorR * Math.sin(minorPhi);
+
+      // Apply 3D tilt
+      const x1 = bx;
+      const y1 = by * cosX - bz * sinX;
+      const z1 = by * sinX + bz * cosX;
+
+      const x2 = x1 * cosY + z1 * sinY;
+      const y2 = y1;
+      const z2 = -x1 * sinY + z1 * cosY;
+
+      const x3 = x2 * cosZ - y2 * sinZ;
+      const y3 = x2 * sinZ + y2 * cosZ;
+      const z3 = z2;
+
+      station0Pos[idx] = x3;
+      station0Pos[idx + 1] = y3;
+      station0Pos[idx + 2] = z3;
+
+      // Station 0 Colors (Initial Mix)
+      if (type === 1) {
+        // Sky Blue
+        const c = Math.random() > 0.4 ? COLOR_SKY : COLOR_SKY_LIGHT;
+        station0Col[idx] = c[0];
+        station0Col[idx + 1] = c[1];
+        station0Col[idx + 2] = c[2];
+      } else if (type === 0) {
+        // Green mix (moss/leaf)
+        const r = Math.random();
+        const c = r < 0.4 ? COLOR_MOSS : r < 0.75 ? COLOR_LEAF : COLOR_MOSS_LIGHT;
+        station0Col[idx] = c[0];
+        station0Col[idx + 1] = c[1];
+        station0Col[idx + 2] = c[2];
+      } else {
+        // Sparkle
+        station0Col[idx] = COLOR_SPARKLE[0];
+        station0Col[idx + 1] = COLOR_SPARKLE[1];
+        station0Col[idx + 2] = COLOR_SPARKLE[2];
+      }
+    }
+
+    // 5. Build Station 1 (Logo Mark) and Station 2 (Wordmark) via Offscreen Canvases
+    // We prepare parametric fallbacks first in case network/images take time
+    function buildParametricMarkFallback() {
+      for (let i = 0; i < count; i++) {
+        const idx = i * 3;
+        const type = particleTypes[i];
+
+        if (type === 1) {
+          // Droplet (Left)
+          const t = Math.random() * Math.PI * 2;
+          const r = Math.sqrt(Math.random()) * 0.42;
+          const px = -0.32 + Math.sin(t) * r * (1 - Math.cos(t)) * 1.1;
+          const py = -0.05 - Math.cos(t) * r * 1.5;
+          station1Pos[idx] = px;
+          station1Pos[idx + 1] = py;
+          station1Pos[idx + 2] = (Math.random() - 0.5) * 0.15;
+
+          const c = Math.random() > 0.35 ? COLOR_SKY : COLOR_SKY_LIGHT;
+          station1Col[idx] = c[0];
+          station1Col[idx + 1] = c[1];
+          station1Col[idx + 2] = c[2];
+        } else {
+          // Leaf (Right)
+          const t = (Math.random() - 0.5) * Math.PI;
+          const w = Math.cos(t) * 0.45 * Math.sqrt(Math.random());
+          const leafX = 0.28 + Math.sin(t) * 0.55 * Math.cos(0.65) - w * Math.sin(0.65);
+          const leafY = 0.05 + Math.sin(t) * 0.55 * Math.sin(0.65) + w * Math.cos(0.65);
+
+          station1Pos[idx] = leafX;
+          station1Pos[idx + 1] = leafY;
+          station1Pos[idx + 2] = (Math.random() - 0.5) * 0.15;
+
+          if (type === 2) {
+            station1Col[idx] = COLOR_SPARKLE[0];
+            station1Col[idx + 1] = COLOR_SPARKLE[1];
+            station1Col[idx + 2] = COLOR_SPARKLE[2];
+          } else {
+            const r = Math.random();
+            const c = r < 0.5 ? COLOR_LEAF : COLOR_MOSS;
+            station1Col[idx] = c[0];
+            station1Col[idx + 1] = c[1];
+            station1Col[idx + 2] = c[2];
+          }
+        }
+      }
+    }
+
+    buildParametricMarkFallback();
+
+    // Asynchronously sample Logo PNG for Station 1
+    const logoImg = new Image();
+    logoImg.crossOrigin = 'anonymous';
+    logoImg.src = logoSrc;
+    logoImg.onload = () => {
+      try {
+        const offCanvas = document.createElement('canvas');
+        const size = 160;
+        offCanvas.width = size;
+        offCanvas.height = size;
+        const offCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+        if (!offCtx) return;
+
+        offCtx.drawImage(logoImg, 0, 0, size, size);
+        const imgData = offCtx.getImageData(0, 0, size, size).data;
+
+        const dropletCandidates: [number, number][] = [];
+        const leafCandidates: [number, number][] = [];
+
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const pIdx = (y * size + x) * 4;
+            const r = imgData[pIdx];
+            const g = imgData[pIdx + 1];
+            const b = imgData[pIdx + 2];
+            const a = imgData[pIdx + 3];
+
+            if (a > 45) {
+              const nx = (x - size / 2) / (size / 2) * 1.15;
+              const ny = -(y - size / 2) / (size / 2) * 1.15;
+
+              // Route blue-dominant pixels to droplet; green-dominant to leaf
+              if (b > r && b > g * 0.95 && b > 50) {
+                dropletCandidates.push([nx, ny]);
+              } else if (g > b * 0.95 && g > 45) {
+                leafCandidates.push([nx, ny]);
+              } else if (b > g) {
+                dropletCandidates.push([nx, ny]);
+              } else {
+                leafCandidates.push([nx, ny]);
+              }
+            }
+          }
+        }
+
+        if (dropletCandidates.length > 50 && leafCandidates.length > 50) {
+          for (let i = 0; i < count; i++) {
+            const idx = i * 3;
+            const type = particleTypes[i];
+
+            if (type === 1) {
+              // Route blue particles to droplet
+              const pt = dropletCandidates[Math.floor(Math.random() * dropletCandidates.length)];
+              station1Pos[idx] = pt[0] + (Math.random() - 0.5) * 0.025;
+              station1Pos[idx + 1] = pt[1] + (Math.random() - 0.5) * 0.025;
+              station1Pos[idx + 2] = (Math.random() - 0.5) * 0.12;
+
+              const c = Math.random() > 0.4 ? COLOR_SKY : COLOR_SKY_LIGHT;
+              station1Col[idx] = c[0];
+              station1Col[idx + 1] = c[1];
+              station1Col[idx + 2] = c[2];
+            } else if (type === 0) {
+              // Route green particles to leaf
+              const pt = leafCandidates[Math.floor(Math.random() * leafCandidates.length)];
+              station1Pos[idx] = pt[0] + (Math.random() - 0.5) * 0.025;
+              station1Pos[idx + 1] = pt[1] + (Math.random() - 0.5) * 0.025;
+              station1Pos[idx + 2] = (Math.random() - 0.5) * 0.12;
+
+              const r = Math.random();
+              const c = r < 0.5 ? COLOR_LEAF : COLOR_MOSS;
+              station1Col[idx] = c[0];
+              station1Col[idx + 1] = c[1];
+              station1Col[idx + 2] = c[2];
+            } else {
+              // Sparkles distributed across outer perimeter of both
+              const useDroplet = Math.random() < 0.35;
+              const pool = useDroplet ? dropletCandidates : leafCandidates;
+              const pt = pool[Math.floor(Math.random() * pool.length)];
+              station1Pos[idx] = pt[0] + (Math.random() - 0.5) * 0.04;
+              station1Pos[idx + 1] = pt[1] + (Math.random() - 0.5) * 0.04;
+              station1Pos[idx + 2] = (Math.random() - 0.5) * 0.18;
+
+              station1Col[idx] = COLOR_SPARKLE[0];
+              station1Col[idx + 1] = COLOR_SPARKLE[1];
+              station1Col[idx + 2] = COLOR_SPARKLE[2];
+            }
+          }
+        }
+      } catch {
+        // Fallback already built
       }
     };
 
-    rafRef.current = requestAnimationFrame(step);
+    // Sample Wordmark for Station 2
+    async function sampleWordmark() {
+      if (typeof document !== 'undefined' && document.fonts) {
+        try {
+          await document.fonts.ready;
+        } catch {
+          // ignore
+        }
+      }
 
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [forceReplay, handleComplete]);
+      const textCanvas = document.createElement('canvas');
+      const tw = 700;
+      const th = 200;
+      textCanvas.width = tw;
+      textCanvas.height = th;
+      const tctx = textCanvas.getContext('2d', { willReadFrequently: true });
+      if (!tctx) return;
 
-  // ── Ambient Liquid Dew Motes Canvas ────────────────────────────────
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+      tctx.fillStyle = '#000000';
+      tctx.font = '700 84px "General Sans", "Plus Jakarta Sans", "Inter Tight", sans-serif';
+      tctx.textAlign = 'center';
+      tctx.textBaseline = 'middle';
+      tctx.fillText('AquaSol', tw / 2, th / 2);
 
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+      const tData = tctx.getImageData(0, 0, tw, th).data;
+      const textPixels: [number, number, boolean][] = []; // [xNorm, yNorm, isLeftHalf]
 
-    const onResize = () => {
-      if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', onResize);
+      for (let y = 0; y < th; y++) {
+        for (let x = 0; x < tw; x++) {
+          const pIdx = (y * tw + x) * 4;
+          if (tData[pIdx + 3] > 50) {
+            // Keep 1:1 aspect ratio by dividing by tw / 2 for both axes
+            const xNorm = ((x - tw / 2) / (tw / 2)) * 1.65;
+            const yNorm = -((y - th / 2) / (tw / 2)) * 1.65;
+            const isLeftHalf = x < tw / 2; // Left half ("Aqua") vs Right half ("Sol")
+            textPixels.push([xNorm, yNorm, isLeftHalf]);
+          }
+        }
+      }
 
-    // Generate liquid dew particles
-    const count = window.innerWidth < 768 ? 32 : 65;
-    const particles = Array.from({ length: count }, () => {
-      const type = Math.random();
-      return {
-        x: Math.random() * width,
-        y: Math.random() * height,
-        r: 1.5 + Math.random() * 3.5,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: -0.3 - Math.random() * 0.6, // gentle upward morning dew buoyancy
-        alpha: 0.18 + Math.random() * 0.45,
-        color:
-          type < 0.50
-            ? 'rgba(124, 139, 62,' // moss
-            : type < 0.85
-            ? 'rgba(46, 143, 209,' // sky
-            : 'rgba(215, 235, 120,', // golden sunlight
-        phase: Math.random() * Math.PI * 2,
-      };
+      if (textPixels.length > 50) {
+        for (let i = 0; i < count; i++) {
+          const idx = i * 3;
+          const pt = textPixels[Math.floor(Math.random() * textPixels.length)];
+          station2Pos[idx] = pt[0] + (Math.random() - 0.5) * 0.02;
+          station2Pos[idx + 1] = pt[1] + (Math.random() - 0.5) * 0.02;
+          station2Pos[idx + 2] = (Math.random() - 0.5) * 0.1;
+
+          // Route left-half wordmark pixels to var(--ink) (#1B1D16), right-half to var(--moss) (#7C8B3E)
+          if (pt[2]) {
+            // "Aqua" -> Ink
+            station2Col[idx] = COLOR_INK[0];
+            station2Col[idx + 1] = COLOR_INK[1];
+            station2Col[idx + 2] = COLOR_INK[2];
+          } else {
+            // "Sol" -> Moss Green
+            station2Col[idx] = COLOR_MOSS[0];
+            station2Col[idx + 1] = COLOR_MOSS[1];
+            station2Col[idx + 2] = COLOR_MOSS[2];
+          }
+        }
+      } else {
+        // Parametric block text fallback if canvas text empty
+        for (let i = 0; i < count; i++) {
+          const idx = i * 3;
+          station2Pos[idx] = (Math.random() - 0.5) * 2.2;
+          station2Pos[idx + 1] = (Math.random() - 0.5) * 0.6;
+          station2Pos[idx + 2] = (Math.random() - 0.5) * 0.1;
+          const isLeft = station2Pos[idx] < 0;
+          const c = isLeft ? COLOR_INK : COLOR_MOSS;
+          station2Col[idx] = c[0];
+          station2Col[idx + 1] = c[1];
+          station2Col[idx + 2] = c[2];
+        }
+      }
+
+      // Station 3: Release (arc outward and fade)
+      for (let i = 0; i < count; i++) {
+        const idx = i * 3;
+        const x2 = station2Pos[idx];
+        const y2 = station2Pos[idx + 1];
+
+        const expansion = 2.8 + Math.random() * 2.2;
+        station3Pos[idx] = x2 * expansion + curlAxes[idx] * 0.8;
+        station3Pos[idx + 1] = y2 * expansion + curlAxes[idx + 1] * 0.8 + 0.3;
+        station3Pos[idx + 2] = station2Pos[idx + 2] + curlAxes[idx + 2] * 2.0;
+
+        // Faded soft light colors
+        station3Col[idx] = station2Col[idx] * 0.8 + COLOR_MOSS_LIGHT[0] * 0.2;
+        station3Col[idx + 1] = station2Col[idx + 1] * 0.8 + COLOR_MOSS_LIGHT[1] * 0.2;
+        station3Col[idx + 2] = station2Col[idx + 2] * 0.8 + COLOR_MOSS_LIGHT[2] * 0.2;
+      }
+    }
+
+    sampleWordmark();
+
+    // 6. WebGL Scene & Camera Setup: Dynamically create canvas inside container
+    const container = containerRef.current;
+    if (!container) {
+      onCompleteRef.current?.();
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.className = 'aquasol-loader-canvas';
+    container.insertBefore(canvas, container.firstChild);
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: 'high-performance',
+      });
+    } catch (e) {
+      console.error('[AquaSolLoader] WebGL context creation failed:', e);
+      onCompleteRef.current?.();
+      return;
+    }
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0.0);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 2.8);
+
+    // 7. Particle BufferGeometry & Attributes
+    const geometry = new THREE.BufferGeometry();
+    const currentPositions = new Float32Array(count * 3);
+    const currentColors = new Float32Array(count * 3);
+    const currentSizes = new Float32Array(count);
+
+    currentPositions.set(station0Pos);
+    currentColors.set(station0Col);
+    currentSizes.set(baseSizes);
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(currentPositions, 3));
+    geometry.setAttribute('aColor', new THREE.BufferAttribute(currentColors, 3));
+    geometry.setAttribute('aSize', new THREE.BufferAttribute(currentSizes, 1));
+    geometry.setAttribute('aCurl', new THREE.BufferAttribute(curlAxes, 3));
+
+    // 8. Custom ShaderMaterial with Additive Blending and Depth Management
+    const vertexShader = `
+      attribute vec3 aColor;
+      attribute float aSize;
+      attribute vec3 aCurl;
+
+      uniform float uSize;
+      uniform float uTime;
+
+      varying vec3 vColor;
+      varying vec3 vCurl;
+
+      void main() {
+        vColor = aColor;
+        vCurl = aCurl;
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+        gl_PointSize = uSize * aSize * 300.0 / -mvPosition.z;
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    `;
+
+    const fragmentShader = `
+      precision highp float;
+
+      varying vec3 vColor;
+      varying vec3 vCurl;
+      uniform float uOpacity;
+
+      void main() {
+        // Procedural soft circle using gl_PointCoord and smoothstep
+        vec2 coord = gl_PointCoord - vec2(0.5);
+        float dist = length(coord);
+        if (dist > 0.5) discard;
+
+        // Soft circular falloff
+        float alpha = smoothstep(0.5, 0.08, dist);
+
+        // Faux-directional light: dot product of fixed light vector and fake normal (curl vector)
+        vec3 lightDir = normalize(vec3(0.5, 0.75, 1.0));
+        float z = sqrt(max(0.0, 0.25 - dist * dist));
+        vec3 sphereNormal = normalize(vec3(coord.x, -coord.y, z));
+        vec3 surfaceNormal = normalize(mix(sphereNormal, vCurl, 0.35));
+
+        float diff = max(0.18, dot(surfaceNormal, lightDir));
+        float specular = pow(max(0.0, dot(surfaceNormal, lightDir)), 8.0) * 0.35;
+
+        vec3 finalRgb = (vColor * diff + vec3(specular)) * alpha * uOpacity;
+        gl_FragColor = vec4(finalRgb, alpha * uOpacity);
+      }
+    `;
+
+    const material = new THREE.ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      uniforms: {
+        uSize: { value: isMobile ? 0.048 : 0.055 },
+        uTime: { value: 0.0 },
+        uOpacity: { value: 1.0 },
+      },
+      blending: THREE.AdditiveBlending,
+      depthTest: true,
+      depthWrite: false, // Crucial to prevent black quad artifacts
+      transparent: true,
     });
 
-    let animId: number;
-    let time = 0;
+    const points = new THREE.Points(geometry, material);
+    scene.add(points);
 
-    const render = () => {
-      time += 0.02;
-      ctx.clearRect(0, 0, width, height);
+    // Reduced Motion Handling: Render static Station 2, hold 600ms, then complete
+    if (prefersReducedMotion) {
+      currentPositions.set(station2Pos);
+      currentColors.set(station2Col);
+      geometry.attributes.position.needsUpdate = true;
+      geometry.attributes.aColor.needsUpdate = true;
+      renderer.render(scene, camera);
 
-      particles.forEach((p) => {
-        p.x += p.vx + Math.sin(time + p.phase) * 0.25;
-        p.y += p.vy;
+      if (pillTextRef.current) {
+        pillTextRef.current.textContent = 'AquaSol';
+      }
 
-        // Wrap around smoothly
-        if (p.y < -20) {
-          p.y = height + 10;
-          p.x = Math.random() * width;
+      const t = setTimeout(() => {
+        try {
+          sessionStorage.setItem(STORAGE_KEY, 'true');
+        } catch {
+          // ignore
         }
-        if (p.x < -20) p.x = width + 10;
-        if (p.x > width + 20) p.x = -10;
+        onCompleteRef.current?.();
+      }, 600);
 
-        // Soft radial glowing dew orb
-        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 2.2);
-        g.addColorStop(0, `${p.color} ${p.alpha})`);
-        g.addColorStop(0.5, `${p.color} ${p.alpha * 0.4})`);
-        g.addColorStop(1, `${p.color} 0)`);
+      return () => {
+        clearTimeout(t);
+        renderer.dispose();
+        geometry.dispose();
+        material.dispose();
+      };
+    }
 
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * 2.2, 0, Math.PI * 2);
-        ctx.fill();
-      });
+    // 9. Motion Solver (Single rAF)
+    let animationFrameId: number;
+    const startTime = performance.now();
+    let hasTriggeredRelease = false;
 
-      animId = requestAnimationFrame(render);
+    // Pill Station Texts
+    const stationTexts = [
+      'Gathering the drop.',
+      'Rooting the leaf.',
+      'AquaSol',
+      'AquaSol',
+    ];
+
+    function handleResize() {
+      if (!canvas) return;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    const renderLoop = (time: number) => {
+      // If debugStation is set via URL query (?station=0, 1, 2, 3), lock to that station
+      if (debugStation !== null) {
+        const destPos =
+          debugStation === 0 ? station0Pos :
+          debugStation === 1 ? station1Pos :
+          debugStation === 2 ? station2Pos : station3Pos;
+
+        const destCol =
+          debugStation === 0 ? station0Col :
+          debugStation === 1 ? station1Col :
+          debugStation === 2 ? station2Col : station3Col;
+
+        currentPositions.set(destPos);
+        currentColors.set(destCol);
+        geometry.attributes.position.needsUpdate = true;
+        geometry.attributes.aColor.needsUpdate = true;
+        material.uniforms.uTime.value = time * 0.001;
+        renderer.render(scene, camera);
+
+        if (pillRef.current) {
+          pillRef.current.style.opacity = '1';
+        }
+        if (pillTextRef.current) {
+          pillTextRef.current.textContent = stationTexts[Math.min(3, debugStation)];
+        }
+        animationFrameId = requestAnimationFrame(renderLoop);
+        return;
+      }
+
+      // Total duration clamped between 600ms and 3500ms based on ready prop
+      const baseDuration = ready ? 1400 : 3300;
+      const totalDuration = Math.max(600, Math.min(3500, baseDuration));
+
+      const elapsed = time - startTime;
+      const p = Math.min(1.0, elapsed / totalDuration);
+
+      // Station routing: sp = p * 3, i = floor(sp), f = sp - i
+      const sp = p * 3.0;
+      const i = Math.min(2, Math.floor(sp));
+      const f = sp - i;
+
+      // Smootherstep interpolation: morphT = smootherstep((f - 0.2) / 0.6)
+      const morphT = smootherstep((f - 0.2) / 0.6);
+
+      // Update pill text with triangular falloff cross-fade near each station boundary
+      if (pillRef.current && pillTextRef.current) {
+        let pillOpacity = 1.0;
+        if (f < 0.15) {
+          pillOpacity = f / 0.15;
+        } else if (f > 0.85) {
+          pillOpacity = (1.0 - f) / 0.15;
+        }
+
+        pillRef.current.style.opacity = `${Math.max(0.0, Math.min(1.0, pillOpacity))}`;
+        const currentText = stationTexts[i];
+        if (pillTextRef.current.textContent !== currentText) {
+          pillTextRef.current.textContent = currentText;
+        }
+      }
+
+      // Station Destination Arrays
+      const fromPos = i === 0 ? station0Pos : i === 1 ? station1Pos : station2Pos;
+      const toPos = i === 0 ? station1Pos : i === 1 ? station2Pos : station3Pos;
+
+      const fromCol = i === 0 ? station0Col : i === 1 ? station1Col : station2Col;
+      const toCol = i === 0 ? station1Col : i === 1 ? station2Col : station3Col;
+
+      // Station 3 Trigger: Release site content concurrently
+      if (i === 2 && morphT > 0.15 && !hasTriggeredRelease) {
+        hasTriggeredRelease = true;
+        setIsFadingOut(true);
+        onReleaseRef.current?.();
+      }
+
+      const swirlAmount = i === 2 ? 0.35 : 0.62;
+      const swirlFactor = Math.sin(morphT * Math.PI) * swirlAmount;
+
+      // Vectorized interpolation with flocking stagger and swooping arcs
+      for (let k = 0; k < count; k++) {
+        const idx = k * 3;
+
+        // Particle-specific flocking progress with boundary clamp
+        const pT = Math.max(
+          0.0,
+          Math.min(1.0, morphT + staggerOffsets[k] * (1.0 - Math.abs(2.0 * morphT - 1.0)))
+        );
+
+        // Position with curl sine swirl
+        currentPositions[idx] =
+          fromPos[idx] + (toPos[idx] - fromPos[idx]) * pT + curlAxes[idx] * swirlFactor;
+        currentPositions[idx + 1] =
+          fromPos[idx + 1] + (toPos[idx + 1] - fromPos[idx + 1]) * pT + curlAxes[idx + 1] * swirlFactor;
+        currentPositions[idx + 2] =
+          fromPos[idx + 2] + (toPos[idx + 2] - fromPos[idx + 2]) * pT + curlAxes[idx + 2] * swirlFactor;
+
+        // Colors
+        currentColors[idx] = fromCol[idx] + (toCol[idx] - fromCol[idx]) * pT;
+        currentColors[idx + 1] = fromCol[idx + 1] + (toCol[idx + 1] - fromCol[idx + 1]) * pT;
+        currentColors[idx + 2] = fromCol[idx + 2] + (toCol[idx + 2] - fromCol[idx + 2]) * pT;
+
+        // Particle size decay on release
+        if (i === 2) {
+          currentSizes[k] = baseSizes[k] * Math.max(0.0, 1.0 - morphT * 0.85);
+        } else {
+          currentSizes[k] = baseSizes[k];
+        }
+      }
+
+      geometry.attributes.position.needsUpdate = true;
+      geometry.attributes.aColor.needsUpdate = true;
+      geometry.attributes.aSize.needsUpdate = true;
+
+      material.uniforms.uTime.value = time * 0.001;
+
+      // Render
+      renderer.render(scene, camera);
+
+      // Check for completion
+      if (p >= 1.0) {
+        try {
+          sessionStorage.setItem(STORAGE_KEY, 'true');
+        } catch {
+          // ignore
+        }
+
+        // Clean unmount after container fade-out
+        setTimeout(() => {
+          onCompleteRef.current?.();
+        }, 350);
+        return;
+      }
+
+      animationFrameId = requestAnimationFrame(renderLoop);
     };
 
-    animId = requestAnimationFrame(render);
+    animationFrameId = requestAnimationFrame(renderLoop);
 
+    // 10. Clean Disposal on Unmount
     return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+
+      scene.remove(points);
+      geometry.dispose();
+      material.dispose();
+
+      try {
+        const gl = renderer.getContext();
+        renderer.dispose();
+        const loseContext = gl?.getExtension('WEBGL_lose_context');
+        if (loseContext) {
+          loseContext.loseContext();
+        }
+      } catch {
+        // ignore
+      }
+
+      if (canvas.parentNode) {
+        canvas.parentNode.removeChild(canvas);
+      }
     };
-  }, []);
-
-  // ── Skip render if already completed ──────────────────────────────
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const forceFromUrl = searchParams
-    ? searchParams.has('loader') || searchParams.has('replay') || searchParams.has('station')
-    : false;
-
-  if (!forceReplay && !forceFromUrl && typeof sessionStorage !== 'undefined' && sessionStorage.getItem('aquasol-loader-played')) {
-    return null;
-  }
-
-  const currentStage = STAGES[stageIdx] || STAGES[0];
+  }, [logoSrc, ready, forceReplay]);
 
   return (
-    <div
-      ref={containerRef}
-      className={`aquasol-luxury-loader ${isExiting ? 'exiting' : ''}`}
-      aria-label="Loading AquaSol"
-      role="status"
-    >
-      <style>{LOADER_STYLES}</style>
+    <>
+      <style key={styleId}>{`
+        :root {
+          --ink: #1B1D16;
+          --moss: #7C8B3E;
+          --moss-light: #93A94C;
+          --leaf: #8FC63E;
+          --sky: #2E8FD1;
+          --sky-light: #59B4EA;
+          --cream: #F5F3E9;
+          --paper: #FFFFFF;
+        }
 
-      {/* Ambient Canvas Dewfield */}
-      <canvas ref={canvasRef} className="aquasol-dew-canvas" />
+        .aquasol-loader-root {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: 9999;
+          background-color: var(--cream, #F5F3E9);
+          background-image: radial-gradient(circle at 50% 50%, rgba(147, 169, 76, 0.16) 0%, rgba(245, 243, 233, 0.92) 48%, #F5F3E9 82%);
+          overflow: hidden;
+          user-select: none;
+          pointer-events: all;
+          opacity: 1;
+          transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-      {/* Atmospheric Caustic & Solar Gradients */}
-      <div className="aquasol-ambient-glow solar-glow" />
-      <div className="aquasol-ambient-glow aquatic-glow" />
-      <div className="aquasol-ambient-glow center-glow" />
+        .aquasol-loader-root.fade-out {
+          opacity: 0;
+          pointer-events: none;
+        }
 
-      {/* Central Floating Luxury Core */}
-      <div className="aquasol-center-card">
-        {/* Living Jewel Emblem with Concentric Liquid Ripples */}
-        <div className="aquasol-emblem-stage">
-          <div className="aquasol-ripple-ring ring-1" />
-          <div className="aquasol-ripple-ring ring-2" />
-          <div className="aquasol-ripple-ring ring-3" />
+        .aquasol-loader-canvas {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          display: block;
+        }
 
-          {/* Double-Bezel Glass Lens */}
-          <div className="aquasol-glass-lens">
-            <div className="aquasol-lens-specular" />
-            <img
-              src={logoSrc}
-              alt="AquaSol Emblem"
-              className="aquasol-emblem-img"
-              loading="eager"
-            />
-            {/* Specular Liquid Caustic Light Sweep */}
-            <div className="aquasol-caustic-sweep" />
-          </div>
-        </div>
+        .aquasol-loader-pill {
+          position: absolute;
+          bottom: 32px;
+          left: 36px;
+          background: var(--ink, #1B1D16);
+          color: var(--paper, #FFFFFF);
+          border-radius: 999px;
+          padding: 8px 20px;
+          font-family: 'Inter Tight', 'Plus Jakarta Sans', 'General Sans', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          line-height: 1.35;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 18px rgba(27, 29, 22, 0.12), 0 1px 3px rgba(27, 29, 22, 0.08);
+          pointer-events: none;
+          z-index: 10000;
+          min-width: 155px;
+          text-align: center;
+          will-change: opacity;
+          transition: opacity 0.18s ease-out;
+        }
 
-        {/* Kinetic Typographic Wordmark */}
-        <div className="aquasol-brand-block">
-          <div className="aquasol-wordmark-mask">
-            <h1 className="aquasol-wordmark-text">
-              <span className="part-aqua">Aqua</span>
-              <span className="part-sol">Sol</span>
-            </h1>
-          </div>
-          <div className="aquasol-tagline-mask">
-            <p className="aquasol-tagline-text">Grow projects like forests. Reliably.</p>
-          </div>
-        </div>
+        .aquasol-site-reveal {
+          opacity: 0;
+          transform: scale(0.98);
+          transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-        {/* Linear-Grade Precision Telemetry Capsule */}
-        <div className="aquasol-hud-capsule">
-          <div className="aquasol-hud-header">
-            <div className="aquasol-hud-beacon">
-              <span className="beacon-ping" />
-              <span className="beacon-dot" />
-              <span className="beacon-label">{currentStage.code}</span>
-            </div>
-            <div className="aquasol-hud-percentage">
-              <span className="pct-num">{String(progress).padStart(3, '0')}</span>
-              <span className="pct-symbol">%</span>
-            </div>
-          </div>
+        .aquasol-site-reveal.visible {
+          opacity: 1;
+          transform: scale(1);
+        }
 
-          {/* Precision Specular Progress Rail */}
-          <div className="aquasol-progress-track">
-            <div
-              className="aquasol-progress-bar"
-              style={{ width: `${progress}%` }}
-            >
-              <div className="aquasol-progress-head" />
-            </div>
-          </div>
-
-          <div className="aquasol-hud-status">
-            <span className="status-copy">{currentStage.label}</span>
-          </div>
+        @media (max-width: 767px) {
+          .aquasol-loader-pill {
+            bottom: 22px;
+            left: 20px;
+            font-size: 12px;
+            padding: 7px 16px;
+            min-width: 130px;
+          }
+        }
+      `}</style>
+      <div
+        ref={containerRef}
+        className={`aquasol-loader-root ${isFadingOut ? 'fade-out' : ''}`}
+        aria-label="AquaSol is loading"
+        role="status"
+      >
+        <div ref={pillRef} className="aquasol-loader-pill">
+          <span ref={pillTextRef}>Gathering the drop.</span>
         </div>
       </div>
-    </div>
+    </>
   );
 }
-
-// ─── Embedded Luxury Stylesheet ───────────────────────────────────────
-const LOADER_STYLES = `
-  @keyframes floatPulse {
-    0%, 100% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-8px) scale(1.015); }
-  }
-
-  @keyframes causticGlide {
-    0% { transform: translateX(-140%) translateY(-60%) rotate(25deg); opacity: 0; }
-    20% { opacity: 0.95; }
-    80% { opacity: 0.95; }
-    100% { transform: translateX(180%) translateY(80%) rotate(25deg); opacity: 0; }
-  }
-
-  @keyframes rippleExpand {
-    0% { transform: scale(0.85); opacity: 0.55; }
-    50% { opacity: 0.25; }
-    100% { transform: scale(1.65); opacity: 0; }
-  }
-
-  @keyframes beaconPing {
-    0% { transform: scale(1); opacity: 0.8; }
-    100% { transform: scale(2.6); opacity: 0; }
-  }
-
-  @keyframes slideUpWordmark {
-    from { transform: translateY(115%); opacity: 0; }
-    to { transform: translateY(0%); opacity: 1; }
-  }
-
-  @keyframes fadeInTagline {
-    from { opacity: 0; transform: translateY(8px); letter-spacing: 0.12em; }
-    to { opacity: 0.68; transform: translateY(0px); letter-spacing: 0.22em; }
-  }
-
-  .aquasol-luxury-loader {
-    position: fixed;
-    inset: 0;
-    z-index: 999999;
-    background-color: ${TOKENS.cream};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    user-select: none;
-    transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-                transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-                filter 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-    font-family: 'Inter Tight', 'General Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  }
-
-  .aquasol-luxury-loader.exiting {
-    opacity: 0;
-    transform: scale(1.025);
-    filter: blur(8px);
-    pointer-events: none;
-  }
-
-  /* Atmospheric Caustics */
-  .aquasol-ambient-glow {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    pointer-events: none;
-    opacity: 0.85;
-  }
-
-  .solar-glow {
-    top: -12%;
-    right: -8%;
-    width: 650px;
-    height: 650px;
-    background: radial-gradient(circle, rgba(143, 198, 62, 0.22) 0%, rgba(246, 244, 235, 0) 70%);
-  }
-
-  .aquatic-glow {
-    bottom: -15%;
-    left: -10%;
-    width: 700px;
-    height: 700px;
-    background: radial-gradient(circle, rgba(46, 143, 209, 0.20) 0%, rgba(246, 244, 235, 0) 70%);
-  }
-
-  .center-glow {
-    top: 50%;
-    left: 50%;
-    width: 500px;
-    height: 500px;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(124, 139, 62, 0.12) 0%, rgba(246, 244, 235, 0) 65%);
-  }
-
-  .aquasol-dew-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-
-  /* Central Floating Card */
-  .aquasol-center-card {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 24px;
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .aquasol-luxury-loader.exiting .aquasol-center-card {
-    transform: translateY(-24px) scale(0.97);
-    opacity: 0;
-  }
-
-  /* Living Jewel Emblem Stage */
-  .aquasol-emblem-stage {
-    position: relative;
-    width: 170px;
-    height: 170px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 28px;
-    animation: floatPulse 3.8s ease-in-out infinite;
-  }
-
-  /* Concentric Water Acoustic Ripples */
-  .aquasol-ripple-ring {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    border: 1.5px solid rgba(124, 139, 62, 0.28);
-    pointer-events: none;
-  }
-
-  .ring-1 {
-    animation: rippleExpand 3.4s cubic-bezier(0.25, 1, 0.5, 1) infinite;
-    animation-delay: 0s;
-  }
-  .ring-2 {
-    animation: rippleExpand 3.4s cubic-bezier(0.25, 1, 0.5, 1) infinite;
-    animation-delay: 1.1s;
-  }
-  .ring-3 {
-    animation: rippleExpand 3.4s cubic-bezier(0.25, 1, 0.5, 1) infinite;
-    animation-delay: 2.2s;
-  }
-
-  /* Double-Bezel Glass Lens */
-  .aquasol-glass-lens {
-    position: relative;
-    width: 130px;
-    height: 130px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.95), rgba(246, 244, 235, 0.70));
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow:
-      0 20px 45px -12px rgba(124, 139, 62, 0.24),
-      0 8px 20px -6px rgba(46, 143, 209, 0.16),
-      inset 0 1px 2px rgba(255, 255, 255, 1),
-      inset 0 -2px 6px rgba(124, 139, 62, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    backdrop-filter: blur(12px);
-  }
-
-  .aquasol-lens-specular {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.9),
-                inset 0 -2px 4px rgba(124, 139, 62, 0.15);
-    pointer-events: none;
-  }
-
-  .aquasol-emblem-img {
-    width: 90px;
-    height: 90px;
-    object-fit: contain;
-    position: relative;
-    z-index: 2;
-    filter: drop-shadow(0 6px 14px rgba(27, 29, 22, 0.12));
-  }
-
-  /* Specular Light Sweep Across Emblem */
-  .aquasol-caustic-sweep {
-    position: absolute;
-    inset: -30px;
-    background: linear-gradient(
-      115deg,
-      transparent 30%,
-      rgba(255, 255, 255, 0.82) 48%,
-      rgba(255, 255, 255, 0.95) 50%,
-      rgba(255, 255, 255, 0.82) 52%,
-      transparent 70%
-    );
-    z-index: 3;
-    pointer-events: none;
-    animation: causticGlide 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-  }
-
-  /* Wordmark Typography */
-  .aquasol-brand-block {
-    margin-bottom: 32px;
-  }
-
-  .aquasol-wordmark-mask {
-    overflow: hidden;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .aquasol-wordmark-text {
-    margin: 0;
-    font-size: 40px;
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    animation: slideUpWordmark 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .part-aqua {
-    color: ${TOKENS.ink};
-  }
-
-  .part-sol {
-    color: ${TOKENS.moss};
-    margin-left: 1px;
-    text-shadow: 0 0 20px rgba(124, 139, 62, 0.28);
-  }
-
-  .aquasol-tagline-mask {
-    margin-top: 6px;
-    overflow: hidden;
-  }
-
-  .aquasol-tagline-text {
-    margin: 0;
-    font-size: 11.5px;
-    font-weight: 600;
-    color: ${TOKENS.inkMuted};
-    text-transform: uppercase;
-    letter-spacing: 0.22em;
-    animation: fadeInTagline 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    animation-delay: 0.15s;
-  }
-
-  /* Linear-Grade Precision Telemetry Capsule */
-  .aquasol-hud-capsule {
-    width: 330px;
-    background: rgba(255, 255, 255, 0.65);
-    border: 1px solid rgba(124, 139, 62, 0.22);
-    border-radius: 20px;
-    padding: 14px 20px;
-    box-shadow:
-      0 12px 32px -8px rgba(27, 29, 22, 0.06),
-      inset 0 1px 1.5px rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-  }
-
-  .aquasol-hud-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-
-  .aquasol-hud-beacon {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-  }
-
-  .beacon-ping {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background-color: ${TOKENS.leaf};
-    position: absolute;
-    left: 0;
-    animation: beaconPing 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
-
-  .beacon-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background-color: ${TOKENS.leaf};
-    box-shadow: 0 0 8px ${TOKENS.leaf};
-  }
-
-  .beacon-label {
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: ${TOKENS.moss};
-    text-transform: uppercase;
-  }
-
-  .aquasol-hud-percentage {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 13.5px;
-    font-weight: 700;
-    color: ${TOKENS.ink};
-    letter-spacing: -0.02em;
-  }
-
-  .pct-symbol {
-    font-size: 11px;
-    margin-left: 1px;
-    opacity: 0.65;
-  }
-
-  /* Progress Track & Animated Liquid Fill */
-  .aquasol-progress-track {
-    width: 100%;
-    height: 4px;
-    border-radius: 999px;
-    background: rgba(27, 29, 22, 0.08);
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 10px;
-  }
-
-  .aquasol-progress-bar {
-    height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, ${TOKENS.sky} 0%, ${TOKENS.moss} 55%, ${TOKENS.leaf} 100%);
-    box-shadow: 0 0 10px rgba(143, 198, 62, 0.5);
-    position: relative;
-    transition: width 0.08s linear;
-  }
-
-  .aquasol-progress-head {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #FFFFFF;
-    box-shadow: 0 0 6px #FFFFFF, 0 0 12px ${TOKENS.leaf};
-  }
-
-  .aquasol-hud-status {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .status-copy {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    color: ${TOKENS.inkMuted};
-    text-transform: uppercase;
-    transition: color 0.3s ease;
-  }
-
-  @media (max-width: 480px) {
-    .aquasol-emblem-stage {
-      width: 140px;
-      height: 140px;
-      margin-bottom: 22px;
-    }
-    .aquasol-glass-lens {
-      width: 105px;
-      height: 105px;
-    }
-    .aquasol-emblem-img {
-      width: 72px;
-      height: 72px;
-    }
-    .aquasol-wordmark-text {
-      font-size: 32px;
-    }
-    .aquasol-hud-capsule {
-      width: calc(100vw - 48px);
-      max-width: 320px;
-    }
-  }
-`;
 
 export default AquaSolLoader;

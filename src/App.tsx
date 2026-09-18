@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Navbar } from './components/exact/Navbar';
 import { Footer } from './components/exact/Footer';
 import { LandingPage } from './pages/LandingPage';
@@ -12,10 +12,7 @@ import { TemplateGuidePage } from './pages/TemplateGuidePage';
 import { ChangeLogPage } from './pages/ChangeLogPage';
 import { PasswordPage } from './pages/PasswordPage';
 import { Agentation } from 'agentation';
-
-const AquaSolLoader = lazy(() =>
-  import('./components/exact/AquaSolLoader').then(m => ({ default: m.AquaSolLoader }))
-);
+import { AquaSolLoader } from './components/exact/AquaSolLoader';
 
 export function App() {
   const [currentPage, setCurrentPage] = useState<string>('landing');
@@ -34,10 +31,13 @@ export function App() {
     return false;
   });
 
+  const [siteRevealing, setSiteRevealing] = useState(loaderDone);
+
   // Expose replay function globally for developer testing
   useEffect(() => {
     (window as any).replayAquaSolLoader = () => {
       sessionStorage.removeItem('aquasol-loader-played');
+      setSiteRevealing(false);
       setLoaderDone(false);
     };
   }, []);
@@ -58,19 +58,27 @@ export function App() {
     }
   }, []);
 
+  const handleRelease = useCallback(() => {
+    setSiteRevealing(true);
+  }, []);
+
+  const handleComplete = useCallback(() => {
+    setSiteRevealing(true);
+    setLoaderDone(true);
+  }, []);
+
   return (
     <>
       {!loaderDone && (
-        <Suspense fallback={null}>
-          <AquaSolLoader
-            logoSrc="/assets/aquasol-emblem-hd.png"
-            onComplete={() => setLoaderDone(true)}
-          />
-        </Suspense>
+        <AquaSolLoader
+          logoSrc="/assets/aquasol-emblem-hd.png"
+          onRelease={handleRelease}
+          onComplete={handleComplete}
+        />
       )}
       <div
-        className={loaderDone ? 'aquasol-site-reveal visible' : 'aquasol-site-reveal'}
-        style={!loaderDone ? { visibility: 'hidden' } : undefined}
+        className={siteRevealing || loaderDone ? 'aquasol-site-reveal visible' : 'aquasol-site-reveal'}
+        style={!siteRevealing && !loaderDone ? { visibility: 'hidden' } : undefined}
       >
         <Navbar currentPage={currentPage} onNavigate={setCurrentPage} />
         {currentPage === 'landing' && <LandingPage />}
