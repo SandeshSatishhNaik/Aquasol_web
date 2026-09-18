@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Navbar } from './components/exact/Navbar';
 import { Footer } from './components/exact/Footer';
 import { LandingPage } from './pages/LandingPage';
@@ -12,7 +12,10 @@ import { TemplateGuidePage } from './pages/TemplateGuidePage';
 import { ChangeLogPage } from './pages/ChangeLogPage';
 import { PasswordPage } from './pages/PasswordPage';
 import { Agentation } from 'agentation';
-import { AquaSolLoader } from './components/exact/AquaSolLoader';
+
+const AquaSolLoader = lazy(() =>
+  import('./components/exact/AquaSolLoader').then(m => ({ default: m.AquaSolLoader }))
+);
 
 export function App() {
   const [currentPage, setCurrentPage] = useState<string>('landing');
@@ -58,10 +61,12 @@ export function App() {
   return (
     <>
       {!loaderDone && (
-        <AquaSolLoader
-          logoSrc="/assets/aquasol-emblem-hd.png"
-          onComplete={() => setLoaderDone(true)}
-        />
+        <Suspense fallback={null}>
+          <AquaSolLoader
+            logoSrc="/assets/aquasol-emblem-hd.png"
+            onComplete={() => setLoaderDone(true)}
+          />
+        </Suspense>
       )}
       <div
         className={loaderDone ? 'aquasol-site-reveal visible' : 'aquasol-site-reveal'}
