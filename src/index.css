@@ -744,3 +744,280 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   border-bottom: 1px solid rgba(138, 142, 92, 0.35);
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.06);
 }
+
+/* Site Reveal Transition from Preloader */
+.aquasol-site-reveal {
+  opacity: 0;
+  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
+}
+
+.aquasol-site-reveal.visible {
+  opacity: 1;
+}
+
+/* Hero Cutout Agriculture Feature Badge */
+.cutout-shape-wrap.bottom-left {
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.agri-feature-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: 20px;
+  gap: 8px;
+  user-select: none;
+}
+
+.agri-feature-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background-color: #E3ECBF;
+  border: 1px solid rgba(137, 153, 33, 0.35);
+  color: #2E450E;
+  box-shadow: 0 2px 5px rgba(29, 31, 20, 0.06);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease, box-shadow 0.25s ease;
+  cursor: default;
+}
+
+.agri-feature-wrap:hover .agri-feature-icon-box {
+  transform: scale(1.08) rotate(3deg);
+  background-color: #DAE6B0;
+  box-shadow: 0 4px 10px rgba(137, 153, 33, 0.2);
+}
+
+.agri-feature-title {
+  font-family: "Inter Tight", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1D1F14;
+  line-height: 1.2;
+}
+
+/* ==========================================================================
+   AquaSol Magnetic Image Gallery & Telemetry Modal Styles
+   ========================================================================== */
+
+.magnetic-gallery-root {
+  position: relative;
+  width: 100%;
+}
+
+.magnetic-gallery-track {
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+.magnetic-gallery-track::-webkit-scrollbar {
+  display: none;
+}
+
+.magnetic-gallery-card {
+  position: relative;
+  transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.magnetic-gallery-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 40px -4px rgba(29, 31, 20, 0.28) !important;
+}
+
+.magnetic-gallery-card:not(.is-app-screen):hover .magnetic-card-img {
+  transform: scale(1.04) !important;
+}
+
+.magnetic-gallery-card.is-app-screen .magnetic-card-img {
+  transform: none !important;
+}
+
+.magnetic-gallery-card:hover .magnetic-card-expand-btn {
+  background-color: var(--color--green, #899921) !important;
+  color: #1d1f14 !important;
+  border-color: var(--color--green, #899921) !important;
+  transform: scale(1.12);
+}
+
+/* Card Container Query Dynamics: adapts seamlessly based on instantaneous card width */
+.card-expanded-metric,
+.card-expanded-body {
+  display: none !important;
+}
+
+.magnetic-card-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13.5px !important;
+}
+
+@container (min-width: 175px) {
+  .card-expanded-metric {
+    display: inline-flex !important;
+  }
+
+  .magnetic-card-title {
+    font-size: 15px !important;
+    white-space: normal !important;
+  }
+}
+
+@container (min-width: 250px) {
+  .card-expanded-body {
+    display: block !important;
+  }
+
+  .magnetic-card-title {
+    font-size: 18px !important;
+    line-height: 1.25 !important;
+  }
+}
+
+/* Modal Keyframe Transitions */
+@keyframes agriModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes agriModalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes telemetryPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.65;
+  }
+}
+
+.magnetic-dock-tab:hover {
+  transform: translateY(-2px);
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: #1a1f11 !important;
+  border-color: rgba(137, 153, 33, 0.5) !important;
+}
+
+.magnetic-dock-tab.active:hover {
+  background-color: #12180c !important;
+  color: #fafaf0 !important;
+}
+
+.magnetic-gallery-card:hover {
+  transform: translateY(-5px) !important;
+}
+
+.magnetic-gallery-card:hover .card-cta-btn {
+  background-color: rgba(250, 250, 240, 0.28) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.magnetic-gallery-card:hover .card-cta-icon-wrap {
+  transform: scale(1.15) translate(1px, -1px);
+}
+
+.magnetic-modal-nav-btn:hover {
+  background-color: var(--color--green, #899921) !important;
+  color: #1d1f14 !important;
+  transform: translateY(-50%) scale(1.08) !important;
+}
+
+.magnetic-modal-close-btn:hover {
+  background-color: rgba(29, 31, 20, 0.18) !important;
+  transform: rotate(90deg);
+}
+
+/* Hide all browser native video controls chrome */
+.magnetic-gallery-card video::-webkit-media-controls,
+.magnetic-gallery-card video::-webkit-media-controls-enclosure,
+.magnetic-gallery-card video::-webkit-media-controls-panel,
+.magnetic-gallery-modal-card video::-webkit-media-controls,
+.magnetic-gallery-modal-card video::-webkit-media-controls-enclosure,
+.magnetic-gallery-modal-card video::-webkit-media-controls-panel {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Responsive Rules */
+@media (max-width: 900px) {
+  .section-hud-coordinates {
+    display: none !important;
+  }
+
+  .magnetic-chassis-shell {
+    border-radius: 26px !important;
+  }
+
+  .magnetic-gallery-modal-card {
+    grid-template-columns: 1fr !important;
+    max-height: 85vh !important;
+    border-radius: 20px !important;
+  }
+
+  .magnetic-modal-nav-btn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .magnetic-gallery-card {
+    width: 270px !important;
+    height: 400px !important;
+  }
+
+  .magnetic-module-dock {
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    padding-bottom: 6px !important;
+    scrollbar-width: none !important;
+  }
+
+  .magnetic-module-dock::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .magnetic-dock-tab {
+    flex-shrink: 0 !important;
+  }
+
+  .magnetic-chassis-footer {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .magnetic-gallery-card,
+  .magnetic-card-img,
+  .magnetic-gallery-modal-backdrop,
+  .magnetic-gallery-modal-card,
+  .card-cta-icon-wrap,
+  .magnetic-dock-tab {
+    transition: none !important;
+    animation: none !important;
+  }
+}

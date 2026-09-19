@@ -20,7 +20,14 @@ export function App() {
     // Force replay if URL contains ?loader or ?replay
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      if (params.has('loader') || params.has('replay') || params.has('station')) {
+      if (
+        params.has('loader') ||
+        params.has('replay') ||
+        params.has('station') ||
+        params.has('hold') ||
+        params.has('p') ||
+        params.has('vortex')
+      ) {
         return false;
       }
     }
@@ -71,7 +78,6 @@ export function App() {
     <>
       {!loaderDone && (
         <AquaSolLoader
-          logoSrc="/assets/aquasol-emblem-hd.png"
           onRelease={handleRelease}
           onComplete={handleComplete}
         />

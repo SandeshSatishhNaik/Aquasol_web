@@ -87,7 +87,7 @@ export const Hero: React.FC = () => {
                   data-object-fit="cover"
                 >
                   <source
-                    src="/assets/68ac094ada452bf00181bba8-2F691efa8f76153a3eb69c3b11_4249212-uhd_3840_2160_24fps_-86905025ce.mp4"
+                    src="/assets/Playback_vid.webm"
                     data-wf-ignore="true"
                   />
                 </video>
@@ -157,44 +157,27 @@ export const Hero: React.FC = () => {
                   alt="corner shape"
                   className="corner-shape first"
                 />
-                <div className="spacer _16" />
-                <div className="users-wrap">
-                  <p data-w-id="636f35de-9199-411a-8218-26eb219c1137" className="paragraph small no-magin">
-                    Loved by <strong className="bold-text">2.5K+</strong> users{' '}
-                  </p>
-                  <div className="user-avatars-wral">
-                    <img
-                      style={{ transform: 'rotate(-15deg)' }}
-                      data-w-id="636f35de-9199-411a-8218-26eb219c113d"
-                      alt="user"
-                      src="/assets/68aeb6f92fe9039518894928_testimonial-2-a2fbfe8b70.png"
-                      loading="eager"
-                      className="customer-avatar overlap"
-                    />
-                    <img
-                      style={{ transform: 'rotate(-15deg)' }}
-                      data-w-id="636f35de-9199-411a-8218-26eb219c113e"
-                      alt="user"
-                      src="/assets/68aeb6f92fe9039518894925_testimonial-1-85d606003a.png"
-                      loading="eager"
-                      className="customer-avatar overlap"
-                    />
-                    <img
-                      style={{ transform: 'rotate(-15deg)' }}
-                      data-w-id="636f35de-9199-411a-8218-26eb219c113f"
-                      alt="user"
-                      src="/assets/68aeb6f92fe903951889492e_testimonial-3-795decde7f.png"
-                      loading="eager"
-                      className="customer-avatar overlap"
-                    />
-                    <img
-                      style={{ transform: 'rotate(-15deg)' }}
-                      data-w-id="636f35de-9199-411a-8218-26eb219c1140"
-                      alt="user"
-                      src="/assets/68aeb6f92fe903951889492b_user-4-a82b4f515e.png"
-                      loading="eager"
-                      className="customer-avatar overlap"
-                    />
+                <div className="agri-feature-wrap">
+                  <div className="agri-feature-icon-box" title="Smart Agriculture">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-label="Sprout icon"
+                    >
+                      <path d="M7 20h10" />
+                      <path d="M10 20c5.5-2.5.8-6.4 3-10" />
+                      <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" />
+                      <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" />
+                    </svg>
+                  </div>
+                  <div className="agri-feature-title">
+                    Smart Agriculture
                   </div>
                 </div>
               </div>

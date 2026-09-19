@@ -1,215 +1,181 @@
 import React from 'react';
-import {
-  Workflow,
-  FileCode2,
-  Activity,
-  KeyRound,
-  Zap,
-  Terminal,
-} from 'lucide-react';
-import { cn } from '../../lib/utils';
-
-const FEATURES = [
-  {
-    icon: Workflow,
-    title: 'A canvas, not a config file',
-    description:
-      'Drag steps onto a visual graph, wire dependencies intuitively, and let the layout map roadmaps and milestones for you.',
-  },
-  {
-    icon: FileCode2,
-    title: 'Two-way sync & live state',
-    description:
-      'Edit the roadmap or the underlying task queue, the other follows in real-time. Your central data model stays the single source of truth.',
-  },
-  {
-    icon: Activity,
-    title: 'Progress you can watch live',
-    description:
-      'Every team sprint replays on the live canvas. Bottlenecks highlight immediately with granular activity logs just one click away.',
-  },
-  {
-    icon: KeyRound,
-    title: 'Granular role & space access',
-    description:
-      'Scope permissions to client portals, teams, or workspace branches. External contractors only see their designated paths.',
-  },
-  {
-    icon: Zap,
-    title: 'Surgical task automations',
-    description:
-      'Trigger custom webhooks and status transitions automatically without re-executing entire pipeline phases.',
-  },
-  {
-    icon: Terminal,
-    title: 'Extensible API & CLI tools',
-    description:
-      'Export roadmap views, sync status directly from GitHub or terminal commands, and automate recurring sprints with simple endpoints.',
-  },
-];
-
-/** Corner crosshair, drawn half outside the card edge like a survey mark. */
-const CrossDecor = ({ position }: { position: 'top-start' | 'bottom-end' }) => {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#5e6622"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      style={{
-        pointerEvents: 'none',
-        position: 'absolute',
-        zIndex: 10,
-        width: '14px',
-        height: '14px',
-        opacity: 0.5,
-        ...(position === 'top-start'
-          ? { left: 0, top: 0, transform: 'translate(-50%, -50%)' }
-          : { right: 0, bottom: 0, transform: 'translate(50%, 50%)' }),
-      }}
-    >
-      <path d="M5 12h14" />
-      <path d="M12 5v14" />
-    </svg>
-  );
-};
-
-const FeatureCard = ({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<'div'>) => {
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty('--mx', `${e.clientX - rect.left}px`);
-    e.currentTarget.style.setProperty('--my', `${e.clientY - rect.top}px`);
-  };
-
-  return (
-    <div
-      onPointerMove={handlePointerMove}
-      className={cn('feature-spotlight-card group', className)}
-      style={{
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        background: '#ffffff',
-        padding: '32px 28px',
-        borderRadius: '20px',
-        border: '1px solid rgba(94, 102, 34, 0.14)',
-        boxShadow: '0 2px 12px -2px rgba(40, 44, 15, 0.04)',
-        overflow: 'hidden',
-        transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-3px)';
-        e.currentTarget.style.borderColor = 'rgba(94, 102, 34, 0.35)';
-        e.currentTarget.style.boxShadow = '0 12px 30px -4px rgba(94, 102, 34, 0.1)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.borderColor = 'rgba(94, 102, 34, 0.14)';
-        e.currentTarget.style.boxShadow = '0 2px 12px -2px rgba(40, 44, 15, 0.04)';
-      }}
-      {...props}
-    >
-      {/* Pointer-follow spotlight glow */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background:
-            'radial-gradient(circle 220px at var(--mx, 50%) var(--my, 50%), rgba(184, 199, 66, 0.22), transparent 75%)',
-        }}
-      />
-      {children}
-    </div>
-  );
-};
+import { MagneticImageGallery } from './magnetic-gallery';
 
 export const FeatureGridSpotlight: React.FC = () => {
   return (
-    <div className="section">
-      <div className="container">
-        <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 48px auto' }}>
+    <section
+      id="telemetry-gallery"
+      className="section"
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        paddingTop: '80px',
+        paddingBottom: '96px',
+        background: 'linear-gradient(180deg, rgba(250, 251, 245, 0.6) 0%, rgba(246, 248, 238, 0.95) 50%, rgba(250, 251, 245, 0.8) 100%)',
+      }}
+    >
+      {/* Background Precision GIS Dot-Matrix Grid */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'radial-gradient(rgba(137, 153, 33, 0.14) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+          maskImage: 'radial-gradient(ellipse 80% 65% at 50% 50%, black 40%, transparent 100%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 80% 65% at 50% 50%, black 40%, transparent 100%)',
+          pointerEvents: 'none',
+          opacity: 0.75,
+        }}
+      />
+
+      {/* Atmospheric Solar Radial Auras */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: '-120px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '800px',
+          height: '500px',
+          background: 'radial-gradient(circle, rgba(137, 153, 33, 0.16) 0%, rgba(220, 244, 143, 0.08) 45%, transparent 70%)',
+          filter: 'blur(50px)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          bottom: '0',
+          left: '10%',
+          width: '500px',
+          height: '350px',
+          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.09) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          bottom: '50px',
+          right: '8%',
+          width: '500px',
+          height: '350px',
+          background: 'radial-gradient(circle, rgba(217, 119, 6, 0.08) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <div className="wide-container" style={{ position: 'relative', zIndex: 2 }}>
+        {/* Perimeter Telemetry Coordinate HUD Ticks */}
+        <div
+          aria-hidden="true"
+          className="section-hud-coordinates"
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '16px',
+            padding: '0 8px',
+            fontSize: '10.5px',
+            fontFamily: 'monospace',
+            letterSpacing: '0.08em',
+            color: 'rgba(93, 102, 54, 0.7)',
+            textTransform: 'uppercase',
+          }}
+        >
+          <span>SYS // LAT 15.3173° N • LON 75.7139° E • ELEV 612M</span>
+          <span>RF MESH // 868.1 MHz SX1278 GATEWAY SYNC</span>
+        </div>
+
+        {/* Section Typography Header */}
+        <div style={{ textAlign: 'center', maxWidth: '820px', margin: '0 auto 40px auto', padding: '0 16px' }}>
+          {/* Eyebrow Pill */}
           <div
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '6px 16px',
-              borderRadius: '9999px',
-              background: 'rgba(94, 102, 34, 0.08)',
-              border: '1px solid rgba(94, 102, 34, 0.2)',
-              marginBottom: '16px',
+              padding: '5px 14px',
+              borderRadius: '999px',
+              backgroundColor: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(137, 153, 33, 0.28)',
+              boxShadow: '0 2px 8px rgba(29, 31, 20, 0.04)',
+              marginBottom: '18px',
             }}
           >
+            <span
+              style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                backgroundColor: '#10b981',
+                boxShadow: '0 0 8px #10b981',
+                animation: 'telemetryPulse 2s ease-in-out infinite',
+              }}
+            />
             <span
               style={{
                 fontSize: '11px',
                 fontWeight: 700,
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                color: '#5e6622',
+                color: '#47501b',
               }}
             >
-              Engineered Capabilities
+              AQUASOL MOBILE ECOSYSTEM • 6 CONNECTED VECTORS
             </span>
           </div>
-          <h2 className="heading h2" style={{ marginBottom: '16px' }}>
-            Built for velocity. <span className="accent-text">Refined for clarity.</span>
+
+          <h2
+            className="heading h2 centered"
+            style={{
+              marginBottom: '16px',
+              fontSize: 'clamp(28px, 4vw, 44px)',
+              fontWeight: 800,
+              lineHeight: 1.15,
+              letterSpacing: '-0.03em',
+              color: '#1a1f11',
+              fontFamily: '"Bricolage Grotesque", "Inter Tight", sans-serif',
+            }}
+          >
+            Everything you need to{' '}
+            <span
+              style={{
+                background: 'linear-gradient(135deg, #1d2214 20%, #687719 70%, #899921 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              manage your farm.
+            </span>
           </h2>
-          <p className="paragraph large" style={{ color: '#555555' }}>
-            A modular engine supporting everything from complex architectural dependencies to fast everyday deliverables.
+
+          <p
+            className="paragraph large centered"
+            style={{
+              color: '#555e34',
+              fontSize: '18px',
+              lineHeight: 1.55,
+              maxWidth: '680px',
+              margin: '0 auto',
+            }}
+          >
+            See your farm, monitor crops, track drones, check soil conditions, and manage irrigation — all from the AquaSol mobile app.
           </p>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '24px',
-          }}
-        >
-          {FEATURES.map((feature, idx) => {
-            const Icon = feature.icon;
-            return (
-              <FeatureCard key={idx}>
-                <CrossDecor position="top-start" />
-                <CrossDecor position="bottom-end" />
-                <div
-                  style={{
-                    position: 'relative',
-                    zIndex: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '46px',
-                    height: '46px',
-                    borderRadius: '12px',
-                    background: 'rgba(250, 250, 240, 0.9)',
-                    border: '1px solid rgba(94, 102, 34, 0.2)',
-                    color: '#5e6622',
-                  }}
-                >
-                  <Icon size={22} strokeWidth={1.8} />
-                </div>
-                <div style={{ position: 'relative', zIndex: 2 }}>
-                  <h3 className="heading h6" style={{ marginBottom: '8px', color: '#171717' }}>
-                    {feature.title}
-                  </h3>
-                  <p className="paragraph small no-margin" style={{ color: '#555555', lineHeight: 1.6 }}>
-                    {feature.description}
-                  </p>
-                </div>
-              </FeatureCard>
-            );
-          })}
-        </div>
+        {/* Magnetic Image Gallery Component */}
+        <MagneticImageGallery />
       </div>
-    </div>
+    </section>
   );
 };
