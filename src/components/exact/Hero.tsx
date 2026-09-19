@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { ArrowDown } from 'lucide-react';
 
 export const Hero: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -22,50 +23,37 @@ export const Hero: React.FC = () => {
           <div className="w-layout-grid grid full-width mobile-1-col">
             <div id="w-node-_8f8f427a-a162-3030-0935-806ef126dc00-0181bba9" className="hero-text-wrap">
               <div className="overflow-hidden">
+                <p className="aq-eyebrow">
+                  <span aria-hidden="true" className="aq-eyebrow-dot" />
+                  Smart irrigation for Indian farms
+                </p>
                 <h1 data-w-id="f84372ae-39f3-d558-b059-862642443e0b" className="heading h1">
-                  Grow projects like forests. <span className="accent-text">Reliably.</span>
+                  Intelligence in <span className="accent-text">Every&nbsp;Drop.</span>
                 </h1>
               </div>
               <div className="text-box s">
-                <p data-w-id="ba4f1ae9-7aa9-bbab-3e23-81ec90e8f9f7" className="paragraph large">
-                  Create a clear roadmap to align your entire team, track milestones, and ensure confident project advancement.
+                <p data-w-id="ba4f1ae9-7aa9-bbab-3e23-81ec90e8f9f7" className="paragraph large aq-hero-sub">
+                  Irrigation in India still runs on manual checks and guesswork. AquaSol&apos;s sensors, drones and AI watch every field and water it only when needed.
                 </p>
                 <div className="spacer _32" />
                 <div className="overlay-hidden">
-                  <div data-w-id="7db7f76a-15f4-c6d4-c5a5-01dce3c647ca" className="buttons-wrap _16-padding-bottom">
-                    <a
-                      data-wf--button--variant="dark"
-                      href="#contact"
-                      className="button-wrap w-variant-4204eb55-5f95-435c-1da2-59bb19b63ce2 w-inline-block"
-                    >
-                      <div className="button-text w-variant-4204eb55-5f95-435c-1da2-59bb19b63ce2">Sign up</div>
-                      <img
-                        src="/assets/68adc1ddeabbfa4390965b78_arrow-dark-18405da9fa.svg"
-                        loading="lazy"
-                        alt=""
-                        className="image w-variant-4204eb55-5f95-435c-1da2-59bb19b63ce2"
-                      />
-                    </a>
-                    <a
-                      data-wf--button--variant="outline"
-                      href="#features"
-                      className="button-wrap w-variant-486b2865-bdcd-be19-167e-94f873d72fb3 w-inline-block"
-                    >
-                      <div className="button-text">See more</div>
-                      <img
-                        src="/assets/68adc1ddeabbfa4390965b78_arrow-dark-18405da9fa.svg"
-                        loading="lazy"
-                        alt=""
-                        className="image"
-                      />
-                    </a>
-                  </div>
+                  <a href="#problem" className="aq-cta">
+                    <span>See how it works</span>
+                    <span className="aq-cta-icon" aria-hidden="true">
+                      <ArrowDown size={15} strokeWidth={2.6} />
+                    </span>
+                  </a>
                 </div>
+                <ul className="aq-chips" aria-label="AquaSol highlights">
+                  <li>Solar-powered</li>
+                  <li aria-hidden="true" className="aq-chips-sep">·</li>
+                  <li>Works offline</li>
+                  <li aria-hidden="true" className="aq-chips-sep">·</li>
+                  <li>
+                    <span lang="en">English</span>, <span lang="kn">ಕನ್ನಡ</span>, <span lang="hi">हिन्दी</span>, <span lang="te">తెలుగు</span>
+                  </li>
+                </ul>
               </div>
-              <div className="spacer _32" />
-              <p data-w-id="2689d2e6-8617-35df-713d-de6c17cb6ef1" className="paragraph small">
-                <strong>•</strong> Free demo • No credit card needed
-              </p>
             </div>
 
             <div className="bg-video-wrap">
@@ -187,8 +175,8 @@ export const Hero: React.FC = () => {
                 <div data-w-id="1a93fbd8-50a6-3681-5f63-9f75694bf098" className="green-slogan-wrap">
                   <div className="hero-small-text light">Real-time insights.</div>
                 </div>
-                <div data-w-id="1a93fbd8-50a6-3681-5f63-9f75694bf09b" className="cream-slogan-wrap">
-                  <div className="hero-small-text">Available now!</div>
+                <div className="aq-proto-badge">
+                  <div className="hero-small-text">SIH 2026 prototype</div>
                 </div>
               </div>
 

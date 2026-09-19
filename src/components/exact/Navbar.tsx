@@ -53,25 +53,25 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
             <div className="navigation-middle">
               <div className="links-wrap">
                 <a
-                  href="#features"
-                  onClick={(e) => { e.preventDefault(); handleNavClick('#features'); }}
+                  href="#problem"
+                  onClick={(e) => { e.preventDefault(); handleNavClick('#problem'); }}
                   className="navigation-link no-margin w-inline-block"
                 >
-                  <div className="link-text">Features</div>
+                  <div className="link-text">Problem</div>
                 </a>
                 <a
-                  href="#testimonials"
-                  onClick={(e) => { e.preventDefault(); handleNavClick('#testimonials'); }}
+                  href="#solution"
+                  onClick={(e) => { e.preventDefault(); handleNavClick('#solution'); }}
                   className="navigation-link no-margin w-inline-block"
                 >
-                  <div className="link-text">Testimonials</div>
+                  <div className="link-text">Solution</div>
                 </a>
                 <a
-                  href="#pricing"
-                  onClick={(e) => { e.preventDefault(); handleNavClick('#pricing'); }}
+                  href="#product"
+                  onClick={(e) => { e.preventDefault(); handleNavClick('#product'); }}
                   className="navigation-link no-margin w-inline-block"
                 >
-                  <div className="link-text">Pricing</div>
+                  <div className="link-text">Product</div>
                 </a>
                 <a
                   href="#about"
@@ -100,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
                     onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
                     className="button-wrap w-variant-4204eb55-5f95-435c-1da2-59bb19b63ce2 w-inline-block"
                   >
-                    <div className="button-text w-variant-4204eb55-5f95-435c-1da2-59bb19b63ce2">Get started</div>
+                    <div className="button-text w-variant-4204eb55-5f95-435c-1da2-59bb19b63ce2">Contact us</div>
                     <img
                       src="/assets/68adc1ddeabbfa4390965b78_arrow-dark-18405da9fa.svg"
                       loading="lazy"
@@ -136,25 +136,25 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
           <div className="mobile-menu-wrapper">
             <div className="mobile-menu-navigation">
               <a
-                href="#features"
-                onClick={(e) => { e.preventDefault(); handleNavClick('#features'); }}
+                href="#problem"
+                onClick={(e) => { e.preventDefault(); handleNavClick('#problem'); }}
                 className="mobile-menu-link w-inline-block"
               >
-                <div className="mobile-link-text">Features</div>
+                <div className="mobile-link-text">Problem</div>
               </a>
               <a
-                href="#testimonials"
-                onClick={(e) => { e.preventDefault(); handleNavClick('#testimonials'); }}
+                href="#solution"
+                onClick={(e) => { e.preventDefault(); handleNavClick('#solution'); }}
                 className="mobile-menu-link w-inline-block"
               >
-                <div className="mobile-link-text">Testimonials</div>
+                <div className="mobile-link-text">Solution</div>
               </a>
               <a
-                href="#pricing"
-                onClick={(e) => { e.preventDefault(); handleNavClick('#pricing'); }}
+                href="#product"
+                onClick={(e) => { e.preventDefault(); handleNavClick('#product'); }}
                 className="mobile-menu-link w-inline-block"
               >
-                <div className="mobile-link-text">Pricing</div>
+                <div className="mobile-link-text">Product</div>
               </a>
               <a
                 href="#about"
@@ -199,7 +199,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
                   onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
                   className="button-wrap w-inline-block w--current"
                 >
-                  <div className="button-text">Get started</div>
+                  <div className="button-text">Contact us</div>
                   <img src="/assets/68adc1ddeabbfa4390965b78_arrow-dark-18405da9fa.svg" loading="lazy" alt="" className="image" />
                 </a>
                 <a
