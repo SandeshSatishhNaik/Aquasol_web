@@ -1275,8 +1275,55 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
 }
 
 /* ==========================================================================
+   AquaSol design tokens
+   Contrast (on --aq-cream #fafaf0): ink 15.89, muted 6.58, olive-dark 6.52.
+   --aq-olive-bright (3.01) and --aq-aqua (3.20) are fills/data only,
+   never body text.
+   ========================================================================== */
+
+:root {
+  --aq-cream: #fafaf0;
+  --aq-cream-deep: #f0deb4;
+  --aq-forest: #1f2a13;
+  --aq-ink: #1d1f14;
+  --aq-ink-lift: #2a3018;
+  --aq-muted: #555e34;
+  --aq-olive-dark: #55600f;
+  --aq-olive: #687719;
+  --aq-olive-bright: #899921;
+  --aq-aqua: #1b9aaa;
+  --aq-line: rgba(137, 153, 33, 0.25);
+}
+
+/* Headline accents use dark olive so text clears 4.5:1 on cream. */
+.heading .accent-text {
+  color: var(--aq-olive-dark);
+}
+
+/* Telemetry gallery gradient headline ends in bright olive; pin to dark olive. */
+#telemetry-gallery h2 span {
+  background: none !important;
+  -webkit-text-fill-color: currentcolor;
+  color: var(--aq-olive-dark);
+}
+
+/* Sticky translucent cream navbar (keeps the rounded shape). */
+.header.sticky {
+  background-color: rgba(250, 250, 240, 0.85);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(14px) saturate(1.1);
+  border: none;
+  border-bottom: 1px solid rgba(29, 31, 20, 0.08);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header.sticky.is-scrolled {
+  background-color: rgba(250, 250, 240, 0.94);
+  box-shadow: 0 12px 32px -16px rgba(29, 31, 20, 0.28);
+}
+
+/* ==========================================================================
    AquaSol Phase 1 — hero eyebrow, CTA, chips, prototype badge
-   (Palette tokens land in Phase 3; existing hexes reused here.)
    ========================================================================== */
 
 .aq-eyebrow {
@@ -1287,13 +1334,13 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   padding: 5px 14px;
   border-radius: 999px;
   background-color: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(137, 153, 33, 0.28);
+  border: 1px solid var(--aq-line);
   box-shadow: 0 2px 8px rgba(29, 31, 20, 0.04);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #47501b;
+  color: var(--aq-olive-dark);
   font-family: "Inter Tight", sans-serif;
 }
 
@@ -1306,8 +1353,11 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   flex-shrink: 0;
 }
 
-.aq-hero-sub {
+.paragraph.large.aq-hero-sub {
   max-width: 46ch;
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--aq-muted);
 }
 
 .aq-cta {
@@ -1316,20 +1366,20 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   gap: 10px;
   padding: 12px 12px 12px 22px;
   border-radius: 999px;
-  background-color: #1d1f14;
-  color: #fafaf0;
+  background-color: var(--aq-ink);
+  color: var(--aq-cream);
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.01em;
   font-family: "Inter Tight", sans-serif;
   text-decoration: none;
-  border: 1px solid #1d1f14;
+  border: 1px solid var(--aq-ink);
   transition: background-color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
 }
 
 .aq-cta:hover {
-  background-color: #2a3018;
-  color: #fafaf0;
+  background-color: var(--aq-ink-lift);
+  color: var(--aq-cream);
   text-decoration: none;
   transform: translateY(-1px);
   box-shadow: 0 10px 24px -8px rgba(29, 31, 20, 0.45);
@@ -1340,7 +1390,7 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
 }
 
 .aq-cta:focus-visible {
-  outline: 3px solid #899921;
+  outline: 3px solid var(--aq-olive-bright);
   outline-offset: 3px;
 }
 
@@ -1365,12 +1415,12 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   padding: 0;
   font-size: 12.5px;
   font-weight: 600;
-  color: #555e2d;
+  color: var(--aq-muted);
   font-family: "Inter Tight", sans-serif;
 }
 
 .aq-chips-sep {
-  color: rgba(137, 153, 33, 0.5);
+  color: var(--aq-line);
 }
 
 .aq-proto-badge {
@@ -1387,7 +1437,7 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #555b2d;
+  color: var(--aq-muted);
 }
 
 /* ==========================================================================
@@ -1460,8 +1510,8 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   gap: 7px;
   padding: 4px 11px;
   border-radius: 999px;
-  background-color: #1d1f14;
-  color: #fafaf0;
+  background-color: var(--aq-ink);
+  color: var(--aq-cream);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -1473,8 +1523,8 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #1b9aaa;
-  box-shadow: 0 0 8px #1b9aaa;
+  background-color: var(--aq-aqua);
+  box-shadow: 0 0 8px var(--aq-aqua);
   flex-shrink: 0;
 }
 
@@ -1483,7 +1533,7 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #6e7a20;
+  color: var(--aq-olive-dark);
   font-family: monospace;
   white-space: nowrap;
 }
@@ -1505,7 +1555,7 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
 
 .aq-zone.is-irrigating {
   fill: rgba(27, 154, 170, 0.1);
-  stroke: #1b9aaa;
+  stroke: var(--aq-aqua);
   stroke-width: 2;
 }
 
@@ -1523,13 +1573,13 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
 }
 
 .aq-nodes circle.is-active {
-  fill: #1b9aaa;
+  fill: var(--aq-aqua);
 }
 
 .aq-zone-labels text {
   font-size: 13px;
   font-weight: 800;
-  fill: #555b2d;
+  fill: var(--aq-muted);
   font-family: "Inter Tight", sans-serif;
 }
 
@@ -1546,17 +1596,17 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
 }
 
 .aq-drone-body {
-  fill: #1d1f14;
+  fill: var(--aq-ink);
 }
 
 .aq-drone-rotor {
-  fill: #1d1f14;
-  stroke: #fafaf0;
+  fill: var(--aq-ink);
+  stroke: var(--aq-cream);
   stroke-width: 1;
 }
 
 .aq-drone-eye {
-  fill: #1b9aaa;
+  fill: var(--aq-aqua);
 }
 
 .aq-moisture {
@@ -1578,7 +1628,7 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
 .aq-moisture-zone {
   font-size: 11px;
   font-weight: 700;
-  color: #47501b;
+  color: var(--aq-olive-dark);
   font-family: "Inter Tight", sans-serif;
   white-space: nowrap;
 }
@@ -1596,20 +1646,20 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   width: 100%;
   height: 100%;
   border-radius: 999px;
-  background-color: #1b9aaa;
+  background-color: var(--aq-aqua);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .aq-moisture-fill.is-low {
-  background-color: #1b9aaa;
+  background-color: var(--aq-aqua);
 }
 
 .aq-moisture-val {
   font-size: 11px;
   font-weight: 700;
-  color: #1d1f14;
+  color: var(--aq-ink);
   font-family: monospace;
   text-align: right;
 }
@@ -1627,6 +1677,13 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
 
 @media (prefers-reduced-motion: reduce) {
   .aq-moisture-fill {
+    transition: none !important;
+  }
+
+  .aq-cta,
+  .aq-cta:hover,
+  .aq-cta:active,
+  .header.sticky {
     transition: none !important;
   }
 }

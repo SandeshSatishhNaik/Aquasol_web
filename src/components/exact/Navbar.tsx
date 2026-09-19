@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface NavbarProps {
   currentPage?: string;
@@ -7,6 +7,14 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavigate }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const handleNavClick = (href: string) => {
     setMobileOpen(false);
@@ -25,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
   };
 
   return (
-    <div data-w-id="677ce8dc-20c3-795f-1d3a-dd0f52d52492" className="header sticky">
+    <div data-w-id="677ce8dc-20c3-795f-1d3a-dd0f52d52492" className={`header sticky${scrolled ? ' is-scrolled' : ''}`}>
       <div className="container">
         <div className="navigation-wrapper">
           <div className="navigation">
