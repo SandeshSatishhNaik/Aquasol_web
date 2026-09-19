@@ -1,20 +1,21 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowDown } from 'lucide-react';
+import { LiveFarmDashboard } from './LiveFarmDashboard';
+
+const HERO_POSTER =
+  '/assets/68ac094ada452bf00181bba8-2F691efa8f76153a3eb69c3b11_4249212-uhd_3840_2160_24fps_-f2ea23f690.jpg';
 
 export const Hero: React.FC = () => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
 
-  const toggleVideo = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   return (
     <div id="hero" className="section hero">
@@ -62,14 +63,15 @@ export const Hero: React.FC = () => {
                 className="background-video w-background-video w-background-video-atom"
               >
                 <video
-                  ref={videoRef}
                   id="76357cac-5e72-109f-5a72-9ad65220e100-video"
-                  autoPlay
+                  autoPlay={!reducedMotion}
                   loop
                   muted
                   playsInline
+                  preload="metadata"
+                  poster={HERO_POSTER}
                   style={{
-                    backgroundImage: 'url(/assets/68ac094ada452bf00181bba8-2F691efa8f76153a3eb69c3b11_4249212-uhd_3840_2160_24fps_-f2ea23f690.jpg)',
+                    backgroundImage: `url(${HERO_POSTER})`,
                   }}
                   data-wf-ignore="true"
                   data-object-fit="cover"
@@ -79,32 +81,7 @@ export const Hero: React.FC = () => {
                     data-wf-ignore="true"
                   />
                 </video>
-                <div aria-live="polite">
-                  <button
-                    type="button"
-                    onClick={toggleVideo}
-                    className="w-backgroundvideo-backgroundvideoplaypausebutton play-pause-button w-background-video--control"
-                    aria-label={isPlaying ? 'Pause video' : 'Play video'}
-                  >
-                    {isPlaying ? (
-                      <span>
-                        <img
-                          src="/assets/6a631eb305cafa158af0143f_play-btn-f12bc81c9a.svg"
-                          loading="lazy"
-                          alt="Pause video"
-                        />
-                      </span>
-                    ) : (
-                      <span>
-                        <img
-                          loading="lazy"
-                          alt="Play video"
-                          src="/assets/6a631ed5586b0856e5bbe7c1_pause-btn-cee5609190.svg"
-                        />
-                      </span>
-                    )}
-                  </button>
-                </div>
+                <div aria-hidden="true" className="aq-video-scrim" />
               </div>
 
               {/* Top-Right Cutout Corner & Rotating Logomark */}
@@ -180,15 +157,9 @@ export const Hero: React.FC = () => {
                 </div>
               </div>
 
-              {/* Floating Illustration */}
-              <div data-w-id="9be411ff-966f-4519-293d-878b59eb9f45" className="hero-illustration-wrap">
-                <img
-                  src="/assets/68aec695eac9b687bc4c0741_hero-illustration-b7dd9f6cd0.svg"
-                  loading="eager"
-                  data-w-id="bcf7a115-99b6-c348-b603-7279c5eb1fa3"
-                  alt=""
-                  className="hero-illustration"
-                />
+              {/* Live farm mini-dashboard */}
+              <div data-w-id="9be411ff-966f-4519-293d-878b59eb9f45" className="hero-illustration-wrap aq-farm-slot">
+                <LiveFarmDashboard />
               </div>
             </div>
           </div>
