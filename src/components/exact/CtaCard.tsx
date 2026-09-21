@@ -1,9 +1,23 @@
 import React from 'react';
+import { ArrowRight } from 'lucide-react';
 
-export const CtaCard: React.FC = () => {
-  return (
-    <>
-      <div className="section"><div className="container centered"><div className="cta-card"><div className="overflow-hidden"><h1 data-w-id="00ae8bab-7ba2-97e7-dbba-6ca77f04a1e3" className="heading h2 white mobile-centered">Ready to reach <span className="accent-text">the summit?</span></h1></div><div className="overflow-hidden"><div className="text-box m"><p data-w-id="5fbdc093-1193-7165-bc40-5b2deeeb3185" className="paragraph large white centered">Start your free trial today and take the first step toward effortless project management.</p></div></div><div data-w-id="4e5299ab-bf6e-9e90-0b21-36be30443dc4" className="buttons-wrap no-top-padding"><a data-wf--button--variant="base" href="#contact" className="button-wrap w-inline-block"><div className="button-text">Get started</div><img src="/assets/68adc1ddeabbfa4390965b78_arrow-dark-18405da9fa.svg" loading="lazy" alt="" className="image"/></a></div></div></div></div>
-    </>
-  );
-};
+export const CtaCard: React.FC = () => (
+  <section className="aq-sec aq-sec--dark" aria-labelledby="close-title">
+    <div className="aq-wrap aq-close">
+      <h2 id="close-title" className="aq-h2">
+        Ready to see AquaSol <span className="aq-accent">in action?</span>
+      </h2>
+      <p className="aq-lead">
+        Get in touch to see how AquaSol waters each zone only when it needs it.
+      </p>
+      <div className="aq-close-actions">
+        <a href="#contact" className="aq-cta">
+          <span>Request a demo</span>
+          <span className="aq-cta-icon" aria-hidden="true">
+            <ArrowRight size={15} strokeWidth={2.6} />
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+);

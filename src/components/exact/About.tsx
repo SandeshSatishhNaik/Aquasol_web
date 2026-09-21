@@ -1,11 +1,45 @@
 import React from 'react';
+import { Reveal } from '../motion/Reveal';
 
-export const About: React.FC = () => {
-  return (
-    <>
-      <div id="about" className="section"><div className="wide-container light"><div className="container"><div className="spacer _32"></div><div className="w-layout-grid _2-2-grid"><div id="w-node-_5e289473-19af-9981-c9fa-75b0352f6f63-0181bba9" className="overflow-hidden"><div data-w-id="ae088903-cb1e-2ff2-8809-a4af11a2abcf" className="text-box s"><h1 className="heading h2">Words from <span className="accent-text">founders.</span></h1></div></div><div id="w-node-_23bb0c1e-eecd-13a0-284f-5e749c2060dd-0181bba9" className="text-box l"><p data-w-id="36fff557-b353-a59d-48b8-8ede3dc7a13a" className="paragraph no-margin large">By identifying a market gap where existing project management tools didn't meet modern team needs, a more collaborative platform was created.</p></div><div className="outer-founder-image-wrap"><div className="spacer _32"></div><div className="founder-image-wrap"><img src="/assets/68b93df946bf6f20096a6c62_Founders-aec245704e.avif" loading="eager" sizes="(max-width: 479px) 100vw, 49vw" alt="" srcSet="/assets/68b93df946bf6f20096a6c62_Founders-p-500-76fc54c2b6.avif 500w, /assets/68b93df946bf6f20096a6c62_Founders-aec245704e.avif 1024w" className="founder-image"/><div data-w-id="56c9b396-5958-8887-c5a4-93383bdc86c1" className="founder-button-wrap"><a data-wf--button--variant="light" href="admin-licensing.html" className="button-wrap w-variant-6469cb50-26d0-1dd1-7436-c9d960826821 w-inline-block"><div className="button-text">Learn more</div><img src="/assets/68adc1ddeabbfa4390965b78_arrow-dark-18405da9fa.svg" loading="lazy" alt="" className="image"/></a></div><div className="cutout-shape-wrap bottom-right"><img loading="lazy" src="/assets/68ac3b48ed60b0dfac22d447_1c83c4a424bb291297ae81064ec43af2_corner-shape-b5a357a4aa.svg" alt="corner shape
-" className="corner-shape bottom-left"/><img loading="lazy" src="/assets/68ac3b48ed60b0dfac22d447_1c83c4a424bb291297ae81064ec43af2_corner-shape-b5a357a4aa.svg" alt="corner shape
-" className="corner-shape top-right"/><img src="/assets/68aeb2a5a67a4655a7dbbc84_logomark-82a1244df6.svg" loading="eager" style={{ transform: "rotate(45deg)" }} data-w-id="533b5ba8-c525-0085-63ad-78e9c3373ddf" alt="" className="logo-mark"/></div></div></div><div className="founder-quotes-wrap"><div className="spacer _32 hide-on-mobile"></div><div data-w-id="3c26a683-d2c3-b72b-af8f-8803c2c7e9c5" className="founder-1-quote-wrap"><h1 className="paragraph large white">" We started this platform because managing projects always felt harder than it should be. Too many tools created more noise than clarity. We wanted to design a simpler way - one that helps teams stay aligned and <span className="accent-text">move forward</span> without the chaos."</h1><p className="paragraph white">Michael Perry / Co Founder</p><div className="icon-wrap"><img src="/assets/68b951fddd06761573a231f5_white-cursor-e28104a43d.svg" loading="eager" data-w-id="b6840119-beee-f627-d980-f5769ac12964" alt="" className="white-icon"/></div></div><div data-w-id="77679186-32cd-7136-f9c6-406765ce72c7" className="founder-2-quote-wrap"><h1 className="paragraph large">" From day one, our vision has been to give teams a clear path from idea to completion. We believe project management should feel like progress, not paperwork."</h1><p className="paragraph">Sabrina Purdish / Co Founder</p><div className="icon-wrap"><img src="/assets/68adc554887e7e23cb57bf4a_arrow-light-12e713238e.svg" loading="eager" data-w-id="eb8dabe3-04b4-6d72-b064-13c6c1ed0dd3" alt="" className="white-icon up invert"/></div></div></div></div><div className="spacer _16"></div><div className="see-demo-wrap"><div className="w-layout-grid _2-1-grid no-margin full-width mobile-1-col"><h1 className="heading h5 no-margin bottom-0-mobile">We are always ready to show you how our platform works.<span className="accent-text">Signup for a quick demo presentation with us!</span></h1><div id="w-node-_4f380b76-2a75-29f2-efbb-9bb328739c20-0181bba9" className="demo-button-wrap"><a data-wf--button--variant="outline" href="#contact" className="button-wrap w-variant-486b2865-bdcd-be19-167e-94f873d72fb3 w-inline-block"><div className="button-text">Try demo</div><img src="/assets/68adc1ddeabbfa4390965b78_arrow-dark-18405da9fa.svg" loading="lazy" alt="" className="image"/></a></div></div></div><div className="spacer _32"></div></div></div></div>
-    </>
-  );
-};
+// The old version repeated the hero sub and the Problem lead almost verbatim, and
+// reused the drone screenshot that the demo section already shows. It now carries
+// only what is not said elsewhere: who built this, and what it is.
+const POINTS = [
+  {
+    term: 'Who we are',
+    detail:
+      'A final-year Electronics and Communication team at GM University, Davangere: Abhishek PJ, Ganesh Chaithanya and Zainab Quazi, mentored by Mr. Raviteja Balekai.',
+  },
+  {
+    term: 'What it is',
+    detail:
+      'A working prototype: one master gateway, two solar-powered field nodes, an app, and the AI layer specified in our project report.',
+  },
+  {
+    term: 'Where it is going',
+    detail:
+      'Submitted to Smart India Hackathon 2026 under problem statement SIH26180, AI-powered Smart Farming Assistant. The MVP is in progress; pilots with farmers come next.',
+  },
+];
+
+export const About: React.FC = () => (
+  <section id="about" className="aq-sec" aria-labelledby="about-title">
+    <div className="aq-wrap aq-about">
+      <Reveal className="aq-about-head">
+        <h2 id="about-title" className="aq-h2 aq-h2--sm">Why AquaSol.</h2>
+        <p className="aq-lead">
+          Built by students, for farms that cannot be watched every day.
+        </p>
+      </Reveal>
+
+      <dl className="aq-about-points">
+        {POINTS.map((p, i) => (
+          <Reveal key={p.term} className="aq-point" delay={i * 80}>
+            <dt>{p.term}</dt>
+            <dd>{p.detail}</dd>
+          </Reveal>
+        ))}
+      </dl>
+    </div>
+  </section>
+);

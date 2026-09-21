@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useInView } from '../../lib/useInView';
 
 interface ZoneDatum {
@@ -19,14 +19,43 @@ const ZONES: ZoneDatum[] = [
 const FLIGHT_PATH =
   'M 24 216 C 70 200, 60 150, 100 138 S 170 120, 200 84 S 260 60, 296 40';
 
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 /**
- * "Live farm" mini-dashboard: top-down SVG schematic of four zones with a
- * drone following a dashed survey path, per-zone soil-moisture bars and an
- * irrigation status pill. All values are demo data for illustration.
+ * The hero's instrument: four farm zones, per-zone soil-moisture readings and
+ * a drone survey path. On first view it boots once: zones read, then the
+ * gateway decides Zone B needs water. All values are demo data.
  */
 export const LiveFarmDashboard: React.FC = () => {
   const { ref, inView } = useInView<HTMLDivElement>(0.35);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const [decided, setDecided] = useState(prefersReducedMotion);
+
+  // The site fades in behind the loader on a first visit; IntersectionObserver
+  // ignores opacity, so wait for the reveal before starting the boot.
+  useEffect(() => {
+    const host = ref.current?.closest('.aquasol-site-reveal');
+    const check = () => {
+      if (!host || host.classList.contains('visible')) setRevealed(true);
+    };
+    const raf = requestAnimationFrame(check);
+    const observer = host ? new MutationObserver(check) : null;
+    if (host && observer) observer.observe(host, { attributes: true, attributeFilter: ['class'] });
+    return () => {
+      cancelAnimationFrame(raf);
+      observer?.disconnect();
+    };
+  }, [ref]);
+
+  const live = inView && revealed;
+
+  useEffect(() => {
+    if (!live || decided) return;
+    const timer = window.setTimeout(() => setDecided(true), 1100);
+    return () => window.clearTimeout(timer);
+  }, [live, decided]);
 
   // SMIL motion is not governed by CSS; pause it for reduced-motion users.
   useEffect(() => {
@@ -45,16 +74,15 @@ export const LiveFarmDashboard: React.FC = () => {
   return (
     <div
       ref={ref}
-      className={`aq-farm${inView ? ' is-visible' : ''}`}
+      className={`aq-farm${live ? ' is-visible' : ''}${decided ? ' is-decided' : ''}`}
       role="img"
-      aria-label="Demonstration schematic of four farm zones with a drone survey path, soil-moisture bars and an irrigating status for Zone B"
+      aria-label="Demonstration schematic of four farm zones with a drone survey path, soil-moisture readings and an irrigating status for Zone B"
     >
       <div className="aq-farm-top">
         <span className="aq-farm-status">
           <span aria-hidden="true" className="aq-farm-pulse" />
-          Irrigating: Zone B
+          {decided ? 'Irrigating: Zone B' : 'Reading zones'}
         </span>
-        <span className="aq-farm-demo">Demo data</span>
       </div>
 
       <svg
@@ -67,7 +95,14 @@ export const LiveFarmDashboard: React.FC = () => {
         {/* Zone plots */}
         <g>
           <rect x="8" y="8" width="148" height="104" rx="10" className="aq-zone" />
-          <rect x="164" y="8" width="148" height="104" rx="10" className="aq-zone is-irrigating" />
+          <rect
+            x="164"
+            y="8"
+            width="148"
+            height="104"
+            rx="10"
+            className={`aq-zone${decided ? ' is-irrigating' : ''}`}
+          />
           <rect x="8" y="120" width="148" height="112" rx="10" className="aq-zone" />
           <rect x="164" y="120" width="148" height="112" rx="10" className="aq-zone" />
         </g>
@@ -91,7 +126,7 @@ export const LiveFarmDashboard: React.FC = () => {
         {/* Solar sensor nodes */}
         <g className="aq-nodes" aria-hidden="true">
           <circle cx="40" cy="30" r="4" />
-          <circle cx="280" cy="30" r="4" className="is-active" />
+          <circle cx="280" cy="30" r="4" className={decided ? 'is-active' : undefined} />
           <circle cx="40" cy="210" r="4" />
           <circle cx="280" cy="210" r="4" />
         </g>
@@ -120,24 +155,32 @@ export const LiveFarmDashboard: React.FC = () => {
         </g>
       </svg>
 
-      {/* Per-zone soil-moisture bars */}
+      {/* Per-zone soil-moisture readings */}
       <ul className="aq-moisture" aria-label="Demonstration soil-moisture readings">
         {ZONES.map((z, i) => (
-          <li key={z.id} className="aq-moisture-row">
+          <li
+            key={z.id}
+            className={`aq-moisture-row${z.irrigating && decided ? ' is-irrigating' : ''}`}
+          >
             <span className="aq-moisture-zone">{z.label}</span>
             <span className="aq-moisture-track">
               <span
-                className={`aq-moisture-fill${z.irrigating ? ' is-low' : ''}`}
+                className="aq-moisture-fill"
                 style={{
-                  transform: inView ? `scaleX(${z.moisture / 100})` : 'scaleX(0)',
+                  transform: live ? `scaleX(${z.moisture / 100})` : 'scaleX(0)',
                   transitionDelay: `${i * 90}ms`,
                 }}
               />
             </span>
-            <span className="aq-moisture-val">{z.moisture}%</span>
+            <span className="aq-moisture-val">{live ? `${z.moisture}%` : '--'}</span>
           </li>
         ))}
       </ul>
+
+      <div className="aq-farm-foot">
+        <span>Demo data</span>
+        <span>SIH 2026 prototype</span>
+      </div>
     </div>
   );
 };

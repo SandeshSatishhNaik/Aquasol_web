@@ -117,7 +117,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
           cursor: 'pointer',
           color: '#1d2214',
           boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
-          transition: 'all 0.2s ease',
+          transition: 'background-color 0.2s ease, color 0.2s ease, transform 0.2s ease',
         }}
       >
         <ChevronLeft size={22} strokeWidth={2.4} />
@@ -146,7 +146,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
           cursor: 'pointer',
           color: '#1d2214',
           boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
-          transition: 'all 0.2s ease',
+          transition: 'background-color 0.2s ease, color 0.2s ease, transform 0.2s ease',
         }}
       >
         <ChevronRight size={22} strokeWidth={2.4} />
@@ -288,12 +288,10 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                 border: '1px solid rgba(137, 153, 33, 0.4)',
                 fontSize: '11px',
                 fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
                 color: '#283311',
               }}
             >
-              <span style={{ color: '#687719' }}>Vector {slide.index}</span>
+              <span style={{ color: '#687719' }}>Screen {slide.index}</span>
               <span>•</span>
               <span>{slide.category}</span>
             </div>
@@ -319,12 +317,10 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                   style={{
                     fontSize: '11px',
                     fontWeight: 700,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
                     color: '#6e7a20',
                   }}
                 >
-                  AquaSol Architecture Spec
+                  About this screen
                 </span>
                 <h2
                   id="gallery-modal-title"
@@ -370,7 +366,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                   cursor: 'pointer',
                   color: '#1d1f14',
                   flexShrink: 0,
-                  transition: 'all 0.2s ease',
+                  transition: 'background-color 0.2s ease, color 0.2s ease, transform 0.2s ease',
                 }}
                 className="magnetic-modal-close-btn"
               >

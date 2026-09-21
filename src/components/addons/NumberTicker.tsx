@@ -20,12 +20,19 @@ export const NumberTicker: React.FC<NumberTickerProps> = ({
   prefix = '',
 }) => {
   const ref = useRef<HTMLSpanElement>(null);
-  const [displayValue, setDisplayValue] = useState<number>(
-    direction === 'down' ? value : 0
+  // Under reduced motion the number is rendered at its final value and never counts.
+  const prefersReduced =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finalValue = direction === 'down' ? 0 : value;
+  const [displayValue, setDisplayValue] = useState<number>(() =>
+    prefersReduced ? finalValue : direction === 'down' ? value : 0
   );
   const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
+    if (prefersReduced) return;
     const el = ref.current;
     if (!el) return;
 
@@ -68,7 +75,7 @@ export const NumberTicker: React.FC<NumberTickerProps> = ({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [value, direction, delay, hasAnimated]);
+  }, [value, direction, delay, hasAnimated, prefersReduced]);
 
   return (
     <span ref={ref} className={className}>

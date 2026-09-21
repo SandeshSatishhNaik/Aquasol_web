@@ -2,14 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { createFluxParticles } from './particles/createFluxParticles';
 import { startEmblemChoreography } from './animation/choreography';
-import type { LoaderPhase, SceneContext } from './types';
+import type { AquaSolLoaderProps, LoaderPhase, SceneContext } from './types';
 
-export interface AquaSolLoaderProps {
-  onComplete?: () => void;
-  minDisplayTimeMs?: number;
-}
-
-export function AquaSolLoader({ onComplete }: AquaSolLoaderProps) {
+export function AquaSolLoader({ onComplete, onRelease }: AquaSolLoaderProps) {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<LoaderPhase>('init');
   const [showWordmark, setShowWordmark] = useState(false);
@@ -59,8 +54,6 @@ export function AquaSolLoader({ onComplete }: AquaSolLoaderProps) {
       camera,
       renderer,
       particleSystem,
-      width,
-      height,
     };
 
     // Resize Handler
@@ -95,6 +88,9 @@ export function AquaSolLoader({ onComplete }: AquaSolLoaderProps) {
         ) {
           setShowWordmark(true);
         }
+        if (nextPhase === 'releasing') {
+          onRelease?.();
+        }
       },
       onComplete: () => {
         setIsDone(true);
@@ -115,7 +111,7 @@ export function AquaSolLoader({ onComplete }: AquaSolLoaderProps) {
         container.removeChild(renderer.domElement);
       }
     };
-  }, [onComplete]);
+  }, [onComplete, onRelease]);
 
   if (isDone) {
     return null;

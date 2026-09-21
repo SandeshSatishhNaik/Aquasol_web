@@ -1,143 +1,144 @@
 import React, { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+
+// The site has no server, so the form hands the message to the visitor's email
+// app. Set VITE_CONTACT_EMAIL (in .env or the host's settings) to the inbox that
+// should receive it.
+const CONTACT_EMAIL = (import.meta.env.VITE_CONTACT_EMAIL as string | undefined)?.trim();
+
+type Status = 'idle' | 'opened' | 'error';
 
 export const Contact: React.FC = () => {
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<Status>('idle');
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.email) {
-      setSubmitted(true);
+    const message = formData.message.trim();
+    if (!message) {
+      setError('Please write a message so we know how to help.');
+      setStatus('error');
+      return;
     }
+    if (!CONTACT_EMAIL) {
+      setError('Sending is not connected yet, so your message was not sent. Please try again later.');
+      setStatus('error');
+      return;
+    }
+    const name = formData.name.trim();
+    const subject = name ? `AquaSol enquiry from ${name}` : 'AquaSol enquiry';
+    const body = `${message}
+
+${name ? name + ' ' : ''}<${formData.email.trim()}>`;
+    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setError('');
+    setStatus('opened');
   };
 
   return (
-    <div id="contact" className="section">
-      <div className="wide-container cream bg-image">
-        <div className="container">
-          <div className="spacer _32" />
-          <div className="w-layout-grid grid mobile-1-col">
-            <div className="contact-col-left-wrap">
-              <h1 className="heading h2">Let's map it out.</h1>
-              <div className="text-box s">
-                <p className="paragraph large">
-                  Every journey needs a guide. Whether you're just starting out or aiming for the summit, we're here to help you find the path forward.
-                </p>
-              </div>
-              <div className="spacer _16" />
-              <div className="contact-form-block w-form">
-                {!submitted ? (
-                  <form
-                    id="wf-form-Message"
-                    name="wf-form-Message"
-                    data-name="Message"
-                    onSubmit={handleSubmit}
-                    className="form-wrap"
-                  >
-                    <label htmlFor="name" className="field-name">
-                      Name
-                    </label>
-                    <div className="field-wrap">
-                      <input
-                        className="text-field w-input"
-                        maxLength={256}
-                        name="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="Your name"
-                        type="text"
-                        id="name"
-                      />
-                    </div>
-                    <div className="field-wrap">
-                      <label htmlFor="email" className="field-name">
-                        Email
-                      </label>
-                      <input
-                        className="text-field w-input"
-                        maxLength={256}
-                        name="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="Your email"
-                        type="email"
-                        id="email"
-                        required
-                      />
-                    </div>
-                    <div className="area-wrap">
-                      <label htmlFor="field" className="field-name">
-                        Message
-                      </label>
-                      <textarea
-                        placeholder="Message goes here.."
-                        maxLength={5000}
-                        id="field"
-                        name="field"
-                        value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        className="text-area w-input"
-                      />
-                    </div>
-                    <input
-                      type="submit"
-                      data-wait="Please wait..."
-                      className="button w-button"
-                      value="Submit"
-                    />
-                  </form>
-                ) : (
-                  <div className="success-message w-form-done" style={{ display: 'block' }}>
-                    <div className="text-block">Thank you! Your submission has been received!</div>
-                  </div>
-                )}
-              </div>
-            </div>
+    <section id="contact" className="aq-sec aq-sec--sand" aria-labelledby="contact-title">
+      <div className="aq-wrap aq-contact">
+        <div className="aq-contact-text">
+          <h2 id="contact-title" className="aq-h2 aq-h2--sm">Let&rsquo;s talk irrigation.</h2>
+          <p className="aq-lead">
+            Questions about AquaSol, or want to request a demo? Send us a message.
+          </p>
 
-            <div className="contact-right-col-wrap">
-              <div className="contact-image-wrap">
-                <img
-                  src="/assets/68ba8ec8f651b2ae80f960fe_ba5500884d46502af729b760c287bb32_contact-image-4008f4fa5b.avif"
-                  loading="eager"
-                  sizes="(max-width: 479px) 100vw, 49vw"
-                  srcSet="/assets/68ba8ec8f651b2ae80f960fe_ba5500884d46502af729b760c287bb32_contact-image-p-500-84ad04cd88.avif 500w, /assets/68ba8ec8f651b2ae80f960fe_ba5500884d46502af729b760c287bb32_contact-image-4008f4fa5b.avif 1024w"
-                  alt=""
-                  className="contact-image"
-                />
-                <img
-                  src="/assets/68ba9a7a825a0321bef7f539_contact-graph-2-9ebb8ef66b.svg"
-                  loading="eager"
-                  alt=""
-                  className="contact-graph-2"
-                />
-                <img
-                  src="/assets/68ba96bb5377bdddf1fa26ad_2c705921994c7bc05a2108938c122481_contact-graph-1-90aeb7c403.svg"
-                  loading="eager"
-                  alt=""
-                  className="contact-graph-1"
-                />
-                <div className="logo-mark-square-wrap">
-                  <img
-                    src="/assets/68aeb2a5a67a4655a7dbbc84_logomark-82a1244df6.svg"
-                    loading="eager"
-                    alt=""
-                    className="logo-mark"
-                  />
-                </div>
-                <img
-                  className="contact-graph-3"
-                  src="/assets/68baa317a9f5ee09be2d988c_faffe888364f1b13094c1a424f997e58_contact-graph-3-0da7404b17.avif"
-                  alt=""
-                  sizes="(max-width: 479px) 100vw, 49vw"
-                  loading="eager"
-                  srcSet="/assets/68baa317a9f5ee09be2d988c_faffe888364f1b13094c1a424f997e58_contact-graph-3-p-500-0909cc16cb.avif 500w, /assets/68baa317a9f5ee09be2d988c_faffe888364f1b13094c1a424f997e58_contact-graph-3-0da7404b17.avif 700w"
+          {status !== 'opened' ? (
+            <form onSubmit={handleSubmit} className="aq-form" noValidate>
+              <div className="aq-field">
+                <label htmlFor="name">Name</label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  maxLength={120}
+                  autoComplete="name"
+                  placeholder="Your name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
+
+              <div className="aq-field">
+                <label htmlFor="email">Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  maxLength={254}
+                  autoComplete="email"
+                  placeholder="Your email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                />
+              </div>
+
+              <div className="aq-field">
+                <label htmlFor="message">Message</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  maxLength={1500}
+                  placeholder="How can we help?"
+                  required
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  aria-invalid={status === 'error' && !formData.message.trim() ? true : undefined}
+                  aria-describedby={status === 'error' ? 'contact-error' : undefined}
+                />
+              </div>
+
+              {status === 'error' && (
+                <p id="contact-error" role="alert" className="contact-form-error">
+                  {error}
+                </p>
+              )}
+
+              <div className="aq-form-actions">
+                <button type="submit" className="aq-cta">
+                  <span>Send message</span>
+                  <span className="aq-cta-icon" aria-hidden="true">
+                    <ArrowRight size={15} strokeWidth={2.6} />
+                  </span>
+                </button>
+              </div>
+              <p className="contact-form-note">
+                This opens your email app with your message ready to send.
+              </p>
+            </form>
+          ) : (
+            <div className="contact-form-block">
+              <div className="success-message" role="status">
+                <div className="text-block">
+                  Your email app should have opened with your message. If it did not, write to{' '}
+                  <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+                </div>
+                <button type="button" className="contact-form-back" onClick={() => setStatus('idle')}>
+                  Edit message
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="spacer _32" />
+          )}
+        </div>
+
+        <div className="aq-contact-stage" aria-hidden="true">
+          <span className="aq-phone">
+            <span className="aq-phone-screen">
+              <img
+                src="/assets/aquasol-control-center.jpg"
+                alt=""
+                width="498"
+                height="1024"
+                loading="lazy"
+                decoding="async"
+              />
+            </span>
+          </span>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

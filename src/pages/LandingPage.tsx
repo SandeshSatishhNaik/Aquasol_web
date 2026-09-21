@@ -1,12 +1,14 @@
 import React from 'react';
 import { Hero } from '../components/exact/Hero';
-import { MarqueeLogoScroller } from '../components/addons/MarqueeLogoScroller';
+import { Problem } from '../components/exact/Problem';
 import { Features } from '../components/exact/Features';
+import { Working } from '../components/exact/Working';
+import { Hardware } from '../components/exact/Hardware';
+import { Different } from '../components/exact/Different';
+import { TechStack } from '../components/exact/TechStack';
+import { Roadmap } from '../components/exact/Roadmap';
 import { FeatureGridSpotlight } from '../components/addons/FeatureGridSpotlight';
-import { Demo } from '../components/exact/Demo';
-import { Benefits } from '../components/exact/Benefits';
 import { VideoPreview } from '../components/exact/VideoPreview';
-import { Integrations } from '../components/exact/Integrations';
 import { About } from '../components/exact/About';
 import { Contact } from '../components/exact/Contact';
 import { CtaCard } from '../components/exact/CtaCard';
@@ -15,13 +17,15 @@ export const LandingPage: React.FC = () => {
   return (
     <>
       <Hero />
-      <MarqueeLogoScroller />
+      <Problem />
       <Features />
+      <Working />
+      <Hardware />
       <FeatureGridSpotlight />
-      <Demo />
-      <Benefits />
       <VideoPreview />
-      <Integrations />
+      <Different />
+      <TechStack />
+      <Roadmap />
       <About />
       <Contact />
       <CtaCard />

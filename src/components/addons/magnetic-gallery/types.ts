@@ -20,6 +20,8 @@ export interface AgriculturalSlide {
   tags: string[];
   image: string;
   video?: string;
+  poster?: string;
+  summary?: string;
   alt: string;
   imagePosition?: string;
   imageFit?: 'cover' | 'contain';
@@ -29,9 +31,4 @@ export interface AgriculturalSlide {
   accentGlow?: string;
   statusBadge?: string;
   shortLabel?: string;
-}
-
-export interface MagneticGalleryProps {
-  slides?: AgriculturalSlide[];
-  className?: string;
 }

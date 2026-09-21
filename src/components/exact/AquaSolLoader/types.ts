@@ -3,7 +3,7 @@
 export interface AquaSolLoaderProps {
   onComplete?: () => void;
   onRelease?: () => void;
-  forceReplay?: boolean;
+  minDisplayTimeMs?: number;
 }
 
 export type LoaderPhase =
@@ -39,6 +39,4 @@ export interface SceneContext {
   camera: import('three').PerspectiveCamera;
   renderer: import('three').WebGLRenderer;
   particleSystem: FluxParticleContext;
-  resize: (width: number, height: number) => void;
-  dispose: () => void;
 }

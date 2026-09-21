@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Navbar } from './components/exact/Navbar';
 import { Footer } from './components/exact/Footer';
 import { LandingPage } from './pages/LandingPage';
@@ -11,8 +11,16 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { TemplateGuidePage } from './pages/TemplateGuidePage';
 import { ChangeLogPage } from './pages/ChangeLogPage';
 import { PasswordPage } from './pages/PasswordPage';
-import { Agentation } from 'agentation';
-import { AquaSolLoader } from './components/exact/AquaSolLoader';
+// Dev-only feedback toolbar. `import.meta.env.DEV` is statically replaced at build time,
+// so the dynamic import below is dead-code-eliminated and `agentation` never reaches production.
+const Agentation = import.meta.env.DEV
+  ? lazy(() => import('agentation').then((m) => ({ default: m.Agentation })))
+  : null;
+// three.js is ~600 kB and the loader plays at most once per session, so it must not sit
+// in the main chunk. Returning visitors (sessionStorage) now never download it at all.
+const AquaSolLoader = lazy(() =>
+  import('./components/exact/AquaSolLoader/AquaSolLoader').then((m) => ({ default: m.AquaSolLoader })),
+);
 
 export function App() {
   const [currentPage, setCurrentPage] = useState<string>('landing');
@@ -51,17 +59,17 @@ export function App() {
 
   // Smooth scroll to top on page transition
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   }, [currentPage]);
 
-  // Ensure Agentation feedback toolbar is always visible and never stuck hidden in sessionStorage
+  // Ensure the dev feedback toolbar is never stuck hidden in sessionStorage. Dev only.
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        sessionStorage.removeItem('agentation-session-toolbar-hidden');
-      } catch {
-        // ignore
-      }
+    if (!import.meta.env.DEV) return;
+    try {
+      sessionStorage.removeItem('agentation-session-toolbar-hidden');
+    } catch {
+      // ignore
     }
   }, []);
 
@@ -77,16 +85,20 @@ export function App() {
   return (
     <>
       {!loaderDone && (
-        <AquaSolLoader
-          onRelease={handleRelease}
-          onComplete={handleComplete}
-        />
+        <Suspense fallback={null}>
+          <AquaSolLoader
+            onRelease={handleRelease}
+            onComplete={handleComplete}
+          />
+        </Suspense>
       )}
       <div
         className={siteRevealing || loaderDone ? 'aquasol-site-reveal visible' : 'aquasol-site-reveal'}
         style={!siteRevealing && !loaderDone ? { visibility: 'hidden' } : undefined}
       >
+        <a href="#main" className="skip-link">Skip to main content</a>
         <Navbar currentPage={currentPage} onNavigate={setCurrentPage} />
+        <main id="main" tabIndex={-1}>
         {currentPage === 'landing' && <LandingPage />}
         {currentPage === 'teaser-1' && <TeaserOne />}
         {currentPage === 'teaser-2' && <TeaserTwo />}
@@ -98,8 +110,13 @@ export function App() {
         {currentPage === 'not-found' && (
           <NotFoundPage onGoHome={() => setCurrentPage('landing')} />
         )}
+        </main>
         <Footer onNavigate={setCurrentPage} />
-        <Agentation />
+        {Agentation && (
+          <Suspense fallback={null}>
+            <Agentation />
+          </Suspense>
+        )}
       </div>
     </>
   );

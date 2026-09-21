@@ -4,6 +4,33 @@ html {
   scroll-behavior: smooth;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: -9999px;
+  z-index: 100000;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--aq-ink);
+  color: var(--aq-cream);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: 8px;
+}
+
+#main:focus {
+  outline: none;
+}
+
 /* Ensure images render with proper default block behavior where Webflow expects */
 img {
   max-width: 100%;
@@ -66,26 +93,6 @@ img {
   transition: height 0.35s ease, opacity 0.3s ease;
 }
 
-/* Page switcher dropdown in nav */
-.page-switch-select {
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(29, 31, 20, 0.15);
-  border-radius: 20px;
-  padding: 4px 12px;
-  font-size: 13px;
-  font-family: inherit;
-  color: var(--color--black);
-  cursor: pointer;
-  outline: none;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.page-switch-select:hover {
-  background: #fff;
-  border-color: rgba(29, 31, 20, 0.3);
-}
-
 /* AquaSol Brand Logo Typography */
 .header-logo-mark.brand-name {
   font-family: "Bricolage Grotesque", "Inter Tight", -apple-system, sans-serif;
@@ -113,49 +120,6 @@ img {
 }
 
 
-
-/* Agentation Visual Feedback Tool Enhancements */
-div[data-agentation-toolbar="true"] {
-  z-index: 999999 !important;
-}
-
-div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn {
-  box-shadow: 0 4px 20px rgba(78, 93, 24, 0.45), 0 0 0 3px rgba(78, 93, 24, 0.3) !important;
-  border: 2px solid #829c2a !important;
-  background-color: #1d1f14 !important;
-  cursor: pointer !important;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s !important;
-  position: relative !important;
-}
-
-div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn:hover {
-  transform: scale(1.08) !important;
-  box-shadow: 0 8px 28px rgba(78, 93, 24, 0.65), 0 0 0 5px rgba(78, 93, 24, 0.45) !important;
-}
-
-/* Clear visual pill label next to collapsed button so user immediately recognizes it */
-div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
-  content: "✨ Agentation Tool";
-  position: absolute;
-  right: calc(100% + 12px);
-  top: 50%;
-  transform: translateY(-50%);
-  background: #1d1f14;
-  color: #f7f8f4;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  padding: 6px 14px;
-  border-radius: 999px;
-  white-space: nowrap;
-  pointer-events: none;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(130, 156, 42, 0.5);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  letter-spacing: -0.01em;
-}
 
 /* Option D: Dual-Ring Concentric Orbit & Live Tech HUD */
 .integrations-image-wrap {
@@ -272,7 +236,7 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   align-items: center;
   gap: 14px;
   box-shadow: 0 10px 28px -4px rgba(138, 142, 92, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.9);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 68px;
   max-width: 480px;
 }
@@ -286,7 +250,7 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   justify-content: center;
   border: 1px solid;
   flex-shrink: 0;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .tech-hud-badge {
@@ -443,7 +407,7 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   border: 1px solid rgba(138, 142, 92, 0.22);
   color: #4a4a4a;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -756,130 +720,394 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   opacity: 1;
 }
 
-/* Hero Cutout Agriculture Feature Badge */
-.cutout-shape-wrap.bottom-left {
-  justify-content: center;
-  align-items: flex-start;
+/* ==========================================================================
+   AquaSol product showcase: a deck of phones, one selected.
+   Movement is transform and opacity only.
+   ========================================================================== */
+
+.aq-show {
+  position: relative;
+  width: 100%;
+  max-width: 1260px;
+  margin: 0 auto;
 }
 
-.agri-feature-wrap {
+.aq-show-panel {
+  --phone-w: clamp(220px, 20vw, 290px);
+  --phone-h: calc(var(--phone-w) * 2.067);
+  --step: calc(var(--phone-w) * 0.66);
+  --item-h: 3.5rem;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "list stage"
+    "detail stage";
+  column-gap: var(--aq-space-l);
+  row-gap: var(--aq-space-m);
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+  overflow: hidden;
+  border-radius: 32px;
+  background: var(--aq-instrument-bg);
+  color: var(--aq-instrument-text);
+  font-family: "Inter Tight", sans-serif;
+  box-shadow: 0 40px 80px -40px rgba(18, 24, 10, 0.55);
+}
+
+/* ---- screen selector ---- */
+
+.aq-show-list {
+  grid-area: list;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-left: 20px;
+}
+
+.aq-show-indicator {
+  position: absolute;
+  left: 0;
+  top: 0.5rem;
+  width: 3px;
+  height: calc(var(--item-h) - 1rem);
+  border-radius: 2px;
+  background: var(--aq-olive-bright);
+  transform: translateY(calc(var(--i) * var(--item-h)));
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aq-show-tab {
+  display: flex;
+  align-items: center;
+  height: var(--item-h);
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: clamp(1.5rem, 2.3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: rgba(250, 250, 240, 0.6);
+  transition: color 0.3s ease;
+}
+
+.aq-show-tab:hover,
+.aq-show-tab[aria-selected="true"] {
+  color: var(--aq-instrument-text);
+}
+
+.aq-show-tab:focus-visible {
+  outline: 3px solid var(--aq-cream);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* ---- detail ---- */
+
+.aq-show-detail {
+  grid-area: detail;
+  align-self: end;
+}
+
+.aq-show-detail-inner {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-left: 20px;
-  gap: 8px;
+  gap: var(--aq-space-xs);
+  animation: aq-show-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes aq-show-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.aq-show-title {
+  max-width: 22ch;
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: clamp(1.375rem, 2vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  color: var(--aq-instrument-text);
+}
+
+.aq-show-summary {
+  max-width: 40ch;
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--aq-instrument-muted);
+}
+
+.aq-show-metric {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  margin: var(--aq-space-2xs) 0 0 0;
+}
+
+.aq-show-metric-value {
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--aq-instrument-text);
+}
+
+.aq-show-metric-label {
+  font-size: 0.9375rem;
+  color: var(--aq-instrument-muted);
+}
+
+.aq-show-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: var(--aq-space-2xs);
+  padding: 0.75rem 1.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--aq-cream);
+  color: var(--aq-ink);
+  font-family: "Inter Tight", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aq-show-open:hover {
+  background: #ffffff;
+}
+
+.aq-show-open:active {
+  transform: scale(0.98);
+}
+
+.aq-show-open:focus-visible {
+  outline: 3px solid var(--aq-cream);
+  outline-offset: 3px;
+}
+
+/* ---- stage ---- */
+
+.aq-show-stage {
+  grid-area: stage;
+  position: relative;
+  height: calc(var(--phone-h) + 6rem);
+  perspective: 1600px;
+  touch-action: pan-y;
   user-select: none;
 }
 
-.agri-feature-icon-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background-color: #E3ECBF;
-  border: 1px solid rgba(137, 153, 33, 0.35);
-  color: #2E450E;
-  box-shadow: 0 2px 5px rgba(29, 31, 20, 0.06);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease, box-shadow 0.25s ease;
+.aq-show-stage::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--phone-w) * 2.4);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(137, 153, 33, 0.26), transparent);
+  pointer-events: none;
+}
+
+.aq-show-device {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 2rem);
+  z-index: calc(10 - var(--a));
+  width: var(--phone-w);
+  cursor: pointer;
+  transform: translate3d(calc(-50% + var(--d) * var(--step)), -50%, calc(var(--a) * -150px))
+    rotateY(calc(var(--d) * -14deg)) scale(calc(1 - var(--a) * 0.05));
+  opacity: max(0, calc(1 - var(--a) * 0.42));
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+}
+
+.aq-show-device:not([aria-hidden="true"]) {
   cursor: default;
 }
 
-.agri-feature-wrap:hover .agri-feature-icon-box {
-  transform: scale(1.08) rotate(3deg);
-  background-color: #DAE6B0;
-  box-shadow: 0 4px 10px rgba(137, 153, 33, 0.2);
+.aq-show-device[data-far] {
+  pointer-events: none;
 }
 
-.agri-feature-title {
-  font-family: "Inter Tight", sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: #1D1F14;
-  line-height: 1.2;
+/* Before the section is first seen, the phones are stacked and hidden; they
+   fan out once. */
+.aq-show-stage:not([data-ready="true"]) .aq-show-device {
+  transform: translate3d(-50%, calc(-50% + 36px), 0) scale(0.9);
+  opacity: 0;
+}
+
+.aq-show-stage[data-ready="true"] .aq-show-device {
+  transition-delay: calc(var(--a) * 70ms);
+}
+
+.aq-show-phone {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  aspect-ratio: 9 / 18.6;
+  padding: 9px;
+  border-radius: 44px;
+  background: #0d1208;
+  box-shadow: inset 0 0 0 1px rgba(250, 250, 240, 0.18), 0 50px 60px -36px rgba(0, 0, 0, 0.65);
+}
+
+.aq-show-phone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--aq-instrument-bg);
+  opacity: calc(var(--a) * 0.3);
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.aq-show-screen {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 35px;
+  background: var(--aq-cream);
+}
+
+.aq-show-screen img,
+.aq-show-screen video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.aq-show-controls {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  gap: 0.5rem;
+  transform: translateX(-50%);
+}
+
+.aq-show-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(250, 250, 240, 0.28);
+  border-radius: 50%;
+  background: rgba(250, 250, 240, 0.06);
+  color: var(--aq-instrument-text);
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.aq-show-arrow:hover:not(:disabled) {
+  background: rgba(250, 250, 240, 0.16);
+}
+
+.aq-show-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.aq-show-arrow:focus-visible {
+  outline: 3px solid var(--aq-cream);
+  outline-offset: 3px;
+}
+
+@media (max-width: 991px) {
+  .aq-show-panel {
+    --phone-w: clamp(200px, 56vw, 250px);
+    --step: calc(var(--phone-w) * 0.72);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      "list"
+      "stage"
+      "detail";
+    row-gap: var(--aq-space-s);
+  }
+
+  .aq-show-list {
+    flex-direction: row;
+    gap: 8px;
+    padding: 0 0 4px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent 100%);
+    mask-image: linear-gradient(90deg, #000 92%, transparent 100%);
+  }
+
+  .aq-show-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .aq-show-indicator {
+    display: none;
+  }
+
+  .aq-show-tab {
+    flex: 0 0 auto;
+    height: auto;
+    padding: 0.625rem 1.125rem;
+    border: 1px solid var(--aq-instrument-line);
+    border-radius: 999px;
+    font-size: 1rem;
+  }
+
+  .aq-show-tab[aria-selected="true"] {
+    background: var(--aq-cream);
+    border-color: var(--aq-cream);
+    color: var(--aq-ink);
+  }
+
+  .aq-show-detail {
+    align-self: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-show-device,
+  .aq-show-phone::after,
+  .aq-show-indicator,
+  .aq-show-tab,
+  .aq-show-open,
+  .aq-show-arrow {
+    transition: none !important;
+  }
+
+  .aq-show-detail-inner {
+    animation: none !important;
+  }
 }
 
 /* ==========================================================================
-   AquaSol Magnetic Image Gallery & Telemetry Modal Styles
+   Detail modal
    ========================================================================== */
 
-.magnetic-gallery-root {
-  position: relative;
-  width: 100%;
-}
-
-.magnetic-gallery-track {
-  display: flex;
-  align-items: center;
-  user-select: none;
-}
-
-.magnetic-gallery-track::-webkit-scrollbar {
-  display: none;
-}
-
-.magnetic-gallery-card {
-  position: relative;
-  transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.magnetic-gallery-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 18px 40px -4px rgba(29, 31, 20, 0.28) !important;
-}
-
-.magnetic-gallery-card:not(.is-app-screen):hover .magnetic-card-img {
-  transform: scale(1.04) !important;
-}
-
-.magnetic-gallery-card.is-app-screen .magnetic-card-img {
-  transform: none !important;
-}
-
-.magnetic-gallery-card:hover .magnetic-card-expand-btn {
-  background-color: var(--color--green, #899921) !important;
-  color: #1d1f14 !important;
-  border-color: var(--color--green, #899921) !important;
-  transform: scale(1.12);
-}
-
-/* Card Container Query Dynamics: adapts seamlessly based on instantaneous card width */
-.card-expanded-metric,
-.card-expanded-body {
-  display: none !important;
-}
-
-.magnetic-card-title {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 13.5px !important;
-}
-
-@container (min-width: 175px) {
-  .card-expanded-metric {
-    display: inline-flex !important;
-  }
-
-  .magnetic-card-title {
-    font-size: 15px !important;
-    white-space: normal !important;
-  }
-}
-
-@container (min-width: 250px) {
-  .card-expanded-body {
-    display: block !important;
-  }
-
-  .magnetic-card-title {
-    font-size: 18px !important;
-    line-height: 1.25 !important;
-  }
-}
-
-/* Modal Keyframe Transitions */
 @keyframes agriModalFadeIn {
   from {
     opacity: 0;
@@ -900,42 +1128,6 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   }
 }
 
-@keyframes telemetryPulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.35);
-    opacity: 0.65;
-  }
-}
-
-.magnetic-dock-tab:hover {
-  transform: translateY(-2px);
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  color: #1a1f11 !important;
-  border-color: rgba(137, 153, 33, 0.5) !important;
-}
-
-.magnetic-dock-tab.active:hover {
-  background-color: #12180c !important;
-  color: #fafaf0 !important;
-}
-
-.magnetic-gallery-card:hover {
-  transform: translateY(-5px) !important;
-}
-
-.magnetic-gallery-card:hover .card-cta-btn {
-  background-color: rgba(250, 250, 240, 0.28) !important;
-  border-color: rgba(255, 255, 255, 0.45) !important;
-}
-
-.magnetic-gallery-card:hover .card-cta-icon-wrap {
-  transform: scale(1.15) translate(1px, -1px);
-}
-
 .magnetic-modal-nav-btn:hover {
   background-color: var(--color--green, #899921) !important;
   color: #1d1f14 !important;
@@ -947,10 +1139,7 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   transform: rotate(90deg);
 }
 
-/* Hide all browser native video controls chrome */
-.magnetic-gallery-card video::-webkit-media-controls,
-.magnetic-gallery-card video::-webkit-media-controls-enclosure,
-.magnetic-gallery-card video::-webkit-media-controls-panel,
+/* Hide native video controls in the modal */
 .magnetic-gallery-modal-card video::-webkit-media-controls,
 .magnetic-gallery-modal-card video::-webkit-media-controls-enclosure,
 .magnetic-gallery-modal-card video::-webkit-media-controls-panel {
@@ -960,16 +1149,7 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   visibility: hidden !important;
 }
 
-/* Responsive Rules */
 @media (max-width: 900px) {
-  .section-hud-coordinates {
-    display: none !important;
-  }
-
-  .magnetic-chassis-shell {
-    border-radius: 26px !important;
-  }
-
   .magnetic-gallery-modal-card {
     grid-template-columns: 1fr !important;
     max-height: 85vh !important;
@@ -981,296 +1161,11 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   }
 }
 
-@media (max-width: 767px) {
-  .magnetic-gallery-card {
-    width: 270px !important;
-    height: 400px !important;
-  }
-
-  .magnetic-module-dock {
-    justify-content: flex-start !important;
-    overflow-x: auto !important;
-    flex-wrap: nowrap !important;
-    padding-bottom: 6px !important;
-    scrollbar-width: none !important;
-  }
-
-  .magnetic-module-dock::-webkit-scrollbar {
-    display: none !important;
-  }
-
-  .magnetic-dock-tab {
-    flex-shrink: 0 !important;
-  }
-
-  .magnetic-chassis-footer {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 8px !important;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .magnetic-gallery-card,
-  .magnetic-card-img,
   .magnetic-gallery-modal-backdrop,
-  .magnetic-gallery-modal-card,
-  .card-cta-icon-wrap,
-  .magnetic-dock-tab {
+  .magnetic-gallery-modal-card {
     transition: none !important;
     animation: none !important;
-  }
-}
-
-/* ==========================================================================
-   FeatureGridSpotlight — editorial header + live vector readout
-   Asymmetric composition: narrative column + synced instrument readout.
-   Reuses AquaSol tokens: --color--black #1d1f14, --color--green #899921.
-   ========================================================================== */
-
-.fgs-head {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
-  gap: 40px;
-  align-items: end;
-  max-width: 1260px;
-  margin: 0 auto 36px auto;
-  padding: 0 16px;
-  box-sizing: border-box;
-}
-
-.fgs-narrative {
-  min-width: 0;
-}
-
-.fgs-kicker {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 14px 0;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #555b2d;
-  font-family: "Inter Tight", sans-serif;
-}
-
-.fgs-kicker-rule {
-  display: inline-block;
-  width: 28px;
-  height: 2px;
-  background-color: #899921;
-  border-radius: 999px;
-  flex-shrink: 0;
-}
-
-.fgs-specs {
-  display: flex;
-  margin: 24px 0 0 0;
-  padding: 0;
-  border-top: 1px solid rgba(137, 153, 33, 0.25);
-  max-width: 520px;
-}
-
-.fgs-spec {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 12px 16px 0 0;
-  margin: 0;
-}
-
-.fgs-spec + .fgs-spec {
-  border-left: 1px solid rgba(137, 153, 33, 0.25);
-  padding-left: 16px;
-}
-
-.fgs-spec dt {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #6e7a20;
-  font-family: "Inter Tight", sans-serif;
-}
-
-.fgs-spec dd {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: #1d1f14;
-  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
-}
-
-.fgs-readout {
-  min-width: 0;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(137, 153, 33, 0.28);
-  border-radius: 20px;
-  padding: 18px 20px 16px 20px;
-  box-shadow: 0 12px 32px -12px rgba(29, 31, 20, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-.fgs-readout-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.fgs-readout-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #47501b;
-  font-family: monospace;
-}
-
-.fgs-live-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  animation: telemetryPulse 2s ease-in-out infinite;
-}
-
-.fgs-readout-count {
-  font-size: 12px;
-  font-weight: 700;
-  color: #6e7a20;
-  font-family: monospace;
-  letter-spacing: 0.06em;
-}
-
-.fgs-readout-category {
-  margin: 0 0 2px 0;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #6e7a20;
-  font-family: "Inter Tight", sans-serif;
-}
-
-.fgs-readout-title {
-  margin: 0;
-  font-size: 21px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  color: #1d1f14;
-  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
-}
-
-.fgs-readout-metric {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(137, 153, 33, 0.2);
-}
-
-.fgs-readout-value {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #1d1f14;
-  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
-}
-
-.fgs-readout-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #555e34;
-  font-family: "Inter Tight", sans-serif;
-}
-
-.fgs-readout-progress {
-  display: flex;
-  gap: 5px;
-  margin-top: 12px;
-}
-
-.fgs-readout-seg {
-  height: 3px;
-  flex: 1 1 0;
-  border-radius: 999px;
-  transition: background-color 0.3s ease;
-}
-
-.fgs-readout-hint {
-  margin: 10px 0 0 0;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #6e7a20;
-  font-family: "Inter Tight", sans-serif;
-  min-height: 17px;
-}
-
-@media (max-width: 960px) {
-  .fgs-head {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-    align-items: start;
-    margin-bottom: 28px;
-  }
-
-  .fgs-readout {
-    max-width: 560px;
-  }
-
-  .fgs-specs {
-    max-width: none;
-  }
-}
-
-@media (max-width: 560px) {
-  .fgs-head {
-    padding: 0 4px;
-  }
-
-  .fgs-specs {
-    flex-direction: column;
-  }
-
-  .fgs-spec {
-    padding: 10px 0 0 0;
-  }
-
-  .fgs-spec + .fgs-spec {
-    border-left: none;
-    padding-left: 0;
-    border-top: 1px solid rgba(137, 153, 33, 0.2);
-    margin-top: 10px;
-  }
-
-  .fgs-readout-title {
-    font-size: 19px;
-  }
-
-  .fgs-readout-value {
-    font-size: 21px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fgs-live-dot {
-    animation: none !important;
-  }
-
-  .fgs-readout-seg {
-    transition: none !important;
   }
 }
 
@@ -1293,17 +1188,42 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   --aq-olive-bright: #899921;
   --aq-aqua: #1b9aaa;
   --aq-line: rgba(137, 153, 33, 0.25);
+
+  /* hero type: fluid, lands on the existing 40px and 59.72px endpoints */
+  --aq-hero-title: clamp(2.5rem, 1.3rem + 4vw, 3.5rem);
+  --aq-hero-lead: 1.1875rem;
+
+  /* space scale: one source for hero rhythm */
+  --aq-space-2xs: 0.5rem;
+  --aq-space-xs: 0.875rem;
+  --aq-space-s: 1.25rem;
+  --aq-space-m: 2rem;
+  --aq-space-l: 3rem;
+
+  /* Section display scale. Three steps, assigned by what a section is for, never by
+     where it sits: --aq-display for the one statement section, --aq-h2-size for the
+     standard run, --aq-h2-sm for supporting sections such as About and Contact. */
+  --aq-display: clamp(2.5rem, 1.5rem + 4.4vw, 5.5rem);
+  --aq-h2-size: clamp(2rem, 1.2rem + 2.6vw, 3.25rem);
+  --aq-h2-sm: clamp(1.75rem, 1.2rem + 1.8vw, 2.5rem);
+
+
+  /* instrument ground */
+  --aq-instrument-bg: var(--aq-forest);
+  --aq-instrument-line: rgba(137, 153, 33, 0.3);
+  --aq-instrument-text: var(--aq-cream);
+  --aq-instrument-muted: rgba(250, 250, 240, 0.72);
+}
+
+/* Two-column hero: the text column is narrower, so the headline steps down. */
+@media (min-width: 992px) {
+  :root {
+    --aq-hero-title: clamp(2.75rem, 0.6rem + 4.8vw, 4.25rem);
+  }
 }
 
 /* Headline accents use dark olive so text clears 4.5:1 on cream. */
 .heading .accent-text {
-  color: var(--aq-olive-dark);
-}
-
-/* Telemetry gallery gradient headline ends in bright olive; pin to dark olive. */
-#telemetry-gallery h2 span {
-  background: none !important;
-  -webkit-text-fill-color: currentcolor;
   color: var(--aq-olive-dark);
 }
 
@@ -1323,41 +1243,71 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
 }
 
 /* ==========================================================================
-   AquaSol Phase 1 — hero eyebrow, CTA, chips, prototype badge
+   AquaSol hero: one text stack, one instrument
+   Stacked selectors (0,3,0) beat the vendored Webflow rules (0,2,0) without
+   ids or !important.
    ========================================================================== */
 
-.aq-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 14px 0;
-  padding: 5px 14px;
-  border-radius: 999px;
-  background-color: rgba(255, 255, 255, 0.85);
-  border: 1px solid var(--aq-line);
-  box-shadow: 0 2px 8px rgba(29, 31, 20, 0.04);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--aq-olive-dark);
-  font-family: "Inter Tight", sans-serif;
+.section.hero {
+  padding-top: var(--aq-space-l);
+  padding-bottom: var(--aq-space-l);
 }
 
-.aq-eyebrow-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #10b981;
-  box-shadow: 0 0 8px #10b981;
-  flex-shrink: 0;
+/* The sticky header is 89px tall on desktop and the hero starts at the top of the page, so the
+   video used to slide 25px under it. Reserve the header's height plus the usual gap. */
+@media (min-width: 992px) {
+  .section.hero {
+    padding-top: calc(89px + var(--aq-space-s));
+  }
+}
+
+.hero-text-wrap.aq-hero-text {
+  gap: var(--aq-space-s);
+}
+
+/* The instrument overlaps the text column's edge; the right padding keeps the
+   copy clear of it. The 5/7 split only fits from 1280px, equal columns below. */
+@media (min-width: 992px) {
+  .grid.full-width.aq-hero-grid {
+    grid-template-columns: 1fr 1fr;
+    min-height: clamp(520px, 74svh, 720px);
+  }
+
+  .hero-text-wrap.aq-hero-text {
+    padding-right: 3.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid.full-width.aq-hero-grid {
+    grid-template-columns: 5fr 7fr;
+  }
+}
+
+@media (max-width: 991px) {
+  .hero-text-wrap.aq-hero-text {
+    padding-left: 0;
+  }
+}
+
+.heading.h1.aq-hero-title {
+  margin: 0;
+  font-size: var(--aq-hero-title);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 .paragraph.large.aq-hero-sub {
-  max-width: 46ch;
-  font-size: 19px;
+  max-width: 48ch;
+  margin: 0;
+  font-size: var(--aq-hero-lead);
   line-height: 1.6;
   color: var(--aq-muted);
+}
+
+.aq-hero-text .aq-cta {
+  margin-top: calc(var(--aq-space-m) - var(--aq-space-s));
 }
 
 .aq-cta {
@@ -1405,137 +1355,133 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   flex-shrink: 0;
 }
 
-.aq-chips {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  list-style: none;
-  margin: 20px 0 0 0;
-  padding: 0;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--aq-muted);
-  font-family: "Inter Tight", sans-serif;
+/* ---- stage: video, then the instrument in front of it ---- */
+
+.bg-video-wrap.aq-hero-stage {
+  position: relative;
+  min-height: clamp(380px, 56svh, 620px);
 }
 
-.aq-chips-sep {
-  color: var(--aq-line);
+.aq-hero-media {
+  position: relative;
+  height: 100%;
+  min-height: inherit;
 }
 
-.aq-proto-badge {
+.aq-hero-media .w-background-video {
+  height: 100%;
+  min-height: inherit;
+}
+
+.aq-video-toggle {
+  position: absolute;
+  right: var(--aq-space-s);
+  bottom: var(--aq-space-s);
+  z-index: 3;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
-  padding: 8px 16px;
-  border-radius: 999px;
-  background-color: rgba(250, 250, 240, 0.9);
-  border: 1px dashed rgba(85, 91, 45, 0.45);
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(250, 250, 240, 0.35);
+  background-color: rgba(29, 31, 20, 0.72);
+  color: var(--aq-cream);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.aq-proto-badge .hero-small-text {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--aq-muted);
+.aq-video-toggle:hover {
+  background-color: var(--aq-ink);
 }
 
-/* ==========================================================================
-   AquaSol Phase 2 — live farm mini-dashboard + video scrim
-   ========================================================================== */
+.aq-video-toggle:focus-visible {
+  outline: 3px solid var(--aq-cream);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--aq-ink);
+}
 
 .hero-illustration-wrap.aq-farm-slot {
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
-  width: 272px;
+  inset: 8% auto auto -40px;
+  width: clamp(300px, 27vw, 372px);
   height: auto;
+  margin: 0;
   background: transparent;
   border-radius: 0;
-  inset: 9% auto auto -32px;
+  z-index: 2;
 }
 
-@media screen and (min-width: 1280px) {
-  .hero-illustration-wrap.aq-farm-slot {
-    width: 288px;
-    left: -48px;
+@media (max-width: 991px) {
+  .bg-video-wrap.aq-hero-stage {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
-}
 
-@media screen and (max-width: 991px) {
-  .hero-illustration-wrap.aq-farm-slot {
-    margin-left: 0;
-  }
-}
-
-@media screen and (max-width: 767px) {
-  .hero-illustration-wrap.aq-farm-slot {
-    width: min(300px, 72%);
-  }
-}
-
-@media screen and (max-width: 479px) {
-  .hero-illustration-wrap.aq-farm-slot {
-    width: 200px;
+  .aq-hero-media {
+    order: 1;
     height: auto;
-    top: 24px;
-    left: 12px;
+    min-height: 0;
+  }
+
+  .aq-hero-media .w-background-video {
+    height: clamp(240px, 48vw, 380px);
+    min-height: 0;
+  }
+
+  .hero-illustration-wrap.aq-farm-slot {
+    position: relative;
+    inset: auto;
+    order: 0;
+    width: 100%;
+    max-width: 440px;
+    margin-bottom: calc(var(--aq-space-m) * -1);
   }
 }
+
+/* ---- instrument ---- */
 
 .aq-farm {
   position: relative;
   width: 100%;
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(137, 153, 33, 0.3);
-  border-radius: 22px;
-  padding: 14px 16px 14px 16px;
-  box-shadow: 0 18px 44px -16px rgba(29, 31, 20, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   box-sizing: border-box;
+  padding: 14px 16px;
+  background: var(--aq-instrument-bg);
+  color: var(--aq-instrument-text);
+  border: 1px solid var(--aq-instrument-line);
+  border-radius: 22px;
+  box-shadow: 0 24px 48px -20px rgba(18, 24, 10, 0.55);
+  font-family: "Inter Tight", sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 .aq-farm-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .aq-farm-status {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 4px 11px;
-  border-radius: 999px;
-  background-color: var(--aq-ink);
-  color: var(--aq-cream);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  font-family: "Inter Tight", sans-serif;
-  white-space: nowrap;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--aq-instrument-text);
 }
 
 .aq-farm-pulse {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background-color: var(--aq-aqua);
-  box-shadow: 0 0 8px var(--aq-aqua);
+  background-color: var(--aq-olive-bright);
   flex-shrink: 0;
+  transition: background-color 0.3s ease;
 }
 
-.aq-farm-demo {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--aq-olive-dark);
-  font-family: monospace;
-  white-space: nowrap;
+.aq-farm.is-decided .aq-farm-pulse {
+  background-color: var(--aq-aqua);
 }
 
 .aq-farm-map {
@@ -1543,32 +1489,33 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   width: 100%;
   height: auto;
   border-radius: 12px;
-  background: linear-gradient(180deg, #f4f6e8 0%, #edf1dd 100%);
-  border: 1px solid rgba(137, 153, 33, 0.22);
+  background: linear-gradient(180deg, #26331a 0%, #1b2511 100%);
+  border: 1px solid var(--aq-instrument-line);
 }
 
 .aq-zone {
-  fill: rgba(255, 255, 255, 0.75);
-  stroke: rgba(104, 119, 25, 0.45);
+  fill: rgba(250, 250, 240, 0.05);
+  stroke: rgba(137, 153, 33, 0.55);
   stroke-width: 1.5;
+  transition: fill 0.4s ease, stroke 0.4s ease;
 }
 
 .aq-zone.is-irrigating {
-  fill: rgba(27, 154, 170, 0.1);
+  fill: rgba(27, 154, 170, 0.18);
   stroke: var(--aq-aqua);
   stroke-width: 2;
 }
 
 .aq-rows line {
-  stroke: rgba(104, 119, 25, 0.3);
+  stroke: rgba(137, 153, 33, 0.35);
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-dasharray: 5 4;
 }
 
 .aq-nodes circle {
-  fill: #899921;
-  stroke: #fff;
+  fill: var(--aq-olive-bright);
+  stroke: var(--aq-instrument-bg);
   stroke-width: 1.5;
 }
 
@@ -1578,30 +1525,30 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
 
 .aq-zone-labels text {
   font-size: 13px;
-  font-weight: 800;
-  fill: var(--aq-muted);
+  font-weight: 700;
+  fill: var(--aq-instrument-muted);
   font-family: "Inter Tight", sans-serif;
 }
 
 .aq-flight-path {
-  stroke: #1d1f14;
+  stroke: var(--aq-cream);
   stroke-width: 1.75;
   stroke-dasharray: 7 6;
   stroke-linecap: round;
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .aq-drone-halo {
-  fill: rgba(27, 154, 170, 0.22);
+  fill: rgba(27, 154, 170, 0.3);
 }
 
 .aq-drone-body {
-  fill: var(--aq-ink);
+  fill: var(--aq-cream);
 }
 
 .aq-drone-rotor {
-  fill: var(--aq-ink);
-  stroke: var(--aq-cream);
+  fill: var(--aq-cream);
+  stroke: var(--aq-instrument-bg);
   stroke-width: 1;
 }
 
@@ -1615,7 +1562,7 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 4px;
 }
 
 .aq-moisture-row {
@@ -1623,21 +1570,32 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   grid-template-columns: 52px 1fr 40px;
   align-items: center;
   gap: 8px;
+  margin: 0 -8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background-color 0.35s ease;
+}
+
+.aq-moisture-row.is-irrigating {
+  background-color: rgba(27, 154, 170, 0.16);
 }
 
 .aq-moisture-zone {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--aq-olive-dark);
-  font-family: "Inter Tight", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--aq-instrument-muted);
   white-space: nowrap;
+}
+
+.aq-moisture-row.is-irrigating .aq-moisture-zone {
+  color: var(--aq-instrument-text);
 }
 
 .aq-moisture-track {
   display: block;
   height: 8px;
   border-radius: 999px;
-  background-color: rgba(137, 153, 33, 0.18);
+  background-color: rgba(250, 250, 240, 0.12);
   overflow: hidden;
 }
 
@@ -1649,34 +1607,33 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   background-color: var(--aq-aqua);
   transform: scaleX(0);
   transform-origin: left center;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.aq-moisture-fill.is-low {
-  background-color: var(--aq-aqua);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .aq-moisture-val {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--aq-ink);
-  font-family: monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--aq-instrument-text);
   text-align: right;
 }
 
-/* Bottom gradient scrim keeping video badges legible */
-.aq-video-scrim {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 34%;
-  background: linear-gradient(180deg, transparent 0%, rgba(18, 24, 10, 0.42) 100%);
-  pointer-events: none;
+.aq-farm-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--aq-instrument-line);
+  font-size: 12px;
+  color: var(--aq-instrument-muted);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .aq-moisture-fill {
+  .aq-moisture-fill,
+  .aq-moisture-row,
+  .aq-zone,
+  .aq-farm-pulse,
+  .aq-video-toggle {
     transition: none !important;
   }
 
@@ -1686,4 +1643,1951 @@ div[data-agentation-toolbar="true"] .styles-module__collapsed___Rydsn::before {
   .header.sticky {
     transition: none !important;
   }
+}
+
+
+/* ==========================================================================
+   AquaSol landing sections: problem, features, how it works, hardware,
+   difference, tech stack, roadmap. Shared shell first.
+   ========================================================================== */
+
+:root {
+  --aq-sand: #f4efdb;
+  --aq-hair: rgba(29, 31, 20, 0.14);
+}
+
+.aq-sec {
+  position: relative;
+  margin: 12px clamp(8px, 1.2vw, 16px);
+  padding: clamp(3.5rem, 7vw, 6.5rem) clamp(1.25rem, 4vw, 3.5rem);
+  border-radius: 32px;
+  background: var(--aq-cream);
+  color: var(--aq-ink);
+  font-family: "Inter Tight", sans-serif;
+  scroll-margin-top: 96px;
+}
+
+.aq-sec--sand {
+  background: var(--aq-sand);
+}
+
+.aq-sec--dark {
+  background: var(--aq-forest);
+  color: var(--aq-cream);
+}
+
+.aq-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.aq-h2 {
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: var(--aq-h2-size);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: inherit;
+}
+
+/* The statement section. One per page, so the eye has somewhere to land. */
+.aq-h2--display {
+  font-size: var(--aq-display);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+/* Supporting sections: present, but stepping back from the standard run. */
+.aq-h2--sm {
+  font-size: var(--aq-h2-sm);
+  letter-spacing: -0.02em;
+}
+
+.aq-lead {
+  margin: var(--aq-space-s) 0 0;
+  max-width: 52ch;
+  font-size: 1.1875rem;
+  line-height: 1.55;
+  color: var(--aq-muted);
+}
+
+.aq-sec--dark .aq-lead {
+  color: var(--aq-instrument-muted);
+}
+
+.aq-note,
+.aq-source {
+  max-width: 60ch;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--aq-muted);
+}
+
+.aq-note {
+  margin: var(--aq-space-m) 0 0;
+}
+
+.aq-source {
+  margin: var(--aq-space-m) 0 0;
+}
+
+.aq-source a {
+  color: var(--aq-olive-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.aq-source a:focus-visible,
+.aq-play:focus-visible,
+.aq-step:focus-visible {
+  outline: 3px solid var(--aq-olive-dark);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.aq-sec--dark .aq-play:focus-visible,
+.aq-sec--dark .aq-step:focus-visible {
+  outline-color: var(--aq-cream);
+}
+
+.aq-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---- problem ---- */
+
+.aq-problem {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 6vw, 5rem);
+}
+
+.aq-problem-title {
+  max-width: 15ch;
+}
+
+/* The three figures are the section. Oversized, with no boxes around them. */
+.aq-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.75rem, 4vw, 3.5rem);
+  margin: 0;
+}
+
+.aq-stat {
+  margin: 0;
+}
+
+.aq-stat-value {
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: clamp(3.25rem, 1.5rem + 5vw, 6.5rem);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+  color: var(--aq-olive-dark);
+}
+
+.aq-stat-label {
+  max-width: 28ch;
+  margin: 0.75rem 0 0;
+  font-size: 1.0625rem;
+  line-height: 1.45;
+  color: var(--aq-muted);
+}
+
+/* Four consequences, grouped in two columns. No per-row rules. */
+.aq-consequences {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--aq-space-m) clamp(2rem, 5vw, 4.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aq-consequences li {
+  max-width: 42ch;
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.aq-problem .aq-source {
+  margin-top: var(--aq-space-m);
+}
+
+
+/* ---- features: bento ---- */
+
+.aq-features {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 5vw, 3.5rem);
+}
+
+.aq-features-head {
+  max-width: 46rem;
+}
+
+/* Twelve columns, eight cells, no filler. Placement is by name so the DOM stays in
+   reading order and the layout can recompose per breakpoint. */
+.aq-bento {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aq-cell-slot {
+  display: flex;
+  min-width: 0;
+}
+
+.aq-cell-slot[data-cell="offline"]   { grid-column: 1 / span 7; }
+.aq-cell-slot[data-cell="solar"]     { grid-column: 8 / span 5; }
+.aq-cell-slot[data-cell="lumi"]      { grid-column: 1 / span 4; grid-row: span 2; }
+.aq-cell-slot[data-cell="valves"]    { grid-column: 5 / span 4; }
+.aq-cell-slot[data-cell="budget"]    { grid-column: 9 / span 4; }
+.aq-cell-slot[data-cell="dashboard"] { grid-column: 5 / span 8; }
+.aq-cell-slot[data-cell="ai"]        { grid-column: 1 / span 5; }
+.aq-cell-slot[data-cell="drone"]     { grid-column: 6 / span 7; }
+
+.aq-cell {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 15rem;
+  padding: clamp(1.25rem, 2.2vw, 1.75rem);
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--aq-cream);
+}
+
+.aq-cell-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.aq-cell-icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 14px;
+  background: var(--aq-sand);
+  color: var(--aq-olive-dark);
+}
+
+/* Copy sits on the cell floor, so cells of different heights share a text baseline. */
+.aq-cell-copy {
+  margin-top: auto;
+}
+
+.aq-feature-title {
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.aq-feature-body {
+  max-width: 46ch;
+  margin: 0.5rem 0 0;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--aq-muted);
+}
+
+/* The one dark cell: the offline guarantee is the strongest claim in the list. */
+.aq-cell-slot[data-cell="offline"] .aq-cell {
+  background: var(--aq-forest);
+  color: var(--aq-cream);
+}
+
+.aq-cell-slot[data-cell="offline"] .aq-cell-icon {
+  background: rgba(250, 250, 240, 0.12);
+  color: var(--aq-cream);
+}
+
+.aq-cell-slot[data-cell="offline"] .aq-feature-body {
+  color: var(--aq-instrument-muted);
+}
+
+.aq-cell-slot[data-cell="offline"] .aq-feature-title,
+.aq-cell-slot[data-cell="dashboard"] .aq-feature-title {
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.125rem);
+}
+
+.aq-cell-slot[data-cell="offline"] .aq-status[data-status="Built"] {
+  background: var(--aq-cream);
+  color: var(--aq-forest);
+}
+
+/* Cropped app screens. Decorative: the copy carries the meaning. */
+.aq-cell-peek {
+  display: block;
+  width: min(13.75rem, 70%);
+  height: 18.75rem;
+  margin: auto auto -1.75rem;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 0 0 1px var(--aq-hair);
+}
+
+@media (min-width: 992px) {
+  .aq-cell-slot[data-cell="dashboard"] .aq-cell {
+    min-height: 21rem;
+  }
+
+  .aq-cell-slot[data-cell="dashboard"] .aq-cell-copy {
+    max-width: calc(100% - 15.5rem);
+  }
+
+  .aq-cell-slot[data-cell="dashboard"] .aq-cell-peek {
+    /* Starts below the status pill row so the Built label is never covered. */
+    position: absolute;
+    top: 4.5rem;
+    right: 2rem;
+    bottom: 0;
+    width: 13.125rem;
+    height: auto;
+    margin: 0;
+  }
+}
+
+.aq-status {
+  flex: none;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--aq-hair);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.aq-status[data-status="Built"] {
+  border-color: transparent;
+  background: var(--aq-olive-dark);
+  color: var(--aq-cream);
+}
+
+.aq-status[data-status="Designed"] {
+  border-color: var(--aq-muted);
+  color: var(--aq-ink);
+}
+
+@media (max-width: 991px) {
+  .aq-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .aq-cell-slot[data-cell] {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .aq-cell-slot[data-cell="offline"],
+  .aq-cell-slot[data-cell="dashboard"] {
+    grid-column: 1 / -1;
+  }
+
+  .aq-cell-slot[data-cell="dashboard"] .aq-cell-peek {
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .aq-bento {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aq-cell-slot[data-cell="offline"],
+  .aq-cell-slot[data-cell="dashboard"] {
+    grid-column: auto;
+  }
+
+  .aq-cell {
+    min-height: 0;
+  }
+}
+
+/* ---- how it works ---- */
+
+.aq-work {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: center;
+}
+
+.aq-steps {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--aq-space-m);
+}
+
+.aq-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 3.25rem;
+  padding: 0 0 0 20px;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: rgba(250, 250, 240, 0.6);
+  transition: color 0.3s ease;
+}
+
+.aq-step:hover,
+.aq-step[aria-selected="true"] {
+  color: var(--aq-cream);
+}
+
+.aq-step::before,
+.aq-step-fill {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 3px;
+  border-radius: 2px;
+}
+
+.aq-step::before {
+  background: rgba(250, 250, 240, 0.18);
+}
+
+.aq-step-fill {
+  background: var(--aq-olive-bright);
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+.aq-step-fill[data-active="true"] {
+  animation-name: aq-fill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+  animation-play-state: paused;
+}
+
+.aq-steps[data-running="true"] .aq-step-fill[data-active="true"] {
+  animation-play-state: running;
+}
+
+@keyframes aq-fill {
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.aq-step-detail {
+  min-height: 7rem;
+  margin-top: var(--aq-space-s);
+}
+
+.aq-step-detail p {
+  max-width: 44ch;
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--aq-instrument-muted);
+  animation: aq-show-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aq-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  margin-top: var(--aq-space-xs);
+  padding: 0 1.125rem;
+  border: 1px solid rgba(250, 250, 240, 0.32);
+  border-radius: 999px;
+  background: none;
+  color: var(--aq-cream);
+  font-family: "Inter Tight", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.aq-play:hover {
+  background: rgba(250, 250, 240, 0.1);
+}
+
+.aq-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3.5rem minmax(0, 1fr) 3.5rem minmax(0, 1fr);
+  grid-template-areas:
+    "nodes a gate b cloud"
+    ". . . . c"
+    "drone drone drone . app";
+  grid-template-rows: auto 3.5rem auto;
+}
+
+.aq-area-nodes { grid-area: nodes; }
+.aq-area-a { grid-area: a; }
+.aq-area-gate { grid-area: gate; }
+.aq-area-b { grid-area: b; }
+.aq-area-cloud { grid-area: cloud; }
+.aq-area-c { grid-area: c; }
+.aq-area-app { grid-area: app; }
+.aq-area-drone { grid-area: drone; }
+
+.aq-fnode {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--aq-instrument-line);
+  border-radius: 20px;
+  background: var(--aq-ink-lift);
+  color: var(--aq-cream);
+}
+
+.aq-fnode svg {
+  color: var(--aq-olive-bright);
+}
+
+.aq-fnode h3 {
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.aq-fnode p {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--aq-instrument-muted);
+}
+
+.aq-fnode::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: 2px solid var(--aq-olive-bright);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.aq-fnode[data-on]::after {
+  opacity: 1;
+}
+
+.aq-fnode--planned {
+  border-style: dashed;
+  background: transparent;
+}
+
+.aq-fnode--planned h3,
+.aq-fnode--planned p {
+  max-width: 60ch;
+}
+
+.aq-conn {
+  --aq-line: rgba(250, 250, 240, 0.28);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aq-conn::before,
+.aq-conn::after {
+  content: "";
+  position: absolute;
+}
+
+.aq-conn[data-orient="h"]::before {
+  left: 0;
+  right: 0;
+  top: calc(50% - 1.5px);
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--aq-line) 0 6px, transparent 6px 12px);
+}
+
+.aq-conn[data-orient="v"]::before {
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 1.5px);
+  width: 3px;
+  background: repeating-linear-gradient(180deg, var(--aq-line) 0 6px, transparent 6px 12px);
+}
+
+.aq-conn span {
+  position: absolute;
+  bottom: calc(50% + 10px);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--aq-instrument-muted);
+}
+
+.aq-conn[data-on] {
+  --aq-line: var(--aq-olive-bright);
+}
+
+.aq-conn[data-on]::before {
+  animation: aq-dash-h 0.7s linear infinite;
+  animation-play-state: paused;
+}
+
+.aq-conn[data-orient="v"][data-on]::before {
+  animation-name: aq-dash-v;
+}
+
+.aq-conn[data-dir="rev"]::before {
+  animation-direction: reverse;
+}
+
+.aq-flow[data-running="true"] .aq-conn[data-on]::before {
+  animation-play-state: running;
+}
+
+@keyframes aq-dash-h {
+  to {
+    background-position: 12px 0;
+  }
+}
+
+@keyframes aq-dash-v {
+  to {
+    background-position: 0 12px;
+  }
+}
+
+/* arrowheads on the active link */
+.aq-conn[data-on]::after {
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+}
+
+.aq-conn[data-orient="h"][data-dir="fwd"]::after {
+  right: -2px;
+  top: calc(50% - 6px);
+  border-left: 10px solid var(--aq-olive-bright);
+  border-right: 0;
+}
+
+.aq-conn[data-orient="h"][data-dir="rev"]::after {
+  left: -2px;
+  top: calc(50% - 6px);
+  border-right: 10px solid var(--aq-olive-bright);
+  border-left: 0;
+}
+
+.aq-conn[data-orient="v"][data-dir="fwd"]::after {
+  bottom: -2px;
+  left: calc(50% - 6px);
+  border-top: 10px solid var(--aq-olive-bright);
+  border-bottom: 0;
+}
+
+/* ---- hardware images ---- */
+
+/* Text and the prototype photo stay in view (left) while the two labelled figures scroll past
+   at a larger size (right). All three images share one radius, border and ground. */
+.aq-hw {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: var(--aq-space-l) clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+
+.aq-hw-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-m);
+}
+
+@media (min-width: 992px) {
+  .aq-hw-left {
+    position: sticky;
+    top: 112px;
+  }
+}
+
+.aq-hw-photo,
+.aq-hw-unit {
+  margin: 0;
+}
+
+.aq-hw-units {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aq-space-l);
+}
+
+.aq-hw-photo img,
+.aq-hw-unit img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--aq-hair);
+  border-radius: 20px;
+  background: #ffffff;
+}
+
+.aq-sec figcaption {
+  margin-top: 0.75rem;
+  text-align: left;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--aq-muted);
+}
+
+.aq-sec figcaption strong {
+  color: var(--aq-ink);
+}
+
+/* ---- what makes us different ---- */
+
+.aq-diff-head {
+  max-width: 720px;
+}
+
+.aq-table-wrap {
+  margin-top: var(--aq-space-l);
+}
+
+.aq-diff-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.aq-diff-table th,
+.aq-diff-table td {
+  padding: 1.125rem 1.25rem;
+  border-top: 1px solid var(--aq-hair);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  text-align: left;
+  vertical-align: top;
+}
+
+.aq-diff-table thead th {
+  padding-bottom: 0.875rem;
+  border-top: 0;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: 1.125rem;
+}
+
+.aq-diff-table tbody th {
+  width: 14%;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-weight: 700;
+}
+
+.aq-diff-table td:nth-child(2) {
+  color: var(--aq-muted);
+}
+
+/* The AquaSol column is a raised panel; the typical column stays flat and quiet beside it. */
+.aq-diff-table thead th:nth-child(3),
+.aq-diff-table td:nth-child(3) {
+  background: var(--aq-forest);
+  color: var(--aq-cream);
+  border-top-color: rgba(250, 250, 240, 0.14);
+}
+
+.aq-diff-table thead th:nth-child(3) {
+  padding-top: 1.375rem;
+  border-radius: 20px 20px 0 0;
+  font-size: 1.25rem;
+}
+
+.aq-diff-table tbody tr:last-child td:nth-child(3) {
+  padding-bottom: 1.5rem;
+  border-radius: 0 0 20px 20px;
+}
+
+.aq-diff-table td:nth-child(3)::before {
+  color: var(--aq-instrument-muted);
+}
+
+/* ---- tech stack ---- */
+
+.aq-tech-head {
+  max-width: 720px;
+}
+
+.aq-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: var(--aq-space-l) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Six slabs read top to bottom as the system does: from the ground (field nodes) up to the
+   screen (app). Tone ramps dark to light. Each slab pairs its ground with text that clears
+   4.5:1: cream on the dark and olive slabs, ink on the two light ones. */
+.aq-layer-tone {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 8fr);
+  gap: 1rem 1.5rem;
+  align-items: start;
+  padding: 1.5rem clamp(1.25rem, 3vw, 2rem);
+  border-radius: 20px;
+  color: var(--aq-cream);
+}
+
+.aq-layer-tone[data-tone="0"] { background: var(--aq-forest); }
+.aq-layer-tone[data-tone="1"] { background: var(--aq-olive-dark); }
+.aq-layer-tone[data-tone="2"] { background: var(--aq-olive); }
+.aq-layer-tone[data-tone="3"] { background: var(--aq-olive-bright); color: var(--aq-ink); }
+.aq-layer-tone[data-tone="4"] { background: var(--aq-cream-deep); color: var(--aq-ink); }
+
+/* The drone is planned, not built, so it is drawn like the planned node in the flow diagram. */
+.aq-layer-tone[data-tone="5"] {
+  border: 1.5px dashed var(--aq-muted);
+  background: transparent;
+  color: var(--aq-ink);
+}
+
+.aq-layer-name h3 {
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.aq-layer-name p {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.aq-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aq-chips li {
+  padding: 0.4rem 0.875rem;
+  border: 1px solid rgba(250, 250, 240, 0.28);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.aq-layer-tone[data-tone="3"] .aq-chips li,
+.aq-layer-tone[data-tone="4"] .aq-chips li,
+.aq-layer-tone[data-tone="5"] .aq-chips li {
+  border-color: rgba(29, 31, 20, 0.22);
+  background: rgba(29, 31, 20, 0.07);
+}
+
+/* ---- roadmap ---- */
+
+.aq-road {
+  --road-gap: clamp(1rem, 2.5vw, 2rem);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0 var(--road-gap);
+  margin: var(--aq-space-l) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aq-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-top: 2.25rem;
+}
+
+/* Grid rows stretch, so all four cards end on the same line whatever their item count. */
+.aq-stage-body {
+  flex: 1;
+  padding: 1.25rem 1.25rem 1.5rem;
+  border-radius: 20px;
+  background: var(--aq-cream);
+}
+
+.aq-stage-rail {
+  position: absolute;
+  top: 0.5rem;
+  left: 0;
+  right: calc(var(--road-gap) * -1);
+  height: 3px;
+  border-radius: 2px;
+  background: var(--aq-hair);
+}
+
+.aq-stage:last-child .aq-stage-rail {
+  right: 0;
+}
+
+.aq-stage-rail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--aq-olive-dark);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aq-road[data-in-view="true"] .aq-stage[data-state="Completed"] .aq-stage-rail::after {
+  transform: scaleX(1);
+}
+
+.aq-road[data-in-view="true"] .aq-stage[data-state="In progress"] .aq-stage-rail::after {
+  transform: scaleX(0.5);
+  transition-delay: 0.5s;
+}
+
+.aq-stage-dot {
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 13px;
+  height: 13px;
+  border: 3px solid var(--aq-muted);
+  border-radius: 50%;
+  background: var(--aq-sand);
+}
+
+.aq-stage[data-state="Completed"] .aq-stage-dot {
+  border-color: var(--aq-olive-dark);
+  background: var(--aq-olive-dark);
+}
+
+.aq-stage[data-state="In progress"] .aq-stage-dot {
+  border-color: var(--aq-olive-dark);
+}
+
+.aq-stage-name {
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.aq-stage-state {
+  margin: 0.25rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--aq-olive-dark);
+}
+
+.aq-stage[data-state="Next"] .aq-stage-state,
+.aq-stage[data-state="Later"] .aq-stage-state {
+  color: var(--aq-muted);
+}
+
+.aq-stage-items {
+  margin: var(--aq-space-xs) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aq-stage-items li {
+  padding: 0.3125rem 0;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+/* ---- responsive ---- */
+
+@media (max-width: 1100px) {
+  .aq-work {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aq-flow {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas:
+      "nodes"
+      "a"
+      "gate"
+      "b"
+      "cloud"
+      "c"
+      "app"
+      "drone";
+    row-gap: 0;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+
+  .aq-conn {
+    height: 3.25rem;
+  }
+
+  /* on a single column every link runs top to bottom */
+  .aq-conn[data-orient="h"]::before {
+    top: 0;
+    bottom: 0;
+    left: calc(50% - 1.5px);
+    right: auto;
+    width: 3px;
+    height: auto;
+    background: repeating-linear-gradient(180deg, var(--aq-line) 0 6px, transparent 6px 12px);
+  }
+
+  .aq-conn[data-orient="h"][data-on]::before {
+    animation-name: aq-dash-v;
+  }
+
+  .aq-conn span {
+    top: 50%;
+    bottom: auto;
+    left: calc(50% + 14px);
+    transform: translateY(-50%);
+  }
+
+  .aq-conn[data-orient="h"][data-dir="fwd"]::after,
+  .aq-conn[data-orient="v"][data-dir="fwd"]::after {
+    top: auto;
+    right: auto;
+    bottom: -2px;
+    left: calc(50% - 6px);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 10px solid var(--aq-olive-bright);
+    border-bottom: 0;
+  }
+
+  .aq-conn[data-orient="h"][data-dir="rev"]::after {
+    top: -2px;
+    right: auto;
+    bottom: auto;
+    left: calc(50% - 6px);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 10px solid var(--aq-olive-bright);
+    border-top: 0;
+  }
+}
+
+@media (max-width: 991px) {
+  .aq-hw {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aq-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aq-layer-tone {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aq-road {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aq-stage {
+    padding: 0 0 var(--aq-space-m) 2rem;
+  }
+
+  .aq-stage-rail {
+    top: 0.5rem;
+    right: auto;
+    bottom: 0;
+    left: 0.3rem;
+    width: 3px;
+    height: auto;
+  }
+
+  .aq-stage:last-child .aq-stage-rail {
+    right: auto;
+    bottom: auto;
+    height: 2rem;
+  }
+
+  .aq-stage-rail::after {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+
+  .aq-road[data-in-view="true"] .aq-stage[data-state="Completed"] .aq-stage-rail::after {
+    transform: scaleY(1);
+  }
+
+  .aq-road[data-in-view="true"] .aq-stage[data-state="In progress"] .aq-stage-rail::after {
+    transform: scaleY(0.5);
+  }
+
+  .aq-stage-dot {
+    top: 0.25rem;
+    left: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .aq-diff-table,
+  .aq-diff-table tbody,
+  .aq-diff-table tr,
+  .aq-diff-table th,
+  .aq-diff-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .aq-diff-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .aq-diff-table tbody tr {
+    padding: var(--aq-space-xs) 0;
+    border-top: 1px solid var(--aq-hair);
+  }
+
+  .aq-diff-table th,
+  .aq-diff-table td {
+    padding: 0.25rem 0;
+    border-top: 0;
+  }
+
+  .aq-diff-table tbody th {
+    width: 100%;
+    font-size: 1.25rem;
+  }
+
+  .aq-diff-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--aq-muted);
+  }
+
+  .aq-diff-table td:nth-child(3),
+  .aq-diff-table tbody tr:last-child td:nth-child(3) {
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-step-fill[data-active="true"] {
+    animation: none;
+    transform: scaleY(1);
+  }
+
+  .aq-conn[data-on]::before,
+  .aq-step-detail p {
+    animation: none;
+  }
+
+  .aq-fnode::after,
+  .aq-stage-rail::after,
+  .aq-step {
+    transition: none;
+  }
+
+  .aq-road .aq-stage[data-state="Completed"] .aq-stage-rail::after {
+    transform: scaleX(1);
+  }
+
+  .aq-road .aq-stage[data-state="In progress"] .aq-stage-rail::after {
+    transform: scaleX(0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 991px) {
+  .aq-road .aq-stage[data-state="Completed"] .aq-stage-rail::after {
+    transform: scaleY(1);
+  }
+
+  .aq-road .aq-stage[data-state="In progress"] .aq-stage-rail::after {
+    transform: scaleY(0.5);
+  }
+}
+
+/* Primary navigation: six links need the middle column to size to its content. */
+@media (min-width: 992px) {
+  .header .navigation {
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .header .links-wrap {
+    flex-wrap: nowrap;
+  }
+
+  .header .navigation-link.no-margin {
+    padding: 8px 6px;
+  }
+
+  .header .navigation-link .link-text {
+    padding: 0 10px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 1100px) {
+  .aq-area-drone {
+    margin-top: var(--aq-space-m);
+  }
+}
+
+/* Contact form feedback */
+.contact-form-error {
+  margin: 0.75rem 0 0;
+  padding: 0.625rem 0.875rem;
+  border-left: 3px solid #a3261a;
+  border-radius: 4px;
+  background: rgba(163, 38, 26, 0.08);
+  color: #7a1a11;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.contact-form-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--aq-muted);
+}
+
+.contact-form-back {
+  margin-top: 0.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--aq-olive-dark);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.contact-form-back:focus-visible,
+.success-message a:focus-visible {
+  outline: 3px solid var(--aq-olive-dark);
+  outline-offset: 3px;
+}
+
+.contact-form-block .success-message {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+}
+
+.contact-form-block .success-message .text-block {
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.contact-form-block .success-message a {
+  color: var(--aq-olive-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   Phase 2: one system.
+   The demo, about, contact and closing sections were still rendering through
+   Webflow template classes. They now use the .aq-* shells like every other
+   section. Shared pieces first.
+   ========================================================================== */
+
+/* Accent text on the dark instrument ground.
+   --aq-olive-dark is 2.44:1 on --aq-forest, which fails even the 3:1 large-text
+   threshold; it was chosen for cream grounds only (see the rule near the top of
+   the token block). --aq-olive-bright is 5.26:1 on forest. */
+.aq-sec--dark .aq-accent {
+  color: var(--aq-olive-bright);
+}
+
+.aq-sec--cream-deep {
+  background: var(--aq-cream-deep);
+}
+
+/* ---- buttons: three treatments, one hover direction ----
+   .aq-cta stays the primary. These are the secondary and the quiet link, so the
+   Webflow .button-wrap variants (dark/base/outline/light) and .w-button are no
+   longer needed on the landing page. */
+
+.aq-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 12px 22px;
+  border: 1px solid var(--aq-hair);
+  border-radius: 999px;
+  background: none;
+  color: var(--aq-ink);
+  font-family: "Inter Tight", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.25s ease, border-color 0.25s ease,
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aq-btn-ghost:hover {
+  border-color: var(--aq-ink);
+  background: rgba(29, 31, 20, 0.04);
+  color: var(--aq-ink);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.aq-btn-ghost:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.aq-btn-ghost:focus-visible {
+  outline: 3px solid var(--aq-olive-dark);
+  outline-offset: 3px;
+}
+
+.aq-sec--dark .aq-btn-ghost {
+  border-color: rgba(250, 250, 240, 0.32);
+  color: var(--aq-cream);
+}
+
+.aq-sec--dark .aq-btn-ghost:hover {
+  border-color: var(--aq-cream);
+  background: rgba(250, 250, 240, 0.1);
+  color: var(--aq-cream);
+}
+
+.aq-sec--dark .aq-btn-ghost:focus-visible,
+.aq-sec--dark .aq-cta:focus-visible {
+  outline-color: var(--aq-cream);
+}
+
+.aq-sec--dark .aq-cta {
+  background-color: var(--aq-cream);
+  border-color: var(--aq-cream);
+  color: var(--aq-ink);
+}
+
+.aq-sec--dark .aq-cta:hover {
+  background-color: #ffffff;
+  border-color: #ffffff;
+  color: var(--aq-ink);
+}
+
+.aq-sec--dark .aq-cta-icon {
+  background-color: rgba(29, 31, 20, 0.12);
+}
+
+/* ---- phone frame, shared with the product showcase ----
+   Declared together so the two sections cannot drift apart. */
+
+.aq-phone,
+.aq-show-phone {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  aspect-ratio: 9 / 18.6;
+  padding: 9px;
+  border-radius: 44px;
+  background: #0d1208;
+  box-shadow: inset 0 0 0 1px rgba(250, 250, 240, 0.18), 0 50px 60px -36px rgba(0, 0, 0, 0.65);
+}
+
+.aq-phone-screen {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 35px;
+  background: var(--aq-cream);
+}
+
+.aq-phone-screen img,
+.aq-phone-screen video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* ---- demo ----
+   Was a 940x1024 box holding a 491x1024 portrait screenshot with object-fit:
+   contain, so 48% of it was black bar, and a 470x1196 empty olive slab beside
+   it. The recording now sits in the phone frame at its own aspect ratio. */
+
+/* The decorative glow behind the phone is 190% wide, so the section clips it.
+   Scoped rather than put on .aq-sec, because clipping would break the sticky
+   .aq-features-head. */
+.aq-sec--clip {
+  overflow: clip;
+}
+
+.aq-demo {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+
+.aq-demo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: var(--aq-space-m);
+}
+
+.aq-demo-stage {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 300px);
+}
+
+.aq-demo-stage::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 190%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(137, 153, 33, 0.26), transparent);
+  pointer-events: none;
+}
+
+.aq-demo-play {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 44px;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aq-demo-play:hover {
+  transform: translateY(-4px);
+}
+
+.aq-demo-play:focus-visible {
+  outline: 3px solid var(--aq-cream);
+  outline-offset: 6px;
+}
+
+.aq-demo-play-badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(250, 250, 240, 0.4);
+  background: rgba(29, 31, 20, 0.72);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--aq-cream);
+  transition: background-color 0.25s ease;
+}
+
+.aq-demo-play:hover .aq-demo-play-badge {
+  background: rgba(29, 31, 20, 0.9);
+}
+
+@media (max-width: 991px) {
+  .aq-demo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-demo-play,
+  .aq-demo-play-badge {
+    transition: none !important;
+  }
+
+  .aq-demo-play:hover {
+    transform: none;
+  }
+}
+
+/* The only clip the modal shows is the portrait phone recording (450x946).
+   The 16/9 container letterboxed it exactly the way the section used to. */
+.video-modal-container {
+  width: auto;
+  max-width: min(92vw, 520px);
+  height: min(86vh, 1000px);
+  aspect-ratio: 450 / 946;
+}
+
+.video-modal-close {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* ---- closing call to action ---- */
+
+.aq-close {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.aq-close .aq-h2 {
+  max-width: 18ch;
+}
+
+.aq-close .aq-lead {
+  max-width: 46ch;
+  margin-inline: auto;
+}
+
+.aq-close-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: var(--aq-space-m);
+}
+
+/* ---- about ---- */
+
+.aq-about {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 5vw, 3.5rem);
+}
+
+.aq-about-head {
+  max-width: 40rem;
+}
+
+.aq-about-points {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--aq-space-m) clamp(2rem, 5vw, 4.5rem);
+  margin: 0;
+  padding: 0;
+}
+
+.aq-point {
+  margin: 0;
+}
+
+.aq-point dt {
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--aq-olive-dark);
+}
+
+.aq-point dd {
+  max-width: 54ch;
+  margin: 0.375rem 0 0;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--aq-ink);
+}
+
+/* The team credit is the point of this section, so it carries the weight. */
+.aq-point:first-child {
+  grid-column: 1 / -1;
+}
+
+.aq-point:first-child dd {
+  max-width: 34ch;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: clamp(1.5rem, 1.1rem + 1.5vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 991px) {
+  .aq-about-points {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---- product ----
+   The heading used to be an inline clamp(28px,4vw,44px)/800 centred one-off, a
+   third heading scale on top of .aq-h2 and Webflow's .heading.h2. */
+.aq-product-head {
+  max-width: 720px;
+  margin-bottom: var(--aq-space-l);
+}
+
+/* ---- contact ---- */
+
+.aq-contact {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+
+.aq-form {
+  display: grid;
+  gap: var(--aq-space-s);
+  max-width: 34rem;
+  margin-top: var(--aq-space-m);
+}
+
+.aq-field {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.aq-field label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--aq-ink);
+}
+
+.aq-field input,
+.aq-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--aq-hair);
+  border-radius: 14px;
+  background: var(--aq-cream);
+  color: var(--aq-ink);
+  font-family: "Inter Tight", sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aq-field textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.aq-field input::placeholder,
+.aq-field textarea::placeholder {
+  color: var(--aq-muted);
+  opacity: 0.75;
+}
+
+.aq-field input:focus-visible,
+.aq-field textarea:focus-visible {
+  outline: 3px solid var(--aq-olive-dark);
+  outline-offset: 2px;
+  border-color: var(--aq-olive-dark);
+}
+
+.aq-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.aq-contact-stage {
+  justify-self: center;
+  width: min(100%, 280px);
+}
+
+@media (max-width: 991px) {
+  .aq-contact {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aq-contact-stage {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-field input,
+  .aq-field textarea,
+  .aq-btn-ghost {
+    transition: none !important;
+  }
+}
+
+/* ---- footer ---- */
+
+.aq-foot {
+  margin: 12px clamp(8px, 1.2vw, 16px);
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.25rem, 4vw, 3.5rem);
+  border-radius: 32px;
+  background: var(--aq-forest);
+  color: var(--aq-cream);
+  font-family: "Inter Tight", sans-serif;
+}
+
+.aq-foot-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: var(--aq-space-l);
+  align-items: start;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.aq-foot-logo {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.aq-foot-logo img {
+  display: block;
+  width: auto;
+  height: 42px;
+  object-fit: contain;
+}
+
+.aq-foot-logo:focus-visible {
+  outline: 3px solid var(--aq-cream);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.aq-foot-blurb {
+  max-width: 44ch;
+  margin: var(--aq-space-s) 0 0;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--aq-instrument-muted);
+}
+
+.aq-foot-nav h2 {
+  margin: 0 0 0.75rem;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--aq-cream);
+}
+
+.aq-foot-links {
+  display: grid;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aq-foot-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--aq-instrument-muted);
+  font-size: 1rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.aq-foot-links a:hover {
+  color: var(--aq-cream);
+}
+
+.aq-foot-links a:focus-visible {
+  outline: 3px solid var(--aq-cream);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.aq-foot-base {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  max-width: 1200px;
+  margin: var(--aq-space-l) auto 0;
+  padding-top: var(--aq-space-s);
+  border-top: 1px solid var(--aq-instrument-line);
+  font-size: 0.9375rem;
+  color: var(--aq-instrument-muted);
+}
+
+.aq-foot-base p {
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .aq-foot-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-foot-links a {
+    transition: none !important;
+  }
+}
+
+/* ---- mobile menu ----
+   The drawer used display:none/block with transition:all, which cannot animate,
+   so it popped. Transform and opacity instead, with the panel removed from the
+   tab order when closed. */
+.mobile-menu.aq-drawer {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  /* Webflow gives .mobile-menu an explicit 100vw, which over-constrains left/right
+     and pushed the page 105px wide at 375. */
+  width: auto;
+  max-width: 100%;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 0.25s;
+}
+
+/* the drawer is absolutely positioned against the header bar */
+.header .container {
+  position: relative;
+}
+
+.mobile-menu.aq-drawer[data-open="true"] {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu.aq-drawer {
+    transition: none !important;
+  }
+}
+
+/* Pill buttons must not wrap; "Contact us" broke onto two lines in the 1024px
+   navbar, which also pushed the header 1px past the viewport. */
+.aq-cta,
+.aq-btn-ghost {
+  white-space: nowrap;
+}
+
+/* The nav is tightest at 1024: six links plus the logo plus the CTA. */
+@media (min-width: 992px) and (max-width: 1100px) {
+  .header .navigation-link .link-text {
+    padding: 0 6px;
+  }
+
+  .header .aq-cta {
+    padding: 10px 10px 10px 16px;
+    font-size: 13px;
+  }
+}
+
+/* ==========================================================================
+   Section entrance. Used by <Reveal>. Transform and opacity only, so the
+   browser can composite it without touching layout.
+   ========================================================================== */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--aq-reveal-delay, 0ms);
+}
+
+[data-reveal][data-in-view="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* useInView already latches true under reduced motion; this is the CSS backstop. */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .aq-consequences {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--aq-space-s);
+  }
+}
+
+/* ---- how it works: scroll-driven mode ----
+   Applied by Working.tsx only when it has decided the section can pin: wide screen, motion
+   allowed, and the compacted card fits under the sticky header. */
+.aq-sec[data-pin="on"] {
+  display: flex;
+  align-items: center;
+  min-height: calc(100svh - var(--aq-pin-top, 6rem) - 12px);
+  padding-block: 1.5rem;
+}
+
+.aq-sec[data-pin="on"] > .aq-wrap {
+  width: 100%;
+}
+
+/* Scroll position, not a timer, fills the active step. */
+.aq-steps[data-scroll="true"] .aq-step-fill[data-active="true"] {
+  animation: none;
+  transform: scaleY(var(--p, 0));
+}
+
+/* Reserves the pinned scroll distance up front (see Working.tsx), so layout is identical
+   before and after GSAP loads. */
+.aq-work-pin[data-mode="pin"] {
+  padding-bottom: calc(var(--aq-pin-vh) * 100svh);
 }

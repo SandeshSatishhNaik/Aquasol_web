@@ -1,9 +1,129 @@
 import React from 'react';
+import { BrainCircuit, ChartLine, Droplets, Gauge, Mic, ScanSearch, Sun, WifiOff } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Reveal } from '../motion/Reveal';
 
-export const Features: React.FC = () => {
-  return (
-    <>
-      <div id="features" className="section"><div className="wide-container cream bg-image features"><div className="container centered"><div className="spacer _64"></div><div className="text-box"><h1 className="heading h2 centered">Features that make us stand out from the crowd.</h1></div><div className="text-box m"><p className="paragraph large centered">Turn complex workflows into simple, trackable steps with powerful project features.</p></div><div className="spacer _64"></div><div className="w-layout-grid features-grid mobile-1-col"><div id="w-node-e1b04ba4-00d5-5eaf-7636-6faef65c0607-0181bba9" className="feature-text-wrap"><div className="text-box s mobile-padding"><div className="overflow-hidden"><h1 data-w-id="d0aad201-516f-bced-d7ef-84f9e82d55b7" className="heading h3">Visual Roadmaps</h1></div><p data-w-id="1492e0e2-30d1-2809-a9e6-6a4f395dd900" className="paragraph large">Map out your projects with clear, visual roadmaps that keep every milestone and deadline in sight. These roadmaps provide a bird's-eye view of your project's progress in no time.</p><div className="small-benefits-wrap"><div className="overflow-hidden"><div className="small-benefit-wrap"><div data-w-id="7c096161-9f59-75b7-7c2a-3d653c8cb673" className="sb-icon-wrap"><img src="/assets/68af5cb2505e1fd7bd8d99e8_8fb655f92905cd8b9830c4b62cd1724c_sb-icon-ff8763170b.svg" loading="lazy" alt="" className="small-benefit-icon"/></div><p data-w-id="c88a9772-b325-1c24-73c5-3c09f8d25164" className="paragraph small no-margin bold">Keep everyone moving in the same direction.</p></div></div><div className="overflow-hidden"><div className="small-benefit-wrap"><div data-w-id="7ef3eeb3-4136-34a5-ed58-36ffbd970fd1" className="sb-icon-wrap"><img src="/assets/68af62af9031210f5f42a4bc_sb-icon-3-9151343bae.svg" loading="lazy" alt="" className="small-benefit-icon"/></div><p data-w-id="7ef3eeb3-4136-34a5-ed58-36ffbd970fd3" className="paragraph small no-margin bold">Stay focused with clear progress tracking.</p></div></div><div className="overflow-hidden"><div className="small-benefit-wrap"><div data-w-id="953472c5-74db-45fe-e484-63152b45686f" className="sb-icon-wrap"><img src="/assets/68af6216125ae28405d2a0ba_sb-icon-2-accac04924.svg" loading="lazy" alt="" className="small-benefit-icon"/></div><p data-w-id="953472c5-74db-45fe-e484-63152b456871" className="paragraph small no-margin bold">Turn complex projects into easy steps.</p></div></div></div></div><div className="spacer _32"></div><div data-w-id="2d8b7f2a-711f-a0a0-5e2f-bd99a7426790" className="buttons-wrap no-top-padding"><a data-wf--button--variant="dark" href="admin-licensing.html" className="button-wrap w-variant-4204eb55-5f95-435c-1da2-59bb19b63ce2 w-inline-block"><div className="button-text w-variant-4204eb55-5f95-435c-1da2-59bb19b63ce2">Learn more</div><img src="/assets/68adc1ddeabbfa4390965b78_arrow-dark-18405da9fa.svg" loading="lazy" alt="" className="image w-variant-4204eb55-5f95-435c-1da2-59bb19b63ce2"/></a></div></div><div className="outer-feature-image-wrap"><div className="w-layout-grid _2-1-grid mobile-2-col"><div id="w-node-_8fe454ee-1790-5886-63c9-1a0946ce2186-0181bba9" className="feature-illustration-wrap"><img src="/assets/68b05c39f7bab6dbf47da69d_visual-roadmaps-fe55ea2adf.svg" loading="eager" data-w-id="33275285-294b-d5af-138f-f3afef1b65b1" alt="" className="feature-illustration"/></div><div className="feature-image-wrap"><img className="feature-image" src="/assets/68aef0b86ece94964647005b_office-emberly-29800abf3f.avif" alt="" sizes="(max-width: 479px) 100vw, (max-width: 767px) 23vw, (max-width: 1279px) 24vw, 25vw" data-w-id="66296b4d-0869-d812-8545-9a47d44dc8ae" loading="eager" srcSet="/assets/68aef0b86ece94964647005b_office-emberly-p-500-00f7936976.avif 500w, /assets/68aef0b86ece94964647005b_office-emberly-29800abf3f.avif 1024w"/></div></div></div></div><div className="spacer _64"></div><div className="feature-row-wrap"><div data-w-id="10968a3a-57f6-b45c-a5bd-b6b5fb8a80d7" className="left-card-wrap"><div className="feature-card-wrap"><div className="feature-bg-wrap small"><div className="feature-illustration-wrap small"><img src="/assets/68b04ff26bb9ffa0a0e85b23_md-graph-95301cf377.svg" loading="eager" alt="" className="feature-illustration small"/></div></div><div className="text-box s"><h1 className="heading h6 mobile-centered">Task tracking</h1><p className="paragraph mobile-centered">Break projects into manageable, measurable steps and monitor progress so nothing falls through the cracks.</p></div></div></div><div data-w-id="63375499-a74b-ad65-71bb-f4db6a9b2f62" className="center-card-wrap"><div className="feature-card-wrap"><div className="feature-bg-wrap small"><div className="feature-illustration-wrap small"><img src="/assets/68b044115dfe254197c14a3e_team-collaboration-f6b6f59bde.svg" loading="eager" alt="" className="feature-illustration small"/></div></div><div className="text-box s"><h1 className="heading h6 mobile-centered">Team Collaboration</h1><p className="paragraph mobile-centered">Share updates, assign responsibilities, and keep communication flowing with tools built for teamwork.</p></div></div></div><div data-w-id="e2c8bfa0-a6a3-cba2-ecdc-eba1ce71bb13" className="right-card-wrap"><div className="feature-card-wrap"><div className="feature-bg-wrap small"><div className="feature-illustration-wrap small"><img src="/assets/68b01bf8ea387e49ea3c955c_2f70f74ccf312686d206b299ac0dbcc1_task-tracking-v3-3bad456985.svg" loading="eager" alt="" className="feature-illustration small"/></div></div><div className="text-box s"><h1 className="heading h6 mobile-centered">Milestones & Deadlines</h1><p className="paragraph mobile-centered">Set goals, track deadlines, and celebrate achievements as your team makes steady goal progress.</p></div></div></div></div><div className="spacer _64"></div></div></div></div>
-    </>
-  );
-};
+type Status = 'Built' | 'Designed';
+
+interface Feature {
+  id: string;
+  title: string;
+  body: string;
+  status: Status;
+  icon: LucideIcon;
+  /** Optional cropped app screen. Decorative: the copy carries the meaning. */
+  peek?: string;
+}
+
+// Order is reading order. Grid placement lives in CSS (`data-cell`), so the layout can
+// recompose on mobile without touching this list.
+const FEATURES: Feature[] = [
+  {
+    id: 'offline',
+    title: 'Works without internet',
+    body: 'Nodes reach the master gateway over long-range LoRa radio. The gateway decides when to irrigate on the farm itself, so watering carries on when the internet drops.',
+    status: 'Built',
+    icon: WifiOff,
+  },
+  {
+    id: 'solar',
+    title: 'Solar-powered field nodes',
+    body: 'Each zone gets a node with a soil moisture sensor and a temperature and humidity sensor, running on its own solar panel. No mains power needed.',
+    status: 'Built',
+    icon: Sun,
+  },
+  {
+    id: 'lumi',
+    title: 'Lumi, the voice assistant',
+    body: 'Ask Lumi about soil moisture or zone temperature in English, Kannada, Hindi or Telugu.',
+    status: 'Built',
+    icon: Mic,
+    peek: '/assets/aquasol-lumi-assistant.jpg',
+  },
+  {
+    id: 'valves',
+    title: 'Zone-by-zone valve control',
+    body: 'A solenoid valve per zone opens and closes on command. Switch any zone between AI mode and manual override whenever you want.',
+    status: 'Built',
+    icon: Droplets,
+  },
+  {
+    id: 'budget',
+    title: 'A daily water budget',
+    body: 'Set a limit and irrigation stays inside it, zone by zone, with schedules built in.',
+    status: 'Built',
+    icon: Gauge,
+  },
+  {
+    id: 'dashboard',
+    title: 'Farm dashboard and trends',
+    body: 'A farm health score, gateway and node status, and seven days of water and sensor readings, on your phone.',
+    status: 'Built',
+    icon: ChartLine,
+    peek: '/assets/aquasol-data-analytics.jpg',
+  },
+  {
+    id: 'ai',
+    title: 'AI irrigation advice',
+    body: 'LSTM models forecast soil moisture and XGBoost chooses when and how long to water, so it waters ahead of need instead of reacting to a threshold.',
+    status: 'Designed',
+    icon: BrainCircuit,
+  },
+  {
+    id: 'drone',
+    title: 'Drone scouting',
+    body: 'A drone with thermal, multispectral and RGB cameras surveys the crop once and flags stress spots by zone.',
+    status: 'Designed',
+    icon: ScanSearch,
+  },
+];
+
+export const Features: React.FC = () => (
+  <section id="features" className="aq-sec aq-sec--sand" aria-labelledby="features-title">
+    <div className="aq-wrap aq-features">
+      <Reveal className="aq-features-head">
+        <h2 id="features-title" className="aq-h2">One system, from soil to decision.</h2>
+        <p className="aq-lead">
+          Sensors, a gateway, valves and an app work together to water each zone only when it needs it.
+        </p>
+        <p className="aq-note">
+          <strong>Built</strong> means it exists in the prototype or the app. <strong>Designed</strong> means it is
+          specified in our project report and not yet shown working.
+        </p>
+      </Reveal>
+
+      <ul className="aq-bento">
+        {FEATURES.map((f, i) => {
+          const Icon = f.icon;
+          return (
+            <li key={f.id} className="aq-cell-slot" data-cell={f.id}>
+              <Reveal className="aq-cell" delay={(i % 4) * 70} threshold={0.12}>
+                <div className="aq-cell-top">
+                  <span className="aq-cell-icon" aria-hidden="true">
+                    <Icon size={22} strokeWidth={1.9} />
+                  </span>
+                  <span className="aq-status" data-status={f.status}>{f.status}</span>
+                </div>
+                <div className="aq-cell-copy">
+                  <h3 className="aq-feature-title">{f.title}</h3>
+                  <p className="aq-feature-body">{f.body}</p>
+                </div>
+                {f.peek && (
+                  <img
+                    className="aq-cell-peek"
+                    src={f.peek}
+                    alt=""
+                    width={491}
+                    height={1024}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+              </Reveal>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+);

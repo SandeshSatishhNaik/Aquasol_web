@@ -1,91 +1,125 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Play, X } from 'lucide-react';
+import { Reveal } from '../motion/Reveal';
+
+const POSTER = '/assets/aquasol-uav-scouting.jpg';
+const CLIP = '/assets/aquasol-uav-scouting.mp4';
 
 export const VideoPreview: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!modalOpen) return;
+    const trigger = triggerRef.current;
+    closeRef.current?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setModalOpen(false);
+        return;
+      }
+      // Keep Tab inside the dialog. Without this the page behind stays reachable.
+      if (e.key !== 'Tab') return;
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
+        'button, [href], video[controls], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable || focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    const { overflow } = document.body.style;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = overflow;
+      trigger?.focus();
+    };
+  }, [modalOpen]);
 
   return (
     <>
-      <div className="section">
-        <div className="wide-container dark">
-          <div className="spacer _32" />
-          <div className="_2-1-grid full-width no-bottom-margin side-padding video-preview">
-            <div id="w-node-_625ba4cd-97cb-e5be-18c1-5d91873d514f-0181bba9" className="left-col-wrap">
-              <div data-w-id="5d658e18-0ae2-e35a-b8be-99febd39c644" className="outer-wrap preview">
-                <div className="preview-text-wrap">
-                  <h1 className="heading h2 light">
-                    See it in <span className="accent-text">action.</span>
-                  </h1>
-                  <div className="text-box m">
-                    <p className="paragraph large white no-bottom-margin">
-                      Watch a quick demo and discover how easy project management can be.
-                    </p>
-                  </div>
-                </div>
-                <a
-                  data-wf--button--variant="light"
-                  href="#pricing"
-                  className="button-wrap w-variant-6469cb50-26d0-1dd1-7436-c9d960826821 w-inline-block"
-                >
-                  <div className="button-text">Learn more</div>
-                  <img
-                    src="/assets/68adc1ddeabbfa4390965b78_arrow-dark-18405da9fa.svg"
-                    loading="lazy"
-                    alt=""
-                    className="image"
-                  />
-                </a>
-              </div>
-
-              <div
-                data-w-id="f2b19ac7-40e0-5703-1c01-daa01201ec18"
-                className="placeholder-video-overlay-wrap"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setModalOpen(true)}
-              >
-                <img
-                  sizes="(max-width: 2842px) 100vw, 2842px"
-                  srcSet="/assets/68ca73ff0b3abba4a0867ee1_Webflow-Screenshot-3396c09185.avif 500w, /assets/68ca73ff0b3abba4a0867ee1_Webflow-Screenshot-3396c09185.avif 800w, /assets/68ca73ff0b3abba4a0867ee1_Webflow-Screenshot-3396c09185.avif 1080w, /assets/68ca73ff0b3abba4a0867ee1_Webflow-Screenshot-3396c09185.avif 1600w, /assets/68ca73ff0b3abba4a0867ee1_Webflow-Screenshot-3396c09185.avif 2842w"
-                  alt="placeholder image"
-                  src="/assets/68ca73ff0b3abba4a0867ee1_Webflow-Screenshot-3396c09185.avif"
-                  loading="eager"
-                  className="placeholder-video-image"
-                />
-                <div className="lightbox-link w-inline-block w-lightbox">
-                  <img
-                    loading="lazy"
-                    src="/assets/68ca73ff0b3abba4a0867eda_play-417427fee3.svg"
-                    alt="play"
-                    className="video-placeholder-play-button"
-                  />
-                </div>
-              </div>
+      <section id="demo" className="aq-sec aq-sec--dark aq-sec--clip" aria-labelledby="demo-title">
+        <div className="aq-wrap aq-demo">
+          <Reveal className="aq-demo-text">
+            <h2 id="demo-title" className="aq-h2">
+              Watch the <span className="aq-accent">app at work.</span>
+            </h2>
+            <p className="aq-lead">
+              A screen recording of the drone survey screen in the AquaSol app. Zones are flagged by
+              stress spot, with the NDVI reading for each.
+            </p>
+            <div className="aq-demo-actions">
+              <button type="button" className="aq-cta" onClick={() => setModalOpen(true)}>
+                <span>Play the recording</span>
+                <span className="aq-cta-icon" aria-hidden="true">
+                  <Play size={14} strokeWidth={2.6} />
+                </span>
+              </button>
+              <a href="#product" className="aq-btn-ghost">
+                See the app screens
+              </a>
             </div>
+          </Reveal>
 
-            <div
-              id="w-node-_8e182ba7-f6d2-6647-38a8-df8b63fe799a-0181bba9"
-              data-w-id="8e182ba7-f6d2-6647-38a8-df8b63fe799a"
-              className="green-block-wrap"
-            />
-          </div>
-          <div className="spacer _32" />
+          <Reveal className="aq-demo-stage" delay={120}>
+            <button
+              type="button"
+              ref={triggerRef}
+              className="aq-demo-play"
+              aria-label="Play the app screen recording"
+              onClick={() => setModalOpen(true)}
+            >
+              <span className="aq-phone">
+                <span className="aq-phone-screen">
+                  <img src={POSTER} alt="" width="491" height="1024" loading="lazy" decoding="async" />
+                </span>
+              </span>
+              <span className="aq-demo-play-badge" aria-hidden="true">
+                <Play size={24} strokeWidth={2.2} />
+              </span>
+            </button>
+          </Reveal>
         </div>
-      </div>
+      </section>
 
-      {/* Video Modal Lightbox */}
       {modalOpen && (
         <div className="video-modal-backdrop" onClick={() => setModalOpen(false)}>
-          <div className="video-modal-container" onClick={(e) => e.stopPropagation()}>
-            <button className="video-modal-close" onClick={() => setModalOpen(false)}>
-              &times;
+          <div
+            ref={dialogRef}
+            className="video-modal-container"
+            role="dialog"
+            aria-modal="true"
+            aria-label="AquaSol app screen recording"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              ref={closeRef}
+              className="video-modal-close"
+              aria-label="Close video"
+              onClick={() => setModalOpen(false)}
+            >
+              <X size={20} aria-hidden="true" />
             </button>
-            <iframe
-              width="100%"
-              height="100%"
-              src="https://www.youtube.com/embed/pLgPFfFdpDs?autoplay=1"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
+            <video
+              src={CLIP}
+              aria-label="Screen recording of the drone survey screen in the AquaSol app"
+              controls
+              autoPlay
+              playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#000' }}
             />
           </div>
         </div>
