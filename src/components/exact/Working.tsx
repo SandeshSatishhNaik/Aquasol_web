@@ -14,6 +14,23 @@ const PIN_GAP = 12;
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/** Resolves once the page has not scrolled for about 200ms. */
+const scrollSettled = () =>
+  new Promise<void>((resolve) => {
+    let last = window.scrollY;
+    let still = 0;
+    const tick = () => {
+      if (window.scrollY === last) {
+        if (++still > 12) return resolve();
+      } else {
+        last = window.scrollY;
+        still = 0;
+      }
+      requestAnimationFrame(tick);
+    };
+    tick();
+  });
+
 /** Bottom edge of the sticky header, so the pinned card starts clear of it. */
 const pinTop = () =>
   Math.round((document.querySelector('.header')?.getBoundingClientRect().bottom ?? 88) + PIN_GAP);
@@ -99,6 +116,10 @@ export const Working: React.FC = () => {
           import('gsap'),
           import('gsap/ScrollTrigger'),
         ]);
+        if (disposed || !mq.matches || st) return;
+        // ScrollTrigger's first refresh restores scroll position, which would cancel a smooth
+        // scroll already under way (a nav click or deep link that arrived with the sections).
+        await scrollSettled();
         if (disposed || !mq.matches || st) return;
         gsap.registerPlugin(ScrollTrigger);
         const stepsEl = stepsRef.current;

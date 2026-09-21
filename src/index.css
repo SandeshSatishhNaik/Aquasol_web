@@ -2868,6 +2868,30 @@ img {
   }
 }
 
+/* Between 992 and 1099px the six-link pill (589px) leaves no gap beside the logo: the right
+   grid column cannot shrink below 163px, which pins the left column to the logo's own width.
+   Tighten the link padding (about 541px) so both gaps open up. Wider screens are unchanged. */
+@media (min-width: 992px) and (max-width: 1099px) {
+  .header .navigation-link.no-margin {
+    padding: 8px 3px;
+  }
+
+  .header .navigation-link .link-text {
+    padding: 0 5px;
+  }
+}
+
+/* The last 32px of width, where even the trimmed pill touches the logo. */
+@media (min-width: 992px) and (max-width: 1023px) {
+  .header .navigation-link .link-text {
+    font-size: 0.9375rem;
+  }
+
+  .header .header-logo {
+    height: 32px !important;
+  }
+}
+
 @media (max-width: 1100px) {
   .aq-area-drone {
     margin-top: var(--aq-space-m);

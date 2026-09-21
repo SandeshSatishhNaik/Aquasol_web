@@ -2,15 +2,16 @@ import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Navbar } from './components/exact/Navbar';
 import { Footer } from './components/exact/Footer';
 import { LandingPage } from './pages/LandingPage';
-import { TeaserOne } from './pages/TeaserOne';
-import { TeaserTwo } from './pages/TeaserTwo';
-import { StyleGuide } from './pages/StyleGuide';
-import { LicensingPage } from './pages/LicensingPage';
-import { NotFoundPage } from './pages/NotFoundPage';
 
-import { TemplateGuidePage } from './pages/TemplateGuidePage';
-import { ChangeLogPage } from './pages/ChangeLogPage';
-import { PasswordPage } from './pages/PasswordPage';
+// Everything except the landing page is a secondary route, so it stays out of the first download.
+const TeaserOne = lazy(() => import('./pages/TeaserOne').then((m) => ({ default: m.TeaserOne })));
+const TeaserTwo = lazy(() => import('./pages/TeaserTwo').then((m) => ({ default: m.TeaserTwo })));
+const StyleGuide = lazy(() => import('./pages/StyleGuide').then((m) => ({ default: m.StyleGuide })));
+const LicensingPage = lazy(() => import('./pages/LicensingPage').then((m) => ({ default: m.LicensingPage })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
+const TemplateGuidePage = lazy(() => import('./pages/TemplateGuidePage').then((m) => ({ default: m.TemplateGuidePage })));
+const ChangeLogPage = lazy(() => import('./pages/ChangeLogPage').then((m) => ({ default: m.ChangeLogPage })));
+const PasswordPage = lazy(() => import('./pages/PasswordPage').then((m) => ({ default: m.PasswordPage })));
 // Dev-only feedback toolbar. `import.meta.env.DEV` is statically replaced at build time,
 // so the dynamic import below is dead-code-eliminated and `agentation` never reaches production.
 const Agentation = import.meta.env.DEV
@@ -100,16 +101,18 @@ export function App() {
         <Navbar currentPage={currentPage} onNavigate={setCurrentPage} />
         <main id="main" tabIndex={-1}>
         {currentPage === 'landing' && <LandingPage />}
-        {currentPage === 'teaser-1' && <TeaserOne />}
-        {currentPage === 'teaser-2' && <TeaserTwo />}
-        {currentPage === 'style-guide' && <StyleGuide />}
-        {currentPage === 'licensing' && <LicensingPage />}
-        {currentPage === 'template-guide' && <TemplateGuidePage />}
-        {currentPage === 'change-log' && <ChangeLogPage />}
-        {currentPage === 'password' && <PasswordPage />}
-        {currentPage === 'not-found' && (
-          <NotFoundPage onGoHome={() => setCurrentPage('landing')} />
-        )}
+        <Suspense fallback={null}>
+          {currentPage === 'teaser-1' && <TeaserOne />}
+          {currentPage === 'teaser-2' && <TeaserTwo />}
+          {currentPage === 'style-guide' && <StyleGuide />}
+          {currentPage === 'licensing' && <LicensingPage />}
+          {currentPage === 'template-guide' && <TemplateGuidePage />}
+          {currentPage === 'change-log' && <ChangeLogPage />}
+          {currentPage === 'password' && <PasswordPage />}
+          {currentPage === 'not-found' && (
+            <NotFoundPage onGoHome={() => setCurrentPage('landing')} />
+          )}
+        </Suspense>
         </main>
         <Footer onNavigate={setCurrentPage} />
         {Agentation && (

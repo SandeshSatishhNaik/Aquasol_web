@@ -243,6 +243,9 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
             <img
               src={slide.image}
               alt={slide.alt}
+              width={491}
+              height={1024}
+              decoding="async"
               style={{
                 position: slide.overlayTheme === 'app-screen' ? 'relative' : 'absolute',
                 inset: slide.overlayTheme === 'app-screen' ? undefined : 0,

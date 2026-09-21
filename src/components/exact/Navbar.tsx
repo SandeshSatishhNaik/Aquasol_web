@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { scrollToId } from '../../lib/scrollToId';
 
 interface NavbarProps {
   currentPage?: string;
@@ -68,19 +69,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
   const scrollBehavior = (): ScrollBehavior =>
     window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 
+
   const handleNavClick = (href: string) => {
     setMobileOpen(false);
+    const id = href.replace(/^(\.\/#|#)/, '');
     if (onNavigate && currentPage !== 'landing') {
       onNavigate('landing');
-      setTimeout(() => {
-        const id = href.replace(/^(\.\/#|#)/, '');
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: scrollBehavior() });
-      }, 100);
+      setTimeout(() => scrollToId(id), 100);
     } else {
-      const id = href.replace(/^(\.\/#|#)/, '');
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: scrollBehavior() });
+      scrollToId(id);
     }
   };
 
@@ -107,9 +104,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
               >
                 <img
-                  src="/assets/aquasol-lockup-dark.png"
-                  width="851"
-                  height="199"
+                  src="/assets/aquasol-lockup-dark-2x.png"
+                  width="308"
+                  height="72"
                   loading="eager"
                   alt="AquaSol"
                   className="header-logo"

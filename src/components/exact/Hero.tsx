@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown, Pause, Play } from 'lucide-react';
 import { LiveFarmDashboard } from './LiveFarmDashboard';
+import { scrollToId } from '../../lib/scrollToId';
 
 const HERO_POSTER = '/assets/aquasol-hero-poster.jpg';
 
@@ -44,7 +45,14 @@ export const Hero: React.FC = () => {
               <p className="paragraph large aq-hero-sub">
                 Irrigation in India still runs on manual checks. AquaSol reads every zone and waters only the ones that need it.
               </p>
-              <a href="#how-it-works" className="aq-cta">
+              <a
+                href="#how-it-works"
+                className="aq-cta"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToId('how-it-works');
+                }}
+              >
                 <span>See how it works</span>
                 <span className="aq-cta-icon" aria-hidden="true">
                   <ArrowDown size={15} strokeWidth={2.6} />

@@ -28,7 +28,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
       <div className="aq-foot-grid">
         <div>
           <a href="#hero" onClick={goHome} className="aq-foot-logo">
-            <img src="/assets/aquasol-lockup-white.png" width="851" height="199" loading="lazy" alt="AquaSol" />
+            <img src="/assets/aquasol-lockup-white-2x.png" width="359" height="84" loading="lazy" alt="AquaSol" />
           </a>
           <p className="aq-foot-blurb">
             An IoT smart-irrigation prototype from the Department of Electronics and Communication,
