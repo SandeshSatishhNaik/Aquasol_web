@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { scrollToId } from '../../lib/scrollToId';
+import { scrollTo } from '../../lib/smoothScroll';
 
 interface FooterProps {
   onNavigate?: (page: string) => void;
@@ -14,17 +16,40 @@ const LINKS = [
 ];
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
-  const scrollBehavior = (): ScrollBehavior =>
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
-
   const goHome = (e: React.MouseEvent) => {
     e.preventDefault();
     onNavigate?.('landing');
-    window.scrollTo({ top: 0, behavior: scrollBehavior() });
+    scrollTo(0);
   };
 
+  // The curtain reveal (index.css) scrubs the giant wordmark over exactly the last footer-height of
+  // scroll, so it rises while the footer is being uncovered, not while still hidden behind the page.
+  const foot = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = foot.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const HEADER = 96; // the sticky header plus a little air
+    const measure = () => {
+      const h = Math.round(el.getBoundingClientRect().height);
+      root.style.setProperty('--foot-h', `${h}px`);
+      // Curtain only when the whole footer fits below the header (see index.css).
+      if (h <= window.innerHeight - HEADER) root.setAttribute('data-curtain', '');
+      else root.removeAttribute('data-curtain');
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener('resize', measure);
+    measure();
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+      root.removeAttribute('data-curtain');
+    };
+  }, []);
+
   return (
-    <footer className="aq-foot">
+    <footer ref={foot} className="aq-foot">
       <div className="aq-foot-grid">
         <div>
           <a href="#hero" onClick={goHome} className="aq-foot-logo">
@@ -41,11 +66,25 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <ul className="aq-foot-links">
             {LINKS.map((l) => (
               <li key={l.href}>
-                <a href={l.href}>{l.label}</a>
+                <a
+                  href={l.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate?.('landing');
+                    scrollToId(l.href.slice(1));
+                  }}
+                >
+                  {l.label}
+                </a>
               </li>
             ))}
           </ul>
         </nav>
+      </div>
+
+      {/* Decorative: the brand name is already the logo's alt text above. */}
+      <div className="aq-foot-mark" aria-hidden="true">
+        <span>AquaSol</span>
       </div>
 
       <div className="aq-foot-base">

@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useRef } from 'react';
+import { lockScroll, unlockScroll } from '../../../lib/smoothScroll';
 import type { AgriculturalSlide } from './types';
 import { X, ChevronLeft, ChevronRight, Activity, SunMedium, Globe2, ShieldCheck } from 'lucide-react';
 
@@ -60,10 +61,12 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
     // Prevent body scroll while modal is open
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    lockScroll();
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = originalOverflow;
+      unlockScroll();
     };
   }, [slide, onClose, handlePrev, handleNext]);
 
@@ -75,6 +78,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
       aria-modal="true"
       aria-labelledby="gallery-modal-title"
       className="magnetic-gallery-modal-backdrop"
+      data-lenis-prevent
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();

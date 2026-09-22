@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { BrainCircuit, ChartLine, Droplets, Gauge, Mic, ScanSearch, Sun, WifiOff } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Reveal } from '../motion/Reveal';
+import { SplitHeading } from '../motion/SplitHeading';
 
 type Status = 'Built' | 'Designed';
 
@@ -78,11 +79,59 @@ const FEATURES: Feature[] = [
   },
 ];
 
-export const Features: React.FC = () => (
+// Entrance order by grid diagonal (row + column), so the bento fills in as a wave rather than in
+// list order. Keys match the `data-cell` placement in index.css.
+const DIAGONAL: Record<string, number> = {
+  offline: 0, solar: 1, lumi: 1, valves: 2, budget: 3, dashboard: 3, ai: 3, drone: 4,
+};
+
+/**
+ * One delegated listener lights a radial spotlight under the pointer in whichever cell it is over.
+ * On touch, the spot lands where you tap and fades. No GSAP; custom properties only.
+ */
+function useSpotlight(ref: React.RefObject<HTMLUListElement | null>) {
+  useEffect(() => {
+    const list = ref.current;
+    if (!list) return;
+    let timer = 0;
+    const place = (e: PointerEvent) => {
+      const cell = (e.target as Element).closest<HTMLElement>('.aq-cell');
+      if (!cell) return null;
+      const r = cell.getBoundingClientRect();
+      cell.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      cell.style.setProperty('--my', `${e.clientY - r.top}px`);
+      return cell;
+    };
+    const move = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') place(e);
+    };
+    const tap = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') return;
+      const cell = place(e);
+      if (!cell) return;
+      cell.dataset.lit = '';
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => delete cell.dataset.lit, 700);
+    };
+    list.addEventListener('pointermove', move, { passive: true });
+    list.addEventListener('pointerdown', tap, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      list.removeEventListener('pointermove', move);
+      list.removeEventListener('pointerdown', tap);
+    };
+  }, [ref]);
+}
+
+export const Features: React.FC = () => {
+  const bento = useRef<HTMLUListElement>(null);
+  useSpotlight(bento);
+  return (
   <section id="features" className="aq-sec aq-sec--sand" aria-labelledby="features-title">
     <div className="aq-wrap aq-features">
-      <Reveal className="aq-features-head">
-        <h2 id="features-title" className="aq-h2">One system, from soil to decision.</h2>
+      <div className="aq-features-head">
+        <SplitHeading as="h2" id="features-title" className="aq-h2">One system, from soil to decision.</SplitHeading>
+        <Reveal delay={220}>
         <p className="aq-lead">
           Sensors, a gateway, valves and an app work together to water each zone only when it needs it.
         </p>
@@ -90,14 +139,15 @@ export const Features: React.FC = () => (
           <strong>Built</strong> means it exists in the prototype or the app. <strong>Designed</strong> means it is
           specified in our project report and not yet shown working.
         </p>
-      </Reveal>
+        </Reveal>
+      </div>
 
-      <ul className="aq-bento">
-        {FEATURES.map((f, i) => {
+      <ul ref={bento} className="aq-bento">
+        {FEATURES.map((f) => {
           const Icon = f.icon;
           return (
             <li key={f.id} className="aq-cell-slot" data-cell={f.id}>
-              <Reveal className="aq-cell" delay={(i % 4) * 70} threshold={0.12}>
+              <Reveal className="aq-cell" delay={DIAGONAL[f.id] * 95} threshold={0.12}>
                 <div className="aq-cell-top">
                   <span className="aq-cell-icon" aria-hidden="true">
                     <Icon size={22} strokeWidth={1.9} />
@@ -110,7 +160,7 @@ export const Features: React.FC = () => (
                 </div>
                 {f.peek && (
                   <img
-                    className="aq-cell-peek"
+                    className="aq-cell-peek aq-colorize"
                     src={f.peek}
                     alt=""
                     width={491}
@@ -127,3 +177,4 @@ export const Features: React.FC = () => (
     </div>
   </section>
 );
+};

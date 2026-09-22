@@ -181,6 +181,7 @@ export const ProductShowcase: React.FC<ProductShowcaseProps> = ({ slides = AQUAS
                       />
                     ) : (
                       <img
+                        className="aq-colorize"
                         src={s.image}
                         alt={d === 0 ? s.alt : ''}
                         width={489}

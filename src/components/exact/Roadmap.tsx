@@ -1,6 +1,8 @@
 import React from 'react';
 import { useInView } from '../../lib/useInView';
+import { gsap, MOTION_OK, useGSAP } from '../../lib/gsap';
 import { Reveal } from '../motion/Reveal';
+import { SplitHeading } from '../motion/SplitHeading';
 
 type State = 'Completed' | 'In progress' | 'Next' | 'Later';
 
@@ -44,15 +46,48 @@ const STAGES: { name: string; state: State; items: string[] }[] = [
 export const Roadmap: React.FC = () => {
   const { ref, inView } = useInView<HTMLOListElement>(0.2);
 
+  // The progress rail fills with scroll (--rail 0 to 1). The stage cards rise in a stagger that
+  // plays once, so text is never left half-faded wherever the reader stops.
+  useGSAP(
+    () => {
+      const road = ref.current;
+      if (!road) return;
+      const mm = gsap.matchMedia();
+      mm.add(MOTION_OK, () => {
+        road.dataset.scrub = '';
+        gsap.fromTo(
+          road,
+          { '--rail': 0 },
+          { '--rail': 1, ease: 'none', scrollTrigger: { trigger: road, start: 'top 78%', end: 'bottom 62%', scrub: 0.5 } },
+        );
+        gsap.from(road.querySelectorAll('.aq-stage-body'), {
+          y: 52,
+          opacity: 0,
+          duration: 1.05,
+          ease: 'expo.out',
+          stagger: 0.16,
+          scrollTrigger: { trigger: road, start: 'top 80%', once: true },
+        });
+        return () => {
+          delete road.dataset.scrub;
+        };
+      });
+      return () => mm.revert();
+    },
+    { scope: ref },
+  );
+
   return (
     <section id="roadmap" className="aq-sec aq-sec--sand" aria-labelledby="roadmap-title">
       <div className="aq-wrap">
-        <Reveal className="aq-diff-head">
-          <h2 id="roadmap-title" className="aq-h2">From prototype to platform.</h2>
+        <div className="aq-diff-head">
+          <SplitHeading as="h2" id="roadmap-title" className="aq-h2">From prototype to platform.</SplitHeading>
+          <Reveal delay={220}>
           <p className="aq-lead">
             The prototype is built. We are now building the farmer-ready product, then testing it with farmers.
           </p>
-        </Reveal>
+          </Reveal>
+        </div>
 
         <ol ref={ref} className="aq-road" data-in-view={inView}>
           {STAGES.map((s) => (

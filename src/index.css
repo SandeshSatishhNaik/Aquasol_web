@@ -1,14 +1,8 @@
 /* Helper overrides and interactive state transitions for React components */
 
-html {
-  scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
+/* No html { scroll-behavior: smooth }: Lenis calls scrollTo every frame, and a CSS smooth
+   behaviour would animate each of those calls, fighting it. Programmatic scrolls go through
+   src/lib/smoothScroll.ts, which chooses smooth or instant itself. */
 
 .skip-link {
   position: absolute;
@@ -1187,6 +1181,7 @@ img {
   --aq-olive: #687719;
   --aq-olive-bright: #899921;
   --aq-aqua: #1b9aaa;
+  --aq-alert: #e27b41;
   --aq-line: rgba(137, 153, 33, 0.25);
 
   /* hero type: fluid, lands on the existing 40px and 59.72px endpoints */
@@ -1251,14 +1246,6 @@ img {
 .section.hero {
   padding-top: var(--aq-space-l);
   padding-bottom: var(--aq-space-l);
-}
-
-/* The sticky header is 89px tall on desktop and the hero starts at the top of the page, so the
-   video used to slide 25px under it. Reserve the header's height plus the usual gap. */
-@media (min-width: 992px) {
-  .section.hero {
-    padding-top: calc(89px + var(--aq-space-s));
-  }
 }
 
 .hero-text-wrap.aq-hero-text {
@@ -1740,14 +1727,12 @@ img {
 }
 
 .aq-source a:focus-visible,
-.aq-play:focus-visible,
 .aq-step:focus-visible {
   outline: 3px solid var(--aq-olive-dark);
   outline-offset: 3px;
   border-radius: 4px;
 }
 
-.aq-sec--dark .aq-play:focus-visible,
 .aq-sec--dark .aq-step:focus-visible {
   outline-color: var(--aq-cream);
 }
@@ -2033,9 +2018,15 @@ img {
 
 .aq-work {
   display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
-  gap: clamp(2rem, 5vw, 4.5rem);
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
   align-items: center;
+}
+
+.aq-work-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .aq-steps {
@@ -2048,14 +2039,14 @@ img {
   position: relative;
   display: flex;
   align-items: center;
-  height: 3.25rem;
+  height: 2.5rem;
   padding: 0 0 0 20px;
   border: 0;
   background: none;
   text-align: left;
   cursor: pointer;
   font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: rgba(250, 250, 240, 0.6);
@@ -2072,8 +2063,8 @@ img {
   content: "";
   position: absolute;
   left: 0;
-  top: 0.5rem;
-  bottom: 0.5rem;
+  top: 0.4rem;
+  bottom: 0.4rem;
   width: 3px;
   border-radius: 2px;
 }
@@ -2082,6 +2073,7 @@ img {
   background: rgba(250, 250, 240, 0.18);
 }
 
+/* The current stage's bar is full; while scroll drives the section it fills with progress. */
 .aq-step-fill {
   background: var(--aq-olive-bright);
   transform: scaleY(0);
@@ -2089,231 +2081,126 @@ img {
 }
 
 .aq-step-fill[data-active="true"] {
-  animation-name: aq-fill;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
-  animation-play-state: paused;
-}
-
-.aq-steps[data-running="true"] .aq-step-fill[data-active="true"] {
-  animation-play-state: running;
-}
-
-@keyframes aq-fill {
-  to {
-    transform: scaleY(1);
-  }
+  transform: scaleY(1);
 }
 
 .aq-step-detail {
-  min-height: 7rem;
+  display: grid;
   margin-top: var(--aq-space-s);
 }
 
 .aq-step-detail p {
+  grid-area: 1 / 1;
   max-width: 44ch;
   margin: 0;
   font-size: 1.0625rem;
   line-height: 1.55;
   color: var(--aq-instrument-muted);
+  visibility: hidden;
+}
+
+.aq-step-detail p[data-current] {
+  visibility: visible;
   animation: aq-show-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.aq-play {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 44px;
-  margin-top: var(--aq-space-xs);
-  padding: 0 1.125rem;
-  border: 1px solid rgba(250, 250, 240, 0.32);
-  border-radius: 999px;
-  background: none;
-  color: var(--aq-cream);
-  font-family: "Inter Tight", sans-serif;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+/* ---- the control loop diagram (LoopDiagram.tsx) ----
+   A camera window onto one 1440x975 drawing. JS sets the viewBox, the dash offsets, the packets
+   and `is-lit`; everything here is the resting look. */
+.aq-work-loop {
+  height: min(68svh, 640px);
+  min-height: 320px;
 }
 
-.aq-play:hover {
-  background: rgba(250, 250, 240, 0.1);
+/* The diagram runs past the 1200px content column into the section's own right padding, so it
+   reads as drawn on the section rather than set in a panel. 100cqw is the section's content width. */
+#how-it-works {
+  --aq-work-pad: clamp(1.25rem, 4vw, 3.5rem); /* .aq-sec padding-inline */
+  container-type: inline-size;
 }
 
-.aq-flow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 3.5rem minmax(0, 1fr) 3.5rem minmax(0, 1fr);
-  grid-template-areas:
-    "nodes a gate b cloud"
-    ". . . . c"
-    "drone drone drone . app";
-  grid-template-rows: auto 3.5rem auto;
+@media (min-width: 992px) {
+  .aq-work-loop {
+    margin-right: calc(-1 * (max(0px, (100cqw - 1200px) / 2) + var(--aq-work-pad)));
+  }
 }
 
-.aq-area-nodes { grid-area: nodes; }
-.aq-area-a { grid-area: a; }
-.aq-area-gate { grid-area: gate; }
-.aq-area-b { grid-area: b; }
-.aq-area-cloud { grid-area: cloud; }
-.aq-area-c { grid-area: c; }
-.aq-area-app { grid-area: app; }
-.aq-area-drone { grid-area: drone; }
-
-.aq-fnode {
+/* No frame: the diagram sits on the section itself, and its cropped edges fade into the section's
+   padding instead of stopping at a hard line. */
+.aql {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.25rem;
-  border: 1px solid var(--aq-instrument-line);
-  border-radius: 20px;
-  background: var(--aq-ink-lift);
-  color: var(--aq-cream);
+  overflow: hidden;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 5%, #000 95%, transparent),
+    linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 5%, #000 95%, transparent),
+    linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+  mask-composite: intersect;
 }
 
-.aq-fnode svg {
-  color: var(--aq-olive-bright);
+.aql svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
-.aq-fnode h3 {
-  margin: 0;
-  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
-  font-size: 1.1875rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
+.aql-band { stroke: rgba(250, 250, 240, 0.07); stroke-width: 1; }
+.aql-t-band,
+.aql-t-tag,
+.aql-t-part,
+.aql-t-pill { font-family: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace; }
+.aql-t-band { font-size: 11px; font-weight: 500; letter-spacing: 0.14em; fill: rgba(250, 250, 240, 0.5); }
+.aql-t-title { font: 700 18px "Bricolage Grotesque", "Inter Tight", sans-serif; letter-spacing: -0.01em; fill: var(--aq-cream); }
+.aql-t-step { font: 500 15px "Inter Tight", sans-serif; fill: var(--aq-cream); }
+.aql-t-q { font: 600 15px "Inter Tight", sans-serif; fill: var(--aq-cream); }
+.aql-t-item { font: 400 14px "Inter Tight", sans-serif; fill: var(--aq-instrument-muted); }
+.aql-t-part { font-size: 13px; font-weight: 600; fill: var(--aq-cream); }
+.aql-t-tag { font-size: 11.5px; font-weight: 500; letter-spacing: 0.1em; fill: rgba(250, 250, 240, 0.58); }
+.aql-t-pill { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; fill: var(--aq-cream); }
+.aql-t-yes { fill: var(--aq-olive-bright); }
+.aql-t-no { fill: rgba(250, 250, 240, 0.72); }
 
-.aq-fnode p {
-  margin: 0;
-  font-size: 0.9375rem;
-  line-height: 1.45;
-  color: var(--aq-instrument-muted);
+.aql-box {
+  fill: var(--aq-ink-lift);
+  stroke: var(--aq-instrument-line);
+  stroke-width: 1.25;
+  transition: fill 0.35s ease, stroke 0.35s ease;
 }
-
-.aq-fnode::after {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border: 2px solid var(--aq-olive-bright);
-  border-radius: inherit;
+.aql-node.is-lit .aql-box {
+  fill: color-mix(in srgb, var(--aq-ink-lift) 86%, var(--aq-olive-bright));
+  stroke: var(--aq-olive-bright);
+  stroke-width: 2;
+}
+.aql-node--alert.is-lit .aql-box {
+  fill: color-mix(in srgb, var(--aq-ink-lift) 82%, var(--aq-alert));
+  stroke: var(--aq-alert);
+}
+.aql-node--cloud.is-lit .aql-box {
+  fill: color-mix(in srgb, var(--aq-ink-lift) 82%, var(--aq-aqua));
+  stroke: var(--aq-aqua);
+}
+.aql-bell { fill: none; stroke: var(--aq-alert); stroke-width: 1.6; stroke-linejoin: round; }
+.aql-dot { fill: var(--aq-olive-bright); }
+.aql-base { fill: none; stroke: rgba(250, 250, 240, 0.22); stroke-width: 1.5; }
+.aql-base--no { stroke-dasharray: 5 5; }
+.aql-arrowhead { fill: rgba(250, 250, 240, 0.5); }
+.aql-trace {
+  fill: none;
+  stroke: var(--aq-olive-bright);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
   opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
 }
-
-.aq-fnode[data-on]::after {
-  opacity: 1;
-}
-
-.aq-fnode--planned {
-  border-style: dashed;
-  background: transparent;
-}
-
-.aq-fnode--planned h3,
-.aq-fnode--planned p {
-  max-width: 60ch;
-}
-
-.aq-conn {
-  --aq-line: rgba(250, 250, 240, 0.28);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.aq-conn::before,
-.aq-conn::after {
-  content: "";
-  position: absolute;
-}
-
-.aq-conn[data-orient="h"]::before {
-  left: 0;
-  right: 0;
-  top: calc(50% - 1.5px);
-  height: 3px;
-  background: repeating-linear-gradient(90deg, var(--aq-line) 0 6px, transparent 6px 12px);
-}
-
-.aq-conn[data-orient="v"]::before {
-  top: 0;
-  bottom: 0;
-  left: calc(50% - 1.5px);
-  width: 3px;
-  background: repeating-linear-gradient(180deg, var(--aq-line) 0 6px, transparent 6px 12px);
-}
-
-.aq-conn span {
-  position: absolute;
-  bottom: calc(50% + 10px);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--aq-instrument-muted);
-}
-
-.aq-conn[data-on] {
-  --aq-line: var(--aq-olive-bright);
-}
-
-.aq-conn[data-on]::before {
-  animation: aq-dash-h 0.7s linear infinite;
-  animation-play-state: paused;
-}
-
-.aq-conn[data-orient="v"][data-on]::before {
-  animation-name: aq-dash-v;
-}
-
-.aq-conn[data-dir="rev"]::before {
-  animation-direction: reverse;
-}
-
-.aq-flow[data-running="true"] .aq-conn[data-on]::before {
-  animation-play-state: running;
-}
-
-@keyframes aq-dash-h {
-  to {
-    background-position: 12px 0;
-  }
-}
-
-@keyframes aq-dash-v {
-  to {
-    background-position: 0 12px;
-  }
-}
-
-/* arrowheads on the active link */
-.aq-conn[data-on]::after {
-  width: 0;
-  height: 0;
-  border: 6px solid transparent;
-}
-
-.aq-conn[data-orient="h"][data-dir="fwd"]::after {
-  right: -2px;
-  top: calc(50% - 6px);
-  border-left: 10px solid var(--aq-olive-bright);
-  border-right: 0;
-}
-
-.aq-conn[data-orient="h"][data-dir="rev"]::after {
-  left: -2px;
-  top: calc(50% - 6px);
-  border-right: 10px solid var(--aq-olive-bright);
-  border-left: 0;
-}
-
-.aq-conn[data-orient="v"][data-dir="fwd"]::after {
-  bottom: -2px;
-  left: calc(50% - 6px);
-  border-top: 10px solid var(--aq-olive-bright);
-  border-bottom: 0;
-}
+.aql-packet { fill: var(--aq-cream); opacity: 0; }
+.aql-pill { fill: var(--aq-forest); stroke: rgba(250, 250, 240, 0.35); }
+.aql-pill--radio { stroke: var(--aq-aqua); }
+.aql-pill--yes { stroke: var(--aq-olive-bright); }
+.aql-cycle { fill: none; stroke: color-mix(in srgb, var(--aq-aqua) 45%, transparent); stroke-dasharray: 4 5; }
+.aql-water { fill: var(--aq-aqua); opacity: 0.45; }
 
 /* ---- hardware images ---- */
 
@@ -2571,13 +2458,20 @@ img {
   transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* --rail (0-1) is scrubbed with scroll by Roadmap.tsx. It defaults to 1, so without motion the
+   rail shows its exact final state: Completed full, In progress half. */
 .aq-road[data-in-view="true"] .aq-stage[data-state="Completed"] .aq-stage-rail::after {
-  transform: scaleX(1);
+  transform: scaleX(var(--rail, 1));
 }
 
 .aq-road[data-in-view="true"] .aq-stage[data-state="In progress"] .aq-stage-rail::after {
-  transform: scaleX(0.5);
+  transform: scaleX(calc(0.5 * var(--rail, 1)));
   transition-delay: 0.5s;
+}
+
+/* While scroll drives it, the rail must track scroll directly, not ease behind it. */
+.aq-road[data-scrub] .aq-stage-rail::after {
+  transition: none;
 }
 
 .aq-stage-dot {
@@ -2634,76 +2528,53 @@ img {
 
 /* ---- responsive ---- */
 
-@media (max-width: 1100px) {
+/* How it works below 992px: heading, then the diagram, then the caption, then the stage chips. */
+@media (max-width: 991px) {
   .aq-work {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "head" "loop" "detail" "steps";
+    align-items: stretch;
+    gap: var(--aq-space-s);
   }
 
-  .aq-flow {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: none;
-    grid-template-areas:
-      "nodes"
-      "a"
-      "gate"
-      "b"
-      "cloud"
-      "c"
-      "app"
-      "drone";
-    row-gap: 0;
-    width: 100%;
-    max-width: 440px;
-    margin: 0 auto;
+  .aq-work-text { display: contents; }
+  .aq-work-head { grid-area: head; }
+  .aq-work-loop { grid-area: loop; height: 56svh; min-height: 280px; margin-inline: calc(-1 * var(--aq-work-pad)); }
+
+  .aq-step-detail {
+    grid-area: detail;
+    margin-top: 0;
   }
 
-  .aq-conn {
-    height: 3.25rem;
+  .aq-step-detail p {
+    font-size: 0.9375rem;
+    line-height: 1.5;
   }
 
-  /* on a single column every link runs top to bottom */
-  .aq-conn[data-orient="h"]::before {
-    top: 0;
-    bottom: 0;
-    left: calc(50% - 1.5px);
-    right: auto;
-    width: 3px;
-    height: auto;
-    background: repeating-linear-gradient(180deg, var(--aq-line) 0 6px, transparent 6px 12px);
+  .aq-steps {
+    grid-area: steps;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 0;
   }
 
-  .aq-conn[data-orient="h"][data-on]::before {
-    animation-name: aq-dash-v;
+  .aq-step {
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid rgba(250, 250, 240, 0.24);
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    letter-spacing: 0;
   }
 
-  .aq-conn span {
-    top: 50%;
-    bottom: auto;
-    left: calc(50% + 14px);
-    transform: translateY(-50%);
-  }
+  .aq-step::before,
+  .aq-step-fill { display: none; }
 
-  .aq-conn[data-orient="h"][data-dir="fwd"]::after,
-  .aq-conn[data-orient="v"][data-dir="fwd"]::after {
-    top: auto;
-    right: auto;
-    bottom: -2px;
-    left: calc(50% - 6px);
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 10px solid var(--aq-olive-bright);
-    border-bottom: 0;
-  }
-
-  .aq-conn[data-orient="h"][data-dir="rev"]::after {
-    top: -2px;
-    right: auto;
-    bottom: auto;
-    left: calc(50% - 6px);
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-bottom: 10px solid var(--aq-olive-bright);
-    border-top: 0;
+  .aq-step[aria-selected="true"] {
+    border-color: var(--aq-olive-bright);
+    background: var(--aq-olive-bright);
+    color: var(--aq-forest);
   }
 }
 
@@ -2749,11 +2620,11 @@ img {
   }
 
   .aq-road[data-in-view="true"] .aq-stage[data-state="Completed"] .aq-stage-rail::after {
-    transform: scaleY(1);
+    transform: scaleY(var(--rail, 1));
   }
 
   .aq-road[data-in-view="true"] .aq-stage[data-state="In progress"] .aq-stage-rail::after {
-    transform: scaleY(0.5);
+    transform: scaleY(calc(0.5 * var(--rail, 1)));
   }
 
   .aq-stage-dot {
@@ -2813,17 +2684,14 @@ img {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .aq-step-fill[data-active="true"] {
-    animation: none;
-    transform: scaleY(1);
+  .aql-box {
+    transition: none;
   }
 
-  .aq-conn[data-on]::before,
   .aq-step-detail p {
     animation: none;
   }
 
-  .aq-fnode::after,
   .aq-stage-rail::after,
   .aq-step {
     transition: none;
@@ -2889,12 +2757,6 @@ img {
 
   .header .header-logo {
     height: 32px !important;
-  }
-}
-
-@media (max-width: 1100px) {
-  .aq-area-drone {
-    margin-top: var(--aq-space-m);
   }
 }
 
@@ -3059,6 +2921,13 @@ img {
   border-radius: 44px;
   background: #0d1208;
   box-shadow: inset 0 0 0 1px rgba(250, 250, 240, 0.18), 0 50px 60px -36px rgba(0, 0, 0, 0.65);
+}
+
+.aq-phone,
+.aq-phone-screen {
+  /* Both are <span>s in the markup, and an inline box ignores width, height, aspect-ratio and
+     padding, which is why the bezel never drew. */
+  display: block;
 }
 
 .aq-phone-screen {
@@ -3591,27 +3460,438 @@ img {
 }
 
 /* ---- how it works: scroll-driven mode ----
-   Applied by Working.tsx only when it has decided the section can pin: wide screen, motion
-   allowed, and the compacted card fits under the sticky header. */
+   Applied by Working.tsx wherever motion is allowed and the card fits: the section is sized to the
+   viewport under the sticky header, and the diagram takes whatever height is left. */
 .aq-sec[data-pin="on"] {
   display: flex;
-  align-items: center;
-  min-height: calc(100svh - var(--aq-pin-top, 6rem) - 12px);
+  height: calc(100svh - var(--aq-pin-top, 6rem) - 12px);
   padding-block: 1.5rem;
 }
 
-.aq-sec[data-pin="on"] > .aq-wrap {
+.aq-sec[data-pin="on"] > .aq-wrap,
+.aq-sec[data-pin="on"] .aq-work {
   width: 100%;
+  height: 100%;
+}
+
+.aq-sec[data-pin="on"] .aq-work-loop {
+  height: 100%;
+  min-height: 0;
+}
+
+.aq-sec[data-pin="on"] .aq-steps {
+  margin-top: var(--aq-space-s);
 }
 
 /* Scroll position, not a timer, fills the active step. */
 .aq-steps[data-scroll="true"] .aq-step-fill[data-active="true"] {
-  animation: none;
   transform: scaleY(var(--p, 0));
+}
+
+@media (min-width: 992px) and (max-height: 820px) {
+  .aq-sec[data-pin="on"] .aq-lead { display: none; }
+  .aq-sec[data-pin="on"] .aq-step { height: 2.125rem; font-size: 1.125rem; }
+}
+
+@media (min-width: 992px) and (max-height: 720px) {
+  .aq-sec[data-pin="on"] { padding-block: 1.125rem; }
+  .aq-sec[data-pin="on"] .aq-h2 { font-size: 2.25rem; }
+  .aq-sec[data-pin="on"] .aq-steps { margin-top: 0.75rem; }
+  .aq-sec[data-pin="on"] .aq-step { height: 1.875rem; font-size: 1.0625rem; }
+  .aq-sec[data-pin="on"] .aq-step-detail { margin-top: 0.75rem; }
+  .aq-sec[data-pin="on"] .aq-step-detail p { font-size: 0.9375rem; line-height: 1.5; }
+}
+
+@media (max-width: 991px) {
+  .aq-sec[data-pin="on"] {
+    padding: 1rem;
+  }
+
+  #how-it-works[data-pin="on"] { --aq-work-pad: 1rem; }
+
+  .aq-sec[data-pin="on"] .aq-work {
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: 0.75rem;
+  }
+
+  .aq-sec[data-pin="on"] .aq-work-loop { height: auto; }
+  .aq-sec[data-pin="on"] .aq-lead { display: none; }
 }
 
 /* Reserves the pinned scroll distance up front (see Working.tsx), so layout is identical
    before and after GSAP loads. */
 .aq-work-pin[data-mode="pin"] {
   padding-bottom: calc(var(--aq-pin-vh) * 100svh);
+}
+
+/* ==========================================================================
+   Motion system, v2. Five layers (see the Design System note):
+     L0 scroll feel  - Lenis (src/lib/smoothScroll.ts)
+     L1 ambient      - native CSS scroll timelines, below. Compositor only.
+     L2 arrival      - SplitHeading (GSAP SplitText) + Reveal
+     L3 signature    - GSAP pin/scrub set-pieces
+     L4 interaction  - Magnetic, Cursor, bento spotlight
+   ========================================================================== */
+
+/* ---- L1 ambient: native scroll-driven animation ----
+   Progressive enhancement, per the modern-web guidance: no polyfill, no JS fallback. Browsers
+   without support (Firefox) simply show the final state: static, in colour, in position. The
+   (animation-range: entry) check filters out partial implementations. `animation-timeline` and
+   `animation-range` are declared after the `animation` shorthand, which would otherwise reset
+   them. Motion uses the individual `translate` property so it never fights an element's own
+   `transform` (hover lifts etc.). */
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    /* Media drifts against the page as it leaves. Speed set per element. */
+    @keyframes aq-drift {
+      from { translate: 0 0; }
+      to { translate: 0 var(--aq-drift, -10%); }
+    }
+
+    .aq-parallax {
+      animation: aq-drift linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+
+    /* Images arrive desaturated and gain colour as they settle in: the field coming to life. */
+    @keyframes aq-colorize {
+      from { filter: grayscale(1) saturate(0.7) brightness(0.97); }
+      to { filter: grayscale(0) saturate(1) brightness(1); }
+    }
+
+    .aq-colorize {
+      animation: aq-colorize linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 42%;
+    }
+
+    /* Signature 2, the act-break: the How it works panel floods up out of a circle rising from
+       its bottom edge, completing just before the section pins. */
+    @keyframes aq-flood {
+      from { clip-path: circle(0% at 50% 100%); }
+      to { clip-path: circle(150% at 50% 100%); }
+    }
+
+    #how-it-works {
+      animation: aq-flood linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 90%;
+    }
+
+    /* The prototype photo opens from an inset card to its full frame (#24466 pattern). The range
+       ends at `entry 100%`, before the Hardware column turns sticky and would freeze progress. */
+    @keyframes aq-open {
+      from { clip-path: inset(9% 11% 9% 11% round 44px); scale: 1.08; }
+      to { clip-path: inset(0 0 0 0 round 20px); scale: 1; }
+    }
+
+    .aq-hw-photo img {
+      animation: aq-open linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+
+    /* Reading-progress gauge along the bottom edge of the header: an instrument needle. */
+    @keyframes aq-gauge {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    /* .header raises specificity above the base `display: none` rule, which comes later in the
+       file: at-rules add no specificity, so source order alone would hide the gauge. */
+    .header .aq-progress {
+      display: block;
+      animation: aq-gauge linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+
+.aq-progress {
+  display: none;
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--aq-olive-bright);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* ---- Hero headline: CSS word mask, zero JS (the hero is in the initial chunk) ----
+   Starts when the site is revealed: on first paint for returning visitors, as the loader lets go
+   for first-time ones. Only the h1 animates; the sub paragraph is the mobile LCP element and is
+   never hidden. Words are plain spans, so screen readers read the sentence normally. */
+.aq-hero-title .aq-w {
+  display: inline-block;
+  overflow: clip;
+  vertical-align: top;
+  /* room for descenders (g, y) that the clip would otherwise shave */
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.aq-hero-title .aq-w > span {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes aq-rise {
+    from { transform: translateY(112%); }
+  }
+
+  .aquasol-site-reveal.visible .aq-hero-title .aq-w > span {
+    animation: aq-rise 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 95ms + 80ms);
+  }
+}
+
+/* ---- L4 interaction ---- */
+.aq-magnetic {
+  display: inline-flex;
+  transition: transform 0.42s cubic-bezier(0.2, 0.9, 0.25, 1.35);
+  will-change: transform;
+}
+
+/* A fixed 40px box moved only by transform. The visible dot/ring is the pseudo-element, which
+   scales: 0.2 is the 8px dot, 1 is the 40px ring. Animating width/height/margin instead (the
+   first version) re-laid-out the element every frame of the hover transition and registered as
+   layout shifts. */
+.aq-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100000;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.aq-cursor::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid transparent;
+  border-radius: 50%;
+  background: var(--aq-olive-bright);
+  transform: scale(0.2);
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.28s ease,
+    border-color 0.28s ease;
+}
+
+.aq-cursor[data-on] {
+  opacity: 1;
+}
+
+.aq-cursor[data-hover]::before {
+  transform: scale(1);
+  background: transparent;
+  border-color: var(--aq-olive-bright);
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .aq-cursor {
+    display: none;
+  }
+}
+
+/* The hero drift is a desktop effect: on phones the instrument sits in flow above the video,
+   and moving it would slide it over the copy. */
+@media (max-width: 991px) {
+  .aq-hero-media.aq-parallax,
+  .aq-farm-slot.aq-parallax {
+    animation: none;
+  }
+}
+
+/* ---- Features bento: stronger arrival than the generic Reveal, and a pointer spotlight ---- */
+.aq-cell[data-reveal] {
+  transform: translate3d(0, 44px, 0) scale(0.965);
+  transition:
+    opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--aq-reveal-delay, 0ms);
+}
+
+.aq-cell[data-reveal][data-in-view="true"] {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-cell[data-reveal] {
+    transform: none;
+    transition: none;
+  }
+}
+
+.aq-cell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%), rgba(137, 153, 33, 0.16), transparent 62%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.aq-cell-slot[data-cell="offline"] .aq-cell::before {
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(137, 153, 33, 0.34), transparent 60%);
+}
+
+@media (hover: hover) {
+  .aq-cell:hover::before {
+    opacity: 1;
+  }
+}
+
+.aq-cell[data-lit]::before {
+  opacity: 1;
+}
+
+/* Keep cell content above the spotlight layer. */
+.aq-cell > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Tech stack: Signature 3, the sticky stack (desktop, motion allowed) ----
+   Native sticky does the stacking; TechStack.tsx scrubs only scale and the shade's opacity.
+
+   Two geometry rules keep a layer from ever showing out from under the one in front:
+   1. Each layer is exactly one sticky step (16px) shorter than the one before. Every stuck layer's
+      bottom edge then lands on the same line, so when the list scrolls away its end pushes them
+      all at the same instant and the stack leaves intact. (The first version made the last layer
+      taller to linger, so the list's end pushed it up first, sliding it above the layer behind,
+      which stuck out below.) The linger is a non-sticky spacer after the list instead.
+   2. Every card is the same height, at least the tallest one's natural height (176px, Field nodes
+      at 992px wide), so a taller card behind can never reach below the card in front. */
+.aq-layer-tone {
+  position: relative;
+  transform-origin: 50% 0;
+}
+
+.aq-layer-shade {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(16, 20, 8, 0.34);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 992px) and (prefers-reduced-motion: no-preference) {
+  /* The finished stack settles near the middle of the screen rather than under the header, so
+     its dwell does not leave a screen of empty section below it. Never above the 89px header. */
+  .aq-layers {
+    --stack-top: max(112px, calc(50vh - 190px));
+    --stack-step: 16px;
+    /* Room for each layer to travel. Floor: the shortest layer (5 steps down) still holds a card. */
+    --stack-travel: max(40vh, 17rem);
+    gap: 0;
+  }
+
+  /* The finished stack lingers here before it leaves. Not sticky, so it does not affect rule 1. */
+  .aq-layers::after {
+    content: "";
+    flex: none;
+    height: 28vh;
+  }
+
+  .aq-layer-tone {
+    min-height: 11.5rem;
+    align-items: center;
+  }
+
+  /* The drone layer is drawn "planned": dashed and see-through. Stacked, a see-through card lets
+     the one beneath show through its text, so it takes the section's own cream. Static, this is
+     indistinguishable from transparent. */
+  .aq-layer-tone[data-tone="5"] {
+    background: var(--aq-cream);
+  }
+
+  .aq-layer {
+    position: sticky;
+    top: calc(var(--stack-top) + var(--i) * var(--stack-step));
+    height: calc(var(--stack-travel) - var(--i) * var(--stack-step));
+  }
+}
+
+/* Mid-page media floats against the page for as long as it is in view. `.aq-parallax` above only
+   moves an element as it leaves, which suits the hero; this suits media in the middle of a page. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    @keyframes aq-float {
+      from { translate: 0 var(--aq-float, 7%); }
+      to { translate: 0 calc(var(--aq-float, 7%) * -1); }
+    }
+
+    .aq-float {
+      animation: aq-float linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+/* ---- Signature 4: the curtain footer (desktop, motion allowed) ----
+   The footer sits behind the page (z-index -1) and sticks to the viewport bottom, so as the last
+   section scrolls away the page lifts off it like a sheet. `main` gets an opaque background and
+   stays non-positioned: giving it a z-index would create a stacking context and trap the video
+   and gallery modals underneath the sticky header. */
+.aq-foot-mark {
+  overflow: clip;
+  margin: clamp(1.5rem, 4vw, 3rem) 0 0;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: clamp(4rem, 15.5vw, 15rem);
+  font-weight: 800;
+  line-height: 0.82;
+  letter-spacing: -0.055em;
+  color: var(--aq-olive-bright);
+  user-select: none;
+}
+
+.aq-foot-mark > span {
+  display: block;
+  padding-bottom: 0.06em;
+}
+
+/* `html[data-curtain]` is set by Footer.tsx only while the footer is shorter than the viewport
+   below the header. A stuck footer taller than the screen can never scroll its top into view, so
+   its logo and first links were unreachable and the dark footer showed through the translucent
+   header on shorter laptop screens. Otherwise the footer is an ordinary static block. */
+@media (min-width: 992px) and (prefers-reduced-motion: no-preference) {
+  html[data-curtain] main#main {
+    background: #ffffff;
+    border-radius: 0 0 40px 40px;
+    box-shadow: 0 44px 70px -34px rgba(16, 20, 8, 0.5);
+  }
+
+  html[data-curtain] .aq-foot {
+    position: sticky;
+    bottom: 0;
+    z-index: -1;
+  }
+
+  @supports ((animation-timeline: scroll()) and (animation-range: entry)) {
+    @keyframes aq-mark-rise {
+      from { transform: translateY(96%); }
+      to { transform: translateY(0); }
+    }
+
+    html[data-curtain] .aq-foot-mark > span {
+      animation: aq-mark-rise linear both;
+      animation-timeline: scroll(root block);
+      animation-range: calc(100% - var(--foot-h, 540px)) 100%;
+    }
+  }
 }

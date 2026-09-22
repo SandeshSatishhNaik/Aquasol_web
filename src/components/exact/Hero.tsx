@@ -2,6 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown, Pause, Play } from 'lucide-react';
 import { LiveFarmDashboard } from './LiveFarmDashboard';
 import { scrollToId } from '../../lib/scrollToId';
+import { Magnetic } from '../motion/Magnetic';
+
+// Hero words, each rising out of its own mask. "Every Drop." stays one unit (non-breaking space).
+const TITLE_WORDS = ['Intelligence', 'in', 'Every Drop.'];
 
 const HERO_POSTER = '/assets/aquasol-hero-poster.jpg';
 
@@ -41,27 +45,38 @@ export const Hero: React.FC = () => {
         <div className="hero-wrap">
           <div className="w-layout-grid grid full-width mobile-1-col aq-hero-grid">
             <div id="w-node-_8f8f427a-a162-3030-0935-806ef126dc00-0181bba9" className="hero-text-wrap aq-hero-text">
-              <h1 className="heading h1 aq-hero-title">Intelligence in Every&nbsp;Drop.</h1>
+              <h1 className="heading h1 aq-hero-title">
+                {TITLE_WORDS.map((w, i) => (
+                  <React.Fragment key={w}>
+                    <span className="aq-w">
+                      <span style={{ '--i': i } as React.CSSProperties}>{w}</span>
+                    </span>
+                    {i < TITLE_WORDS.length - 1 && ' '}
+                  </React.Fragment>
+                ))}
+              </h1>
               <p className="paragraph large aq-hero-sub">
                 Irrigation in India still runs on manual checks. AquaSol reads every zone and waters only the ones that need it.
               </p>
-              <a
-                href="#how-it-works"
-                className="aq-cta"
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToId('how-it-works');
-                }}
-              >
-                <span>See how it works</span>
-                <span className="aq-cta-icon" aria-hidden="true">
-                  <ArrowDown size={15} strokeWidth={2.6} />
-                </span>
-              </a>
+              <Magnetic>
+                <a
+                  href="#how-it-works"
+                  className="aq-cta"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollToId('how-it-works');
+                  }}
+                >
+                  <span>See how it works</span>
+                  <span className="aq-cta-icon" aria-hidden="true">
+                    <ArrowDown size={15} strokeWidth={2.6} />
+                  </span>
+                </a>
+              </Magnetic>
             </div>
 
             <div className="bg-video-wrap aq-hero-stage">
-              <div className="aq-hero-media">
+              <div className="aq-hero-media aq-parallax" style={{ '--aq-drift': '-9%' } as React.CSSProperties}>
                 <div
                   data-poster-url={HERO_POSTER}
                   className="background-video w-background-video w-background-video-atom"
@@ -100,7 +115,7 @@ export const Hero: React.FC = () => {
                 </button>
               </div>
 
-              <div className="hero-illustration-wrap aq-farm-slot">
+              <div className="hero-illustration-wrap aq-farm-slot aq-parallax" style={{ '--aq-drift': '-26%' } as React.CSSProperties}>
                 <LiveFarmDashboard />
               </div>
             </div>

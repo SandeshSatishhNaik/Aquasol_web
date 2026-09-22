@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { scrollTo, startSmoothScroll } from './lib/smoothScroll';
 import { Navbar } from './components/exact/Navbar';
 import { Footer } from './components/exact/Footer';
 import { LandingPage } from './pages/LandingPage';
@@ -19,6 +20,10 @@ const Agentation = import.meta.env.DEV
   : null;
 // three.js is ~600 kB and the loader plays at most once per session, so it must not sit
 // in the main chunk. Returning visitors (sessionStorage) now never download it at all.
+// Desktop-only trailing cursor accent. Lazy, and mounted only after reveal, so it never costs
+// first load or competes with the loader.
+const Cursor = lazy(() => import('./components/motion/Cursor'));
+
 const AquaSolLoader = lazy(() =>
   import('./components/exact/AquaSolLoader/AquaSolLoader').then((m) => ({ default: m.AquaSolLoader })),
 );
@@ -60,9 +65,29 @@ export function App() {
 
   // Smooth scroll to top on page transition
   useEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    scrollTo(0);
   }, [currentPage]);
+
+  // Lenis starts once the loader has released the page, after the window `load` event, at idle.
+  // Starting at reveal alone let its ~50 kB (Lenis + GSAP) download alongside the preloaded
+  // fonts on a returning visit, and the LCP element is text that waits for those fonts: measured
+  // +52 ms throttled-mobile LCP. After `load`, the critical resources have already arrived.
+  const revealed = siteRevealing || loaderDone;
+  useEffect(() => {
+    if (!revealed) return;
+    const idle = window.requestIdleCallback ?? ((fn: () => void) => window.setTimeout(fn, 1));
+    const cancel = window.cancelIdleCallback ?? window.clearTimeout;
+    let id: number | undefined;
+    const schedule = () => {
+      id = idle(() => void startSmoothScroll(), { timeout: 2000 }) as number;
+    };
+    if (document.readyState === 'complete') schedule();
+    else window.addEventListener('load', schedule, { once: true });
+    return () => {
+      window.removeEventListener('load', schedule);
+      if (id !== undefined) cancel(id);
+    };
+  }, [revealed]);
 
   // Ensure the dev feedback toolbar is never stuck hidden in sessionStorage. Dev only.
   useEffect(() => {
@@ -79,6 +104,13 @@ export function App() {
   }, []);
 
   const handleComplete = useCallback(() => {
+    // Record it, or the "plays at most once per session" check in the initial state above can
+    // never be true. (The write was lost in the loader rewrite, so every load replayed it.)
+    try {
+      sessionStorage.setItem('aquasol-loader-played', '1');
+    } catch {
+      // storage blocked: the loader simply replays next time
+    }
     setSiteRevealing(true);
     setLoaderDone(true);
   }, []);
@@ -115,6 +147,11 @@ export function App() {
         </Suspense>
         </main>
         <Footer onNavigate={setCurrentPage} />
+        {revealed && (
+          <Suspense fallback={null}>
+            <Cursor />
+          </Suspense>
+        )}
         {Agentation && (
           <Suspense fallback={null}>
             <Agentation />

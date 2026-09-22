@@ -1,17 +1,20 @@
 import React from 'react';
 import { Reveal } from '../motion/Reveal';
+import { SplitHeading } from '../motion/SplitHeading';
 
 export const Hardware: React.FC = () => (
   <section id="hardware" className="aq-sec" aria-labelledby="hardware-title">
     <div className="aq-wrap aq-hw">
       <div className="aq-hw-left">
-        <Reveal>
-          <h2 id="hardware-title" className="aq-h2">Built to sit in a field.</h2>
+        <div>
+          <SplitHeading as="h2" id="hardware-title" className="aq-h2">Built to sit in a field.</SplitHeading>
+          <Reveal delay={220}>
           <p className="aq-lead">
             The prototype is a master gateway between two solar field nodes. Each unit is weatherproof and runs on
             its own panel.
           </p>
-        </Reveal>
+          </Reveal>
+        </div>
 
         <Reveal delay={100}>
           <figure className="aq-hw-photo">
@@ -33,6 +36,7 @@ export const Hardware: React.FC = () => (
           <figure className="aq-hw-unit">
             <img
               src="/assets/aquasol-node-unit-clean.png"
+              className="aq-colorize"
               alt="Field node in an IP65 enclosure with an OLED display, power, LoRa and valve status lights, a DHT22 sensor, a LoRa antenna, an on-off switch and a replaceable fuse"
               width="907"
               height="497"
@@ -49,6 +53,7 @@ export const Hardware: React.FC = () => (
           <figure className="aq-hw-unit">
             <img
               src="/assets/aquasol-master-unit-clean.png"
+              className="aq-colorize"
               alt="Master gateway in an IP65 enclosure with a rain sensor, an LCD display, status lights, a LoRa antenna, an on-off switch and a replaceable fuse"
               width="741"
               height="517"

@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { gsap, MOTION_OK, useGSAP } from '../../lib/gsap';
 import { Reveal } from '../motion/Reveal';
+import { SplitHeading } from '../motion/SplitHeading';
 
 const ROWS = [
   {
@@ -34,18 +36,36 @@ const ROWS = [
   },
 ];
 
-export const Different: React.FC = () => (
+export const Different: React.FC = () => {
+  const table = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const wrap = table.current;
+      if (!wrap) return;
+      const mm = gsap.matchMedia();
+      mm.add(MOTION_OK, () => {
+        const tl = gsap.timeline({ scrollTrigger: { trigger: wrap, start: 'top 80%', once: true } });
+        tl.from(wrap.querySelectorAll('tbody tr'), { y: 34, opacity: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08 });
+        tl.from(wrap.querySelector('thead th:nth-child(3)'), { scale: 0.9, y: 18, opacity: 0, duration: 0.8, ease: 'back.out(1.6)', transformOrigin: '50% 100%' }, 0.1);
+      });
+      return () => mm.revert();
+    },
+    { scope: table },
+  );
+
+  return (
   <section id="different" className="aq-sec aq-sec--sand" aria-labelledby="different-title">
     <div className="aq-wrap">
       <div className="aq-diff-head">
-        <h2 id="different-title" className="aq-h2">What makes AquaSol different.</h2>
-        <p className="aq-lead">
+        <SplitHeading as="h2" id="different-title" className="aq-h2">What makes AquaSol different.</SplitHeading>
+        <Reveal delay={220}><p className="aq-lead">
           Most smart irrigation is costly, needs the internet and follows fixed rules. AquaSol was designed around
           those gaps.
-        </p>
+        </p></Reveal>
       </div>
 
-      <Reveal className="aq-table-wrap">
+      <div ref={table} className="aq-table-wrap">
         <table className="aq-diff-table">
           <caption className="aq-sr">Typical smart irrigation compared with AquaSol</caption>
           <thead>
@@ -65,7 +85,7 @@ export const Different: React.FC = () => (
             ))}
           </tbody>
         </table>
-      </Reveal>
+      </div>
 
       <p className="aq-source">
         Based on the gaps in existing systems identified in the AquaSol project report. Beyond irrigation, crop
@@ -74,3 +94,4 @@ export const Different: React.FC = () => (
     </div>
   </section>
 );
+};

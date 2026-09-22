@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Magnetic } from '../motion/Magnetic';
 import { Play, X } from 'lucide-react';
 import { Reveal } from '../motion/Reveal';
+import { lockScroll, unlockScroll } from '../../lib/smoothScroll';
+import { SplitHeading } from '../motion/SplitHeading';
 
 const POSTER = '/assets/aquasol-uav-scouting.jpg';
 const CLIP = '/assets/aquasol-uav-scouting.mp4';
@@ -40,10 +43,12 @@ export const VideoPreview: React.FC = () => {
 
     const { overflow } = document.body.style;
     document.body.style.overflow = 'hidden';
+    lockScroll();
     window.addEventListener('keydown', onKey);
     return () => {
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = overflow;
+      unlockScroll();
       trigger?.focus();
     };
   }, [modalOpen]);
@@ -52,28 +57,33 @@ export const VideoPreview: React.FC = () => {
     <>
       <section id="demo" className="aq-sec aq-sec--dark aq-sec--clip" aria-labelledby="demo-title">
         <div className="aq-wrap aq-demo">
-          <Reveal className="aq-demo-text">
-            <h2 id="demo-title" className="aq-h2">
+          <div className="aq-demo-text">
+            <SplitHeading as="h2" id="demo-title" className="aq-h2">
               Watch the <span className="aq-accent">app at work.</span>
-            </h2>
+            </SplitHeading>
+            <Reveal delay={220}>
             <p className="aq-lead">
               A screen recording of the drone survey screen in the AquaSol app. Zones are flagged by
               stress spot, with the NDVI reading for each.
             </p>
             <div className="aq-demo-actions">
+              <Magnetic>
               <button type="button" className="aq-cta" onClick={() => setModalOpen(true)}>
                 <span>Play the recording</span>
                 <span className="aq-cta-icon" aria-hidden="true">
                   <Play size={14} strokeWidth={2.6} />
                 </span>
               </button>
+              </Magnetic>
               <a href="#product" className="aq-btn-ghost">
                 See the app screens
               </a>
             </div>
-          </Reveal>
+            </Reveal>
+          </div>
 
           <Reveal className="aq-demo-stage" delay={120}>
+            <Magnetic strength={0.07} className="aq-float">
             <button
               type="button"
               ref={triggerRef}
@@ -90,12 +100,13 @@ export const VideoPreview: React.FC = () => {
                 <Play size={24} strokeWidth={2.2} />
               </span>
             </button>
+            </Magnetic>
           </Reveal>
         </div>
       </section>
 
       {modalOpen && (
-        <div className="video-modal-backdrop" onClick={() => setModalOpen(false)}>
+        <div className="video-modal-backdrop" data-lenis-prevent onClick={() => setModalOpen(false)}>
           <div
             ref={dialogRef}
             className="video-modal-container"

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { scrollToId } from '../../lib/scrollToId';
+import { lockScroll, scrollTo, unlockScroll } from '../../lib/smoothScroll';
+import { Magnetic } from '../motion/Magnetic';
 
 interface NavbarProps {
   currentPage?: string;
@@ -38,6 +40,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
 
   useEffect(() => {
     if (!mobileOpen) return;
+    drawerRef.current?.querySelector<HTMLElement>('a[href], button')?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setMobileOpen(false);
@@ -59,15 +62,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
     };
     const { overflow } = document.body.style;
     document.body.style.overflow = 'hidden';
+    lockScroll();
     window.addEventListener('keydown', onKey);
     return () => {
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = overflow;
+      unlockScroll();
     };
   }, [mobileOpen]);
-
-  const scrollBehavior = (): ScrollBehavior =>
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 
 
   const handleNavClick = (href: string) => {
@@ -98,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
                 onClick={(e) => {
                   e.preventDefault();
                   if (onNavigate) onNavigate('landing');
-                  window.scrollTo({ top: 0, behavior: scrollBehavior() });
+                  scrollTo(0);
                 }}
                 className="logo-link w-inline-block w--current"
                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
@@ -133,16 +135,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
             <div id="w-node-_677ce8dc-20c3-795f-1d3a-dd0f52d52499-52d52492" className="navigation-right">
               <div className="navigation-menu">
                 <div className="navbar-button-wrap">
-                  <a
-                    href="#contact"
-                    onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
-                    className="aq-cta"
-                  >
-                    <span>Contact us</span>
-                    <span className="aq-cta-icon" aria-hidden="true">
-                      <ArrowRight size={15} strokeWidth={2.6} />
-                    </span>
-                  </a>
+                  <Magnetic>
+                    <a
+                      href="#contact"
+                      onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
+                      className="aq-cta"
+                    >
+                      <span>Contact us</span>
+                      <span className="aq-cta-icon" aria-hidden="true">
+                        <ArrowRight size={15} strokeWidth={2.6} />
+                      </span>
+                    </a>
+                  </Magnetic>
                 </div>
               </div>
 
@@ -171,6 +175,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
         {/* Mobile Menu Drawer */}
         <div
           id="mobile-menu"
+          data-lenis-prevent
           className="mobile-menu aq-drawer"
           data-open={mobileOpen}
           ref={drawerRef}
@@ -205,6 +210,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
           </div>
         </div>
       </div>
+      <span className="aq-progress" aria-hidden="true" />
     </header>
     </>
   );

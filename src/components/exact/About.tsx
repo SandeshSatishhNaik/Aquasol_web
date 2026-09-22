@@ -1,5 +1,6 @@
 import React from 'react';
 import { Reveal } from '../motion/Reveal';
+import { SplitHeading } from '../motion/SplitHeading';
 
 // The old version repeated the hero sub and the Problem lead almost verbatim, and
 // reused the drone screenshot that the demo section already shows. It now carries
@@ -25,12 +26,14 @@ const POINTS = [
 export const About: React.FC = () => (
   <section id="about" className="aq-sec" aria-labelledby="about-title">
     <div className="aq-wrap aq-about">
-      <Reveal className="aq-about-head">
-        <h2 id="about-title" className="aq-h2 aq-h2--sm">Why AquaSol.</h2>
+      <div className="aq-about-head">
+        <SplitHeading as="h2" id="about-title" className="aq-h2 aq-h2--sm">Why AquaSol.</SplitHeading>
+        <Reveal delay={220}>
         <p className="aq-lead">
           Built by students, for farms that cannot be watched every day.
         </p>
-      </Reveal>
+        </Reveal>
+      </div>
 
       <dl className="aq-about-points">
         {POINTS.map((p, i) => (
