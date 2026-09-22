@@ -1195,6 +1195,12 @@ img {
   --aq-space-m: 2rem;
   --aq-space-l: 3rem;
 
+  /* Every section's horizontal gutter (its own outer margin plus its inner padding), as one
+     source so anything else that needs the same content column - the header, for one - lands
+     on the exact same left edge as `.aq-wrap` instead of drifting at in-between viewport widths. */
+  --aq-sec-margin-x: clamp(8px, 1.2vw, 16px);
+  --aq-sec-pad-x: clamp(1.25rem, 4vw, 3.5rem);
+
   /* Section display scale. Three steps, assigned by what a section is for, never by
      where it sits: --aq-display for the one statement section, --aq-h2-size for the
      standard run, --aq-h2-sm for supporting sections such as About and Contact. */
@@ -1645,8 +1651,8 @@ img {
 
 .aq-sec {
   position: relative;
-  margin: 12px clamp(8px, 1.2vw, 16px);
-  padding: clamp(3.5rem, 7vw, 6.5rem) clamp(1.25rem, 4vw, 3.5rem);
+  margin: 12px var(--aq-sec-margin-x);
+  padding: clamp(3.5rem, 7vw, 6.5rem) var(--aq-sec-pad-x);
   border-radius: 32px;
   background: var(--aq-cream);
   color: var(--aq-ink);
@@ -3386,9 +3392,18 @@ img {
     visibility 0s linear 0.25s;
 }
 
-/* the drawer is absolutely positioned against the header bar */
+/* The drawer is absolutely positioned against the header bar. The header also still carried the
+   Webflow template's 88vw container (max-width 1400px), which centers to a different width than
+   every section's own 1200px `.aq-wrap` column: at 1536px wide, the logo sat 75px left of where
+   headings below it start. Give the header the same gutter tokens `.aq-sec` uses, so its content
+   lands on the same edge as `.aq-wrap` at every width, not only where both happen to be centered
+   the same way (roughly 1400px and up). */
 .header .container {
   position: relative;
+  width: 100%;
+  max-width: calc(1200px + 2 * (var(--aq-sec-margin-x) + var(--aq-sec-pad-x)));
+  margin-inline: auto;
+  padding-inline: calc(var(--aq-sec-margin-x) + var(--aq-sec-pad-x));
 }
 
 .mobile-menu.aq-drawer[data-open="true"] {

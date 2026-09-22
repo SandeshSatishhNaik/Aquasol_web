@@ -17,9 +17,9 @@ export default function LandingBelow(): React.ReactElement {
   return (
     <>
       <Problem />
+      <Hardware />
       <Features />
       <Working />
-      <Hardware />
       <FeatureGridSpotlight />
       <VideoPreview />
       <Different />
