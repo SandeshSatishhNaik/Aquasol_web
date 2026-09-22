@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { scrollTo, startSmoothScroll } from './lib/smoothScroll';
 import { Navbar } from './components/exact/Navbar';
 import { Footer } from './components/exact/Footer';
@@ -24,44 +24,51 @@ const Agentation = import.meta.env.DEV
 // first load or competes with the loader.
 const Cursor = lazy(() => import('./components/motion/Cursor'));
 
-const AquaSolLoader = lazy(() =>
-  import('./components/exact/AquaSolLoader/AquaSolLoader').then((m) => ({ default: m.AquaSolLoader })),
-);
+// LOADER DISABLED. The page now shows straight away. To bring the intro back, uncomment this
+// import, the state and handlers below, and the <AquaSolLoader> block in the markup, and restore
+// `loaderDone`/`siteRevealing` to their original initial values.
+// const AquaSolLoader = lazy(() =>
+//   import('./components/exact/AquaSolLoader/AquaSolLoader').then((m) => ({ default: m.AquaSolLoader })),
+// );
 
 export function App() {
   const [currentPage, setCurrentPage] = useState<string>('landing');
-  const [loaderDone, setLoaderDone] = useState(() => {
-    // Force replay if URL contains ?loader or ?replay
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (
-        params.has('loader') ||
-        params.has('replay') ||
-        params.has('station') ||
-        params.has('hold') ||
-        params.has('p') ||
-        params.has('vortex')
-      ) {
-        return false;
-      }
-    }
-    // Skip loader if already played this session
-    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('aquasol-loader-played')) {
-      return true;
-    }
-    return false;
-  });
+  // Loader disabled: the site starts revealed.
+  const [loaderDone] = useState(true);
+  const [siteRevealing] = useState(true);
 
-  const [siteRevealing, setSiteRevealing] = useState(loaderDone);
-
-  // Expose replay function globally for developer testing
-  useEffect(() => {
-    (window as any).replayAquaSolLoader = () => {
-      sessionStorage.removeItem('aquasol-loader-played');
-      setSiteRevealing(false);
-      setLoaderDone(false);
-    };
-  }, []);
+  // const [loaderDone, setLoaderDone] = useState(() => {
+  //   // Force replay if URL contains ?loader or ?replay
+  //   if (typeof window !== 'undefined') {
+  //     const params = new URLSearchParams(window.location.search);
+  //     if (
+  //       params.has('loader') ||
+  //       params.has('replay') ||
+  //       params.has('station') ||
+  //       params.has('hold') ||
+  //       params.has('p') ||
+  //       params.has('vortex')
+  //     ) {
+  //       return false;
+  //     }
+  //   }
+  //   // Skip loader if already played this session
+  //   if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('aquasol-loader-played')) {
+  //     return true;
+  //   }
+  //   return false;
+  // });
+  //
+  // const [siteRevealing, setSiteRevealing] = useState(loaderDone);
+  //
+  // // Expose replay function globally for developer testing
+  // useEffect(() => {
+  //   (window as any).replayAquaSolLoader = () => {
+  //     sessionStorage.removeItem('aquasol-loader-played');
+  //     setSiteRevealing(false);
+  //     setLoaderDone(false);
+  //   };
+  // }, []);
 
   // Smooth scroll to top on page transition
   useEffect(() => {
@@ -99,24 +106,26 @@ export function App() {
     }
   }, []);
 
-  const handleRelease = useCallback(() => {
-    setSiteRevealing(true);
-  }, []);
-
-  const handleComplete = useCallback(() => {
-    // Record it, or the "plays at most once per session" check in the initial state above can
-    // never be true. (The write was lost in the loader rewrite, so every load replayed it.)
-    try {
-      sessionStorage.setItem('aquasol-loader-played', '1');
-    } catch {
-      // storage blocked: the loader simply replays next time
-    }
-    setSiteRevealing(true);
-    setLoaderDone(true);
-  }, []);
+  // const handleRelease = useCallback(() => {
+  //   setSiteRevealing(true);
+  // }, []);
+  //
+  // const handleComplete = useCallback(() => {
+  //   // Record it, or the "plays at most once per session" check in the initial state above can
+  //   // never be true. (The write was lost in the loader rewrite, so every load replayed it.)
+  //   try {
+  //     sessionStorage.setItem('aquasol-loader-played', '1');
+  //   } catch {
+  //     // storage blocked: the loader simply replays next time
+  //   }
+  //   setSiteRevealing(true);
+  //   setLoaderDone(true);
+  // }, []);
+  //
 
   return (
     <>
+      {/* Loader disabled (see the note at the top of this file).
       {!loaderDone && (
         <Suspense fallback={null}>
           <AquaSolLoader
@@ -125,6 +134,7 @@ export function App() {
           />
         </Suspense>
       )}
+      */}
       <div
         className={siteRevealing || loaderDone ? 'aquasol-site-reveal visible' : 'aquasol-site-reveal'}
         style={!siteRevealing && !loaderDone ? { visibility: 'hidden' } : undefined}
