@@ -2207,6 +2207,9 @@ img {
 .aql-pill--yes { stroke: var(--aq-olive-bright); }
 .aql-cycle { fill: none; stroke: color-mix(in srgb, var(--aq-aqua) 45%, transparent); stroke-dasharray: 4 5; }
 .aql-water { fill: var(--aq-aqua); opacity: 0.45; }
+/* The edge zone: the part of the loop that runs on the farm, with or without internet. */
+.aql-edge { fill: rgba(137, 153, 33, 0.04); stroke: color-mix(in srgb, var(--aq-olive-bright) 50%, transparent); stroke-width: 1.25; stroke-dasharray: 6 6; }
+.aql-t-edge { fill: rgba(250, 250, 240, 0.72); }
 
 /* ---- hardware images ---- */
 
@@ -2559,10 +2562,17 @@ img {
 
   .aq-steps {
     grid-area: steps;
+    margin-top: 0;
+  }
+}
+
+/* The eight stages as wrapping chips wherever a vertical list will not fit: phones, and laptop
+   windows too short for the list beside the diagram. */
+@media (max-width: 991px), (min-width: 992px) and (max-height: 660px) {
+  .aq-steps {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 0;
   }
 
   .aq-step {
@@ -2581,6 +2591,35 @@ img {
     border-color: var(--aq-olive-bright);
     background: var(--aq-olive-bright);
     color: var(--aq-forest);
+  }
+}
+
+/* Phones held sideways: the caption and chips in a narrow column beside the diagram, since a
+   stacked layout leaves the diagram no height. */
+@media (max-width: 991px) and (orientation: landscape) and (max-height: 540px) {
+  .aq-work {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "head loop" "detail loop" "steps loop";
+    column-gap: 1rem;
+    row-gap: 0.625rem;
+  }
+
+  .aq-work-loop {
+    height: 78svh;
+    min-height: 220px;
+    margin-inline: 0 calc(-1 * var(--aq-work-pad));
+  }
+
+  .aq-step-detail p {
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  .aq-step {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 0.8125rem;
   }
 }
 
@@ -3531,6 +3570,29 @@ img {
 
   .aq-sec[data-pin="on"] .aq-work-loop { height: auto; }
   .aq-sec[data-pin="on"] .aq-lead { display: none; }
+}
+
+/* Sideways phone, pinned: every pixel goes to the caption and the diagram. The heading stays in
+   the accessibility tree (the tablist and diagram are labelled by it), just not on screen. */
+@media (max-width: 991px) and (orientation: landscape) and (max-height: 540px) {
+  .aq-sec[data-pin="on"] .aq-work {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .aq-sec[data-pin="on"] .aq-work-head {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* Short laptop windows use the chips (above) instead of the vertical list. */
+@media (min-width: 992px) and (max-height: 660px) {
+  .aq-sec[data-pin="on"] .aq-step { height: 32px; font-size: 0.875rem; }
+  .aq-sec[data-pin="on"] .aq-steps { margin-top: 0.75rem; }
 }
 
 /* Reserves the pinned scroll distance up front (see Working.tsx), so layout is identical

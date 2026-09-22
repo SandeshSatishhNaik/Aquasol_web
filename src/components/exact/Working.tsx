@@ -31,6 +31,13 @@ const scrollSettled = () =>
     tick();
   });
 
+// Safari (every iPhone browser, since they all use WebKit) ships without requestIdleCallback. Calling
+// it bare threw, so the pin was never created on iOS while its scroll distance was still reserved.
+const onIdle = (fn: () => void): number =>
+  window.requestIdleCallback ? window.requestIdleCallback(fn, { timeout: 4000 }) : window.setTimeout(fn, 200);
+const cancelIdle = (id: number) =>
+  window.cancelIdleCallback ? window.cancelIdleCallback(id) : window.clearTimeout(id);
+
 /** Bottom edge of the sticky header, so the pinned card starts clear of it. */
 const pinTop = () =>
   Math.round((document.querySelector('.header')?.getBoundingClientRect().bottom ?? 88) + PIN_GAP);
@@ -66,7 +73,7 @@ export const Working: React.FC = () => {
     };
 
     const reset = () => {
-      if (idle !== null) cancelIdleCallback(idle);
+      if (idle !== null) cancelIdle(idle);
       idle = null;
       st?.kill();
       st = null;
@@ -128,7 +135,7 @@ export const Working: React.FC = () => {
       }
       wrap.dataset.mode = 'pin';
       const schedule = () => {
-        idle = requestIdleCallback(() => void pin(), { timeout: 4000 });
+        idle = onIdle(() => void pin());
       };
       if (document.readyState === 'complete') schedule();
       else window.addEventListener('load', schedule, { once: true });

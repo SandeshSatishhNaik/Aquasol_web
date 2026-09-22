@@ -258,8 +258,9 @@ export const LoopDiagram: React.FC<Props> = ({ step, driven, reduced, drive, cla
       >
         <title id="aql-title">The AquaSol control loop</title>
         <desc id="aql-desc">
-          From start, ESP32 sensor nodes and a one-time drone scan send readings and in-flight results
-          over LoRa to the master gateway. The gateway's local decision engine checks two things. If
+          Everything except the cloud and the app runs on the farm, at the edge, and works without the
+          internet. From start, ESP32 sensor nodes and a one-time drone scan send readings and in-flight results
+          over LoRa to the master gateway. The master gateway is the edge computer: it hears every node, has its own rain sensor and display, and its local decision engine checks two things. If
           irrigation is required it opens the solenoid valve, irrigates the field and closes the
           valve; otherwise it continues monitoring. If disease or pests are detected it raises an
           alert. Results update the AquaSol app with pest-detected regions and soil moisture. After
@@ -278,6 +279,11 @@ export const LoopDiagram: React.FC<Props> = ({ step, driven, reduced, drive, cla
         </defs>
 
         <g aria-hidden="true">
+          {/* The edge: everything that runs on the farm and keeps working with no internet. The cloud
+              (right) and the app (bottom) sit outside it. */}
+          <rect className="aql-edge" x="110" y="92" width="1058" height="760" rx="28" />
+          <text className="aql-t-tag aql-t-edge" x="560" y="844">THE EDGE · RUNS ON THE FARM, OFFLINE</text>
+
           {/* stage bands */}
           {[262, 432, 612, 858].map((y) => (
             <line key={y} className="aql-band" x1="20" y1={y} x2="1420" y2={y} />
@@ -353,11 +359,15 @@ export const LoopDiagram: React.FC<Props> = ({ step, driven, reduced, drive, cla
           <g className="aql-node" id="n-gate" data-node="">
             <rect className="aql-box" x="455" y="300" width="400" height="110" rx="16" />
             <text className="aql-t-title" x="477" y="333">Master gateway</text>
-            <text className="aql-t-tag" x="835" y="332" textAnchor="end">DATA COLLECTION</text>
-            <circle className="aql-dot" cx="481" cy="370" r="3" />
-            <text className="aql-t-item" x="491" y="375">Data aggregation</text>
-            <circle className="aql-dot" cx="661" cy="370" r="3" />
-            <text className="aql-t-item" x="671" y="375">Local decision engine</text>
+            <text className="aql-t-tag" x="835" y="332" textAnchor="end">THE EDGE</text>
+            <circle className="aql-dot" cx="481" cy="359" r="3" />
+            <text className="aql-t-item" x="491" y="364">Hears every node (LoRa)</text>
+            <circle className="aql-dot" cx="671" cy="359" r="3" />
+            <text className="aql-t-item" x="681" y="364">Local decision engine</text>
+            <circle className="aql-dot" cx="481" cy="387" r="3" />
+            <text className="aql-t-item" x="491" y="392">Rain sensor, LCD</text>
+            <circle className="aql-dot" cx="671" cy="387" r="3" />
+            <text className="aql-t-item" x="681" y="392">Commands the valves</text>
           </g>
 
           <g className="aql-node" id="n-irr" data-node="">
@@ -427,7 +437,7 @@ export const LoopDiagram: React.FC<Props> = ({ step, driven, reduced, drive, cla
             <rect className="aql-box" x="1180" y="300" width="240" height="250" rx="16" />
             <text className="aql-t-title" x="1202" y="333">Cloud</text>
             <text className="aql-t-tag" x="1400" y="332" textAnchor="end">WHEN ONLINE</text>
-            {['Analytics, recommendations', 'Big-data handling', 'Model retraining', 'Fault correction', 'Updates to the edge'].map((t, i) => (
+            {['Analytics, recommendations', 'Big-data handling', 'Model retraining', 'Fault correction', 'Updates to the gateway'].map((t, i) => (
               <React.Fragment key={t}>
                 <circle className="aql-dot" cx="1206" cy={370 + i * 30} r="3" />
                 <text className="aql-t-item" x="1216" y={375 + i * 30}>{t}</text>

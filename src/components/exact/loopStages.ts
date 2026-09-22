@@ -13,19 +13,19 @@ export const STAGES: Stage[] = [
   },
   {
     name: 'Collect',
-    body: 'Sensor readings and the drone’s in-flight results travel over long-range LoRa radio to the master gateway, which aggregates them.',
+    body: 'Readings and the drone’s in-flight results travel over long-range LoRa radio to the master gateway. The gateway is the edge: a computer on the farm itself, with its own rain sensor and display, that hears every field node.',
     groups: [{ e: ['e-lora-node', 'e-lora-drone'], n: ['n-gate'] }],
     frame: ['l-lora', 'n-gate'],
   },
   {
     name: 'Decide',
-    body: 'The gateway’s local decision engine asks two questions: does a zone need water, and is there any sign of disease or pests? It decides on the farm, so it works without the internet.',
+    body: 'Its local decision engine asks two questions: does a zone need water, and is there any sign of disease or pests? Deciding at the edge, on the farm, means it keeps working with no internet.',
     groups: [{ e: ['e-gate-irr', 'e-gate-pest'], n: ['n-irr', 'n-pest'] }],
     frame: ['e-gate-irr', 'e-gate-pest', 'n-irr', 'n-pest'],
   },
   {
     name: 'Irrigate',
-    body: 'If a zone needs water, the gateway opens its solenoid valve, irrigates the field, then closes the valve. If not, it keeps monitoring.',
+    body: 'If a zone needs water, the gateway commands that zone’s node to open its solenoid valve, irrigate the field, then close the valve. If not, it keeps monitoring.',
     groups: [
       { e: ['e-irr-yes'], n: ['n-open'] },
       { e: ['e-open-irr'], n: ['n-irrigate'], water: true },
@@ -50,7 +50,7 @@ export const STAGES: Stage[] = [
   },
   {
     name: 'Learn',
-    body: 'When online, the gateway syncs with the cloud over Wi-Fi, including the images and data the drone uploads after docking. The cloud analyses it, sends recommendations to the app, retrains the models and pushes updates back.',
+    body: 'When online, the gateway syncs its readings and the drone’s docked uploads to the cloud over Wi-Fi. The cloud retrains the models, sends recommendations to the app and pushes updates back to the edge.',
     groups: [
       { e: ['e-dock-gate'], n: [] },
       { e: ['e-gate-cloud'], n: ['n-cloud'] },
