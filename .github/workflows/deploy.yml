@@ -1,0 +1,47 @@
+# Builds the site and uploads it to Cloudflare Pages (project aquasol-web) on every push to main.
+# Replaces Cloudflare's GitHub app, whose push notifications stopped reaching Cloudflare.
+#
+# One-time setup in GitHub > Settings > Secrets and variables > Actions:
+#   Secret    CLOUDFLARE_API_TOKEN  a Cloudflare API token with "Cloudflare Pages: Edit"
+#   Variable  VITE_CONTACT_EMAIL    the inbox the contact form opens (it ends up in the public site)
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: cloudflare-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+        env:
+          # Public URL of the R2 bucket holding the videos and large photos (see src/lib/media.ts).
+          VITE_MEDIA_BASE: https://pub-9530003e300c4d228bfc3b0c692b2c98.r2.dev
+          VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
+
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Not a secret: the account ID appears in every dashboard URL.
+          accountId: 9127fc746563a3fe5cf240a895430846
+          command: pages deploy dist --project-name=aquasol-web --branch=main --commit-hash=${{ github.sha }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
