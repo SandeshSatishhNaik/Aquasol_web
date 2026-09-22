@@ -1184,10 +1184,6 @@ img {
   --aq-alert: #e27b41;
   --aq-line: rgba(137, 153, 33, 0.25);
 
-  /* hero type: fluid, lands on the existing 40px and 59.72px endpoints */
-  --aq-hero-title: clamp(2.5rem, 1.3rem + 4vw, 3.5rem);
-  --aq-hero-lead: 1.1875rem;
-
   /* space scale: one source for hero rhythm */
   --aq-space-2xs: 0.5rem;
   --aq-space-xs: 0.875rem;
@@ -1216,13 +1212,6 @@ img {
   --aq-instrument-muted: rgba(250, 250, 240, 0.72);
 }
 
-/* Two-column hero: the text column is narrower, so the headline steps down. */
-@media (min-width: 992px) {
-  :root {
-    --aq-hero-title: clamp(2.75rem, 0.6rem + 4.8vw, 4.25rem);
-  }
-}
-
 /* Headline accents use dark olive so text clears 4.5:1 on cream. */
 .heading .accent-text {
   color: var(--aq-olive-dark);
@@ -1244,64 +1233,8 @@ img {
 }
 
 /* ==========================================================================
-   AquaSol hero: one text stack, one instrument
-   Stacked selectors (0,3,0) beat the vendored Webflow rules (0,2,0) without
-   ids or !important.
+   Pill CTA: used across the header, hero, footer and section CTAs.
    ========================================================================== */
-
-.section.hero {
-  padding-top: var(--aq-space-l);
-  padding-bottom: var(--aq-space-l);
-}
-
-.hero-text-wrap.aq-hero-text {
-  gap: var(--aq-space-s);
-}
-
-/* The instrument overlaps the text column's edge; the right padding keeps the
-   copy clear of it. The 5/7 split only fits from 1280px, equal columns below. */
-@media (min-width: 992px) {
-  .grid.full-width.aq-hero-grid {
-    grid-template-columns: 1fr 1fr;
-    min-height: clamp(520px, 74svh, 720px);
-  }
-
-  .hero-text-wrap.aq-hero-text {
-    padding-right: 3.5rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  .grid.full-width.aq-hero-grid {
-    grid-template-columns: 5fr 7fr;
-  }
-}
-
-@media (max-width: 991px) {
-  .hero-text-wrap.aq-hero-text {
-    padding-left: 0;
-  }
-}
-
-.heading.h1.aq-hero-title {
-  margin: 0;
-  font-size: var(--aq-hero-title);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-}
-
-.paragraph.large.aq-hero-sub {
-  max-width: 48ch;
-  margin: 0;
-  font-size: var(--aq-hero-lead);
-  line-height: 1.6;
-  color: var(--aq-muted);
-}
-
-.aq-hero-text .aq-cta {
-  margin-top: calc(var(--aq-space-m) - var(--aq-space-s));
-}
 
 .aq-cta {
   display: inline-flex;
@@ -1348,29 +1281,204 @@ img {
   flex-shrink: 0;
 }
 
-/* ---- stage: video, then the instrument in front of it ---- */
+/* ==========================================================================
+   AquaSol hero: a drop-shaped window opens onto the field
+   The headline has a drop cut into it, playing the hero video; on load the drop falls into
+   place, and scrolling grows it until the field fills the screen and the headline settles
+   low-left over it. Geometry and transforms are driven from Hero.tsx (`render()`); this file is
+   purely the static shape, positioning and the load-entrance keyframes.
+   ========================================================================== */
 
-.bg-video-wrap.aq-hero-stage {
+.section.aqh-hero {
+  padding: 0;
+}
+
+.aqh-stage {
   position: relative;
-  min-height: clamp(380px, 56svh, 620px);
+  height: calc(100svh - var(--aqh-hdr, 88px));
+  min-height: 460px;
+  overflow: hidden;
+  background: var(--aq-cream);
+  isolation: isolate;
 }
 
-.aq-hero-media {
-  position: relative;
-  height: 100%;
-  min-height: inherit;
-}
-
-.aq-hero-media .w-background-video {
-  height: 100%;
-  min-height: inherit;
-}
-
-.aq-video-toggle {
+/* The drop is a full-stage, never-resized box; only its mask's size and position (a window onto
+   the video beneath) animate. Scaling the box itself up to screen-filling size was tried first -
+   it blurred the video and made the compositor choke well before the drop finished growing. */
+.aqh-drop {
   position: absolute;
-  right: var(--aq-space-s);
-  bottom: var(--aq-space-s);
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-image: var(--aqh-mask);
+  mask-image: var(--aqh-mask);
+}
+
+.aqh-drop video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform-origin: 50% 55%;
+}
+
+.aqh-rim {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.aqh-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(0deg, rgba(29, 31, 20, 0.72) 0%, rgba(29, 31, 20, 0.28) 48%, rgba(29, 31, 20, 0.08) 100%),
+    linear-gradient(90deg, rgba(29, 31, 20, 0.5) 0%, rgba(29, 31, 20, 0) 60%);
+}
+
+.aqh-stage[data-phase='field'] .aqh-scrim {
+  opacity: 1;
+}
+
+.heading.h1.aqh-title {
+  position: absolute;
+  left: var(--aq-sec-pad-x);
+  top: clamp(20px, 6vh, 72px);
   z-index: 3;
+  margin: 0;
+  font-size: clamp(2.6rem, 1rem + 7.4vw, 6.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  color: var(--aq-ink);
+  transform-origin: 0 100%;
+  transition: color 0.3s ease;
+}
+
+.aqh-stage[data-phase='field'] .aqh-title {
+  color: var(--aq-cream);
+}
+
+.aqh-line {
+  display: block;
+  white-space: nowrap;
+}
+
+.aqh-slot {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.65em;
+  vertical-align: -0.06em;
+  background: var(--aq-cream);
+  opacity: 0;
+  -webkit-mask: var(--aqh-mask) center / 64% no-repeat;
+  mask: var(--aqh-mask) center / 64% no-repeat;
+}
+
+.aqh-side {
+  position: absolute;
+  right: var(--aq-sec-pad-x);
+  bottom: var(--aq-sec-pad-x);
+  z-index: 3;
+  width: min(27vw, 420px);
+  display: grid;
+  gap: 22px;
+  justify-items: start;
+}
+
+.section.aqh-hero .aqh-side p {
+  margin: 0;
+  max-width: 38ch;
+  font-size: clamp(1rem, 0.85rem + 0.4vw, 1.1875rem);
+  line-height: 1.55;
+  color: var(--aq-muted);
+  transition: color 0.3s ease;
+}
+
+.aqh-stage[data-phase='field'] .aqh-side p {
+  color: rgba(250, 250, 240, 0.88);
+}
+
+.aqh-stage[data-phase='field'] .aqh-side .aq-cta {
+  background-color: var(--aq-cream);
+  color: var(--aq-ink);
+}
+
+.aqh-stage[data-phase='field'] .aqh-side .aq-cta-icon {
+  background-color: rgba(29, 31, 20, 0.1);
+}
+
+.aqh-cue {
+  position: absolute;
+  left: var(--aq-sec-pad-x);
+  bottom: var(--aq-sec-pad-x);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--aq-muted);
+}
+
+.aqh-cue b {
+  position: relative;
+  width: 1px;
+  height: 44px;
+  background: var(--aq-line);
+  overflow: hidden;
+}
+
+.aqh-cue b::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: -10px;
+  width: 5px;
+  height: 10px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: var(--aq-aqua);
+  animation: aqh-drip 1.8s cubic-bezier(0.5, 0, 0.8, 0.4) infinite;
+}
+
+.aqh-chip {
+  position: absolute;
+  left: var(--aq-sec-pad-x);
+  top: clamp(20px, 5vh, 56px);
+  z-index: 3;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--aq-cream);
+}
+
+.aqh-chip::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #5fd6e3;
+  box-shadow: 0 0 0 5px rgba(95, 214, 227, 0.22);
+}
+
+.aqh-toggle {
+  position: absolute;
+  right: var(--aq-sec-pad-x);
+  top: clamp(20px, 5vh, 56px);
+  z-index: 4;
   width: 44px;
   height: 44px;
   display: inline-flex;
@@ -1378,60 +1486,76 @@ img {
   justify-content: center;
   padding: 0;
   border-radius: 50%;
-  border: 1px solid rgba(250, 250, 240, 0.35);
-  background-color: rgba(29, 31, 20, 0.72);
-  color: var(--aq-cream);
+  border: 0;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  background: rgba(29, 31, 20, 0.07);
+  color: var(--aq-ink);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.aq-video-toggle:hover {
-  background-color: var(--aq-ink);
+.aqh-stage[data-phase='field'] .aqh-toggle {
+  background: rgba(250, 250, 240, 0.16);
+  color: var(--aq-cream);
 }
 
-.aq-video-toggle:focus-visible {
-  outline: 3px solid var(--aq-cream);
+.aqh-toggle:hover {
+  background: rgba(29, 31, 20, 0.14);
+}
+
+.aqh-stage[data-phase='field'] .aqh-toggle:hover {
+  background: rgba(250, 250, 240, 0.28);
+}
+
+.aqh-toggle:focus-visible {
+  outline: 3px solid var(--aq-aqua);
   outline-offset: 3px;
-  box-shadow: 0 0 0 3px var(--aq-ink);
 }
 
-.hero-illustration-wrap.aq-farm-slot {
-  inset: 8% auto auto -40px;
-  width: clamp(300px, 27vw, 372px);
-  height: auto;
-  margin: 0;
-  background: transparent;
-  border-radius: 0;
-  z-index: 2;
+.aqh-landring {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(27, 154, 170, 0.55);
+  opacity: 0;
+  pointer-events: none;
 }
 
-@media (max-width: 991px) {
-  .bg-video-wrap.aq-hero-stage {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
+.aqh-ripple {
+  position: absolute;
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  border: 2px solid rgba(250, 250, 240, 0.75);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes aqh-drip {
+  0% { top: -10px; opacity: 0; }
+  15% { opacity: 1; }
+  100% { top: 46px; opacity: 0.2; }
+}
+
+@media (max-width: 700px) {
+  .aqh-side {
+    left: var(--aq-sec-pad-x);
+    right: var(--aq-sec-pad-x);
+    width: auto;
   }
 
-  .aq-hero-media {
-    order: 1;
-    height: auto;
-    min-height: 0;
-  }
-
-  .aq-hero-media .w-background-video {
-    height: clamp(240px, 48vw, 380px);
-    min-height: 0;
-  }
-
-  .hero-illustration-wrap.aq-farm-slot {
-    position: relative;
-    inset: auto;
-    order: 0;
-    width: 100%;
-    max-width: 440px;
-    margin-bottom: calc(var(--aq-space-m) * -1);
+  .aqh-cue {
+    display: none;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .aqh-cue b::after {
+    animation: none;
+  }
+}
+
 
 /* ---- instrument ---- */
 
@@ -3716,7 +3840,7 @@ img {
    Starts when the site is revealed: on first paint for returning visitors, as the loader lets go
    for first-time ones. Only the h1 animates; the sub paragraph is the mobile LCP element and is
    never hidden. Words are plain spans, so screen readers read the sentence normally. */
-.aq-hero-title .aq-w {
+.aqh-title .aq-w {
   display: inline-block;
   overflow: clip;
   vertical-align: top;
@@ -3725,7 +3849,7 @@ img {
   margin-bottom: -0.1em;
 }
 
-.aq-hero-title .aq-w > span {
+.aqh-title .aq-w > span {
   display: inline-block;
 }
 
@@ -3734,7 +3858,7 @@ img {
     from { transform: translateY(112%); }
   }
 
-  .aquasol-site-reveal.visible .aq-hero-title .aq-w > span {
+  .aquasol-site-reveal.visible .aqh-title .aq-w > span {
     animation: aq-rise 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: calc(var(--i, 0) * 95ms + 80ms);
   }
