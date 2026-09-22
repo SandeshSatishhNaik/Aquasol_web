@@ -2,17 +2,17 @@
 // the Cloudflare R2 bucket. The list is read from the source, so it can never drift from the code.
 //
 //   npx wrangler login              (once; opens the browser)
-//   node scripts/upload-media.mjs   (bucket name via R2_BUCKET, default aquasol-media)
+//   node scripts/upload-media.mjs   (bucket name via R2_BUCKET, default aquasol)
 //   node scripts/upload-media.mjs --dry-run
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const BUCKET = process.env.R2_BUCKET || 'aquasol-media';
+const BUCKET = process.env.R2_BUCKET || 'aquasol';
 const DRY = process.argv.includes('--dry-run');
 // Filenames are not content-hashed, so a week rather than forever: a replaced file shows up within
 // days even if its name is reused (better still, give a changed file a new name).
-const CACHE = 'public, max-age=604800';
+const CACHE = 'public,max-age=604800'; // no space: on Windows the args pass through a shell
 const TYPES = { mp4: 'video/mp4', webm: 'video/webm', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', avif: 'image/avif' };
 
 const walk = (dir) =>
