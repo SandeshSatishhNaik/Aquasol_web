@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown, Pause, Play } from 'lucide-react';
-import { LiveFarmDashboard } from './LiveFarmDashboard';
 import { scrollToId } from '../../lib/scrollToId';
 import { Magnetic } from '../motion/Magnetic';
 import { media } from '../../lib/media';
@@ -116,9 +115,6 @@ export const Hero: React.FC = () => {
                 </button>
               </div>
 
-              <div className="hero-illustration-wrap aq-farm-slot aq-parallax" style={{ '--aq-drift': '-26%' } as React.CSSProperties}>
-                <LiveFarmDashboard />
-              </div>
             </div>
           </div>
         </div>
