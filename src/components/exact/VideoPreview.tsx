@@ -4,9 +4,10 @@ import { Play, X } from 'lucide-react';
 import { Reveal } from '../motion/Reveal';
 import { lockScroll, unlockScroll } from '../../lib/smoothScroll';
 import { SplitHeading } from '../motion/SplitHeading';
+import { media } from '../../lib/media';
 
-const POSTER = '/assets/aquasol-uav-scouting.jpg';
-const CLIP = '/assets/aquasol-uav-scouting.mp4';
+const POSTER = media('aquasol-uav-scouting.jpg');
+const CLIP = media('aquasol-uav-scouting.mp4');
 
 export const VideoPreview: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);

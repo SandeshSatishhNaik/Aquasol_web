@@ -3,6 +3,7 @@ import { BrainCircuit, ChartLine, Droplets, Gauge, Mic, ScanSearch, Sun, WifiOff
 import type { LucideIcon } from 'lucide-react';
 import { Reveal } from '../motion/Reveal';
 import { SplitHeading } from '../motion/SplitHeading';
+import { media } from '../../lib/media';
 
 type Status = 'Built' | 'Designed';
 
@@ -39,7 +40,7 @@ const FEATURES: Feature[] = [
     body: 'Ask Lumi about soil moisture or zone temperature in English, Kannada, Hindi or Telugu.',
     status: 'Built',
     icon: Mic,
-    peek: '/assets/aquasol-lumi-assistant.jpg',
+    peek: media('aquasol-lumi-assistant.jpg'),
   },
   {
     id: 'valves',
@@ -61,7 +62,7 @@ const FEATURES: Feature[] = [
     body: 'A farm health score, gateway and node status, and seven days of water and sensor readings, on your phone.',
     status: 'Built',
     icon: ChartLine,
-    peek: '/assets/aquasol-data-analytics.jpg',
+    peek: media('aquasol-data-analytics.jpg'),
   },
   {
     id: 'ai',

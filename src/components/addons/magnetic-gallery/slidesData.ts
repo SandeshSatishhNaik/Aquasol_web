@@ -1,4 +1,5 @@
 import type { AgriculturalSlide } from './types';
+import { media } from '../../../lib/media';
 
 // Copy here describes what each app screenshot shows. Values on the screens
 // are examples from the app's own data, not measured results.
@@ -19,7 +20,7 @@ export const AQUASOL_SLIDES: AgriculturalSlide[] = [
       coverageArea: 'Field node status',
     },
     tags: ['Farm health', 'Master gateway', 'Field nodes', 'Alerts'],
-    image: '/assets/aquasol-mobile-app.jpg',
+    image: media('aquasol-mobile-app.jpg'),
     alt: 'AquaSol home screen with a farm health score of 86 out of 100, the master gateway status and field nodes',
     imagePosition: 'top center',
     imageFit: 'cover',
@@ -44,7 +45,7 @@ export const AQUASOL_SLIDES: AgriculturalSlide[] = [
       coverageArea: 'Temperature and humidity',
     },
     tags: ['Zones', 'Plant stress', 'Soil moisture', 'Nodes'],
-    image: '/assets/aquasol-zone-detail.jpg',
+    image: media('aquasol-zone-detail.jpg'),
     alt: 'AquaSol zone screen with a plant stress score of 35, soil moisture at 15 percent and two active nodes',
     imagePosition: 'top center',
     imageFit: 'cover',
@@ -69,7 +70,7 @@ export const AQUASOL_SLIDES: AgriculturalSlide[] = [
       coverageArea: 'Schedule per zone',
     },
     tags: ['AI mode', 'Manual override', 'Water budget', 'Schedule'],
-    image: '/assets/aquasol-control-center.jpg',
+    image: media('aquasol-control-center.jpg'),
     alt: 'AquaSol control center in AI mode with a 28,000 litre daily water budget and one active zone',
     imagePosition: 'top center',
     imageFit: 'cover',
@@ -94,7 +95,7 @@ export const AQUASOL_SLIDES: AgriculturalSlide[] = [
       coverageArea: 'Filter by zone',
     },
     tags: ['Trends', 'Water use', 'Sensor readings', 'Linked hardware'],
-    image: '/assets/aquasol-data-analytics.jpg',
+    image: media('aquasol-data-analytics.jpg'),
     alt: 'AquaSol data screen showing 3,150 litres of water used, a 14 percent drop and a seven day bar chart',
     imagePosition: 'top center',
     imageFit: 'cover',
@@ -119,9 +120,9 @@ export const AQUASOL_SLIDES: AgriculturalSlide[] = [
       coverageArea: 'Stress spots by zone',
     },
     tags: ['Drone', 'Field survey', 'Vegetation index', 'Stress spots'],
-    image: '/assets/aquasol-uav-scouting.mp4',
-    video: '/assets/aquasol-uav-scouting.mp4',
-    poster: '/assets/aquasol-uav-scouting.jpg',
+    image: media('aquasol-uav-scouting.mp4'),
+    video: media('aquasol-uav-scouting.mp4'),
+    poster: media('aquasol-uav-scouting.jpg'),
     alt: 'AquaSol drone screen showing eight rice zones, a survey path and flagged stress spots',
     imagePosition: 'top center',
     imageFit: 'cover',
@@ -146,7 +147,7 @@ export const AQUASOL_SLIDES: AgriculturalSlide[] = [
       coverageArea: 'Quick actions',
     },
     tags: ['Lumi', 'Voice', 'Kannada', 'Hindi', 'Telugu', 'English'],
-    image: '/assets/aquasol-lumi-assistant.jpg',
+    image: media('aquasol-lumi-assistant.jpg'),
     alt: 'Lumi voice assistant screen listening for a question, with language choices English, Kannada, Hindi and Telugu',
     imagePosition: 'top center',
     imageFit: 'cover',

@@ -23,3 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .opencode/
+
+# Local environment (the real contact inbox and media URL are set in Cloudflare Pages)
+.env
+.env.*
+!.env.example

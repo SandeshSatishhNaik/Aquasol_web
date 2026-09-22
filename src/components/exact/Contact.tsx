@@ -3,6 +3,7 @@ import { Magnetic } from '../motion/Magnetic';
 import { ArrowRight } from 'lucide-react';
 import { SplitHeading } from '../motion/SplitHeading';
 import { Reveal } from '../motion/Reveal';
+import { media } from '../../lib/media';
 
 // The site has no server, so the form hands the message to the visitor's email
 // app. Set VITE_CONTACT_EMAIL (in .env or the host's settings) to the inbox that
@@ -133,7 +134,7 @@ ${name ? name + ' ' : ''}<${formData.email.trim()}>`;
           <span className="aq-phone">
             <span className="aq-phone-screen">
               <img
-                src="/assets/aquasol-control-center.jpg"
+                src={media('aquasol-control-center.jpg')}
                 alt=""
                 width="498"
                 height="1024"

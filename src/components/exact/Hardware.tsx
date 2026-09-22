@@ -1,6 +1,7 @@
 import React from 'react';
 import { Reveal } from '../motion/Reveal';
 import { SplitHeading } from '../motion/SplitHeading';
+import { media } from '../../lib/media';
 
 export const Hardware: React.FC = () => (
   <section id="hardware" className="aq-sec" aria-labelledby="hardware-title">
@@ -19,7 +20,7 @@ export const Hardware: React.FC = () => (
         <Reveal delay={100}>
           <figure className="aq-hw-photo">
             <img
-              src="/assets/aquasol-prototype-photo.png"
+              src={media('aquasol-prototype-photo.png')}
               alt="The AquaSol prototype: a master gateway between two solar-powered field nodes, each on a stand above a potted plant"
               width="612"
               height="420"
@@ -35,7 +36,7 @@ export const Hardware: React.FC = () => (
         <Reveal>
           <figure className="aq-hw-unit">
             <img
-              src="/assets/aquasol-node-unit-clean.png"
+              src={media('aquasol-node-unit-clean.png')}
               className="aq-colorize"
               alt="Field node in an IP65 enclosure with an OLED display, power, LoRa and valve status lights, a DHT22 sensor, a LoRa antenna, an on-off switch and a replaceable fuse"
               width="907"
@@ -52,7 +53,7 @@ export const Hardware: React.FC = () => (
         <Reveal delay={100}>
           <figure className="aq-hw-unit">
             <img
-              src="/assets/aquasol-master-unit-clean.png"
+              src={media('aquasol-master-unit-clean.png')}
               className="aq-colorize"
               alt="Master gateway in an IP65 enclosure with a rain sensor, an LCD display, status lights, a LoRa antenna, an on-off switch and a replaceable fuse"
               width="741"

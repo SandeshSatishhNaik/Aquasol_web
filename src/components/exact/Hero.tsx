@@ -3,11 +3,12 @@ import { ArrowDown, Pause, Play } from 'lucide-react';
 import { LiveFarmDashboard } from './LiveFarmDashboard';
 import { scrollToId } from '../../lib/scrollToId';
 import { Magnetic } from '../motion/Magnetic';
+import { media } from '../../lib/media';
 
 // Hero words, each rising out of its own mask. "Every Drop." stays one unit (non-breaking space).
 const TITLE_WORDS = ['Intelligence', 'in', 'Every Drop.'];
 
-const HERO_POSTER = '/assets/aquasol-hero-poster.jpg';
+const HERO_POSTER = media('aquasol-hero-poster.jpg');
 
 export const Hero: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -98,8 +99,8 @@ export const Hero: React.FC = () => {
                   >
                     {sourcesReady && (
                       <>
-                        <source src="/assets/aquasol-hero-loop.webm" type="video/webm" data-wf-ignore="true" />
-                        <source src="/assets/aquasol-hero-loop.mp4" type="video/mp4" data-wf-ignore="true" />
+                        <source src={media('aquasol-hero-loop.webm')} type="video/webm" data-wf-ignore="true" />
+                        <source src={media('aquasol-hero-loop.mp4')} type="video/mp4" data-wf-ignore="true" />
                       </>
                     )}
                   </video>
