@@ -106,13 +106,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'landing', onNavig
                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
               >
                 <img
-                  src="/assets/aquasol-lockup-dark-2x.png"
-                  width="308"
-                  height="72"
+                  src="/assets/aquasol-lockup-header-2x.png"
+                  width="242"
+                  height="80"
                   loading="eager"
                   alt="AquaSol"
                   className="header-logo"
-                  style={{ height: '36px', width: 'auto', display: 'block', objectFit: 'contain' }}
+                  style={{ height: '42px', width: 'auto', display: 'block' }}
                 />
               </a>
             </div>

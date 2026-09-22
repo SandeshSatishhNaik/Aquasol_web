@@ -2801,7 +2801,7 @@ img {
   }
 
   .header .header-logo {
-    height: 32px !important;
+    height: 36px !important;
   }
 }
 
@@ -3429,6 +3429,20 @@ img {
   pointer-events: none;
   transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     visibility 0s linear 0.25s;
+}
+
+.header .logo-link,
+.header .logo-link.w--current {
+  width: auto;
+  overflow: visible;
+}
+
+.header .header-logo {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 991px) {
+  .header .header-logo { height: 34px !important; }
 }
 
 /* The drawer is absolutely positioned against the header bar. The header also still carried the
