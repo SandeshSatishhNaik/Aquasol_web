@@ -3275,6 +3275,111 @@ img {
   max-width: 40rem;
 }
 
+/* The verdict cases. Each row reads ground + aerial on the left, the outcome on the right,
+   so the correlation the section claims is visible in the layout itself. */
+.aq-why-title {
+  margin: 0 0 var(--aq-space-s);
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--aq-olive-dark);
+}
+
+.aq-cases {
+  display: grid;
+  gap: var(--aq-space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Sand is the design system's raised surface on a cream section, as the bento cells use it. */
+.aq-case {
+  border: 1px solid var(--aq-line);
+  border-radius: 18px;
+  background: var(--aq-sand);
+}
+
+.aq-case-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: var(--aq-space-xs) clamp(1.25rem, 4vw, 3rem);
+  align-items: center;
+  padding: clamp(1rem, 2.2vw, 1.5rem) clamp(1.125rem, 2.5vw, 1.75rem);
+}
+
+.aq-case-in {
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* Label and reading are two columns, so every row's readings line up whatever the label. */
+.aq-case-in p {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: baseline;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--aq-ink);
+}
+
+.aq-case-in span {
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aq-muted);
+}
+
+/* The outcome carries a tone, but the words say which one it is: colour is never the only cue. */
+.aq-case-out {
+  position: relative;
+  margin: 0;
+  padding-left: 1.5rem;
+  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+  font-size: clamp(1.0625rem, 0.95rem + 0.4vw, 1.25rem);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--aq-ink);
+}
+
+.aq-case-out::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--aq-case-dot, var(--aq-olive));
+}
+
+.aq-case[data-tone="flag"] {
+  --aq-case-dot: #a8471b;
+  border-color: rgba(168, 71, 27, 0.3);
+}
+
+.aq-case[data-tone="clear"] {
+  --aq-case-dot: var(--aq-olive-bright);
+}
+
+.aq-case[data-tone="hold"] {
+  --aq-case-dot: var(--aq-aqua);
+}
+
+/* 991 is the site's tablet breakpoint: below it the two-column row gets too tight to read. */
+@media (max-width: 991px) {
+  .aq-case-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .aq-about-points {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3303,18 +3408,9 @@ img {
   color: var(--aq-ink);
 }
 
-/* The team credit is the point of this section, so it carries the weight. */
-.aq-point:first-child {
-  grid-column: 1 / -1;
-}
-
-.aq-point:first-child dd {
-  max-width: 34ch;
-  font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
-  font-size: clamp(1.5rem, 1.1rem + 1.5vw, 2.25rem);
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+/* The section's own spacing comes from the .aq-about flex gap, so the credit line adds none. */
+.aq-about .aq-note {
+  margin-top: 0;
 }
 
 @media (max-width: 991px) {
