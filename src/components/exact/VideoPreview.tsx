@@ -11,6 +11,7 @@ const CLIP = media('aquasol-uav-scouting.mp4');
 
 export const VideoPreview: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [videoMounted, setVideoMounted] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -46,7 +47,16 @@ export const VideoPreview: React.FC = () => {
     document.body.style.overflow = 'hidden';
     lockScroll();
     window.addEventListener('keydown', onKey);
+    // The native <video controls> UI is the costly part of the first modal frame (it roughly
+    // doubled the play button's INP), so the shell paints first and the video mounts a frame later.
+    let timer = 0;
+    const raf = requestAnimationFrame(() => {
+      timer = window.setTimeout(() => setVideoMounted(true));
+    });
     return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+      setVideoMounted(false);
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = overflow;
       unlockScroll();
@@ -125,14 +135,16 @@ export const VideoPreview: React.FC = () => {
             >
               <X size={20} aria-hidden="true" />
             </button>
-            <video
-              src={CLIP}
-              aria-label="Screen recording of the drone survey screen in the AquaSol app"
-              controls
-              autoPlay
-              playsInline
-              style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#000' }}
-            />
+            {videoMounted && (
+              <video
+                src={CLIP}
+                aria-label="Screen recording of the drone survey screen in the AquaSol app"
+                controls
+                autoPlay
+                playsInline
+                style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#000' }}
+              />
+            )}
           </div>
         </div>
       )}
